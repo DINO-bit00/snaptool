@@ -110,60 +110,37 @@
 
     <!-- Drop Zone -->
     <div class="lg:col-span-8">
-      <!-- Upload State -->
-      <div id="upload-zone" class="drop-zone bg-surface border-2 border-dashed border-outline-variant rounded-xl flex flex-col items-center justify-center min-h-[480px] p-12 cursor-pointer shadow-diffuse group relative overflow-hidden" role="button" tabindex="0" aria-label="Upload zone">
+      <!-- Drop Zone -->
+      <div id="upload-zone" class="drop-zone bg-surface border-2 border-dashed border-outline-variant rounded-xl flex flex-col items-center justify-center min-h-[300px] p-12 cursor-pointer shadow-diffuse group relative overflow-hidden" role="button" tabindex="0" aria-label="Upload zone">
         <div class="absolute inset-0 bg-accent-electric/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
-        <span class="material-symbols-outlined text-7xl text-outline-variant mb-6 group-hover:text-accent-electric transition-colors duration-300" id="upload-icon">upload_file</span>
-        <h3 class="font-display font-bold text-xl text-primary mb-2">Drag &amp; drop your image</h3>
-        <p class="font-body text-on-surface-variant mb-8 text-center max-w-sm text-sm">Supports JPG, PNG, WebP up to 20 MB</p>
+        <span class="material-symbols-outlined text-6xl text-outline-variant mb-5 group-hover:text-accent-electric transition-colors duration-300">upload_file</span>
+        <h3 class="font-display font-bold text-xl text-primary mb-2">Drag &amp; drop images here</h3>
+        <p class="font-body text-on-surface-variant mb-7 text-center text-sm">JPG, PNG, WebP — pilih banyak sekaligus</p>
         <button id="browse-btn" class="bg-accent-electric text-on-primary font-mono text-label uppercase tracking-widest px-8 py-4 rounded-full btn-press shadow-[0_8px_20px_-6px_rgba(59,130,246,0.4)] hover:bg-blue-600 transition-colors z-10 relative">
-          Select File
+          Pilih File
         </button>
-        <input id="file-input" type="file" accept="image/png,image/jpeg,image/webp" class="hidden" aria-hidden="true"/>
+        <input id="file-input" type="file" accept="image/png,image/jpeg,image/webp" multiple class="hidden" aria-hidden="true"/>
       </div>
 
-      <!-- Processing State (hidden) -->
-      <div id="processing-zone" class="hidden bg-surface border border-border-whisper rounded-xl min-h-[480px] p-12 shadow-diffuse">
-        <div class="flex flex-col items-center justify-center h-full gap-8">
-          <div class="skeleton w-64 h-48 rounded-xl"></div>
-          <div class="flex flex-col items-center gap-3">
-            <div class="skeleton w-48 h-4 rounded-full"></div>
-            <div class="skeleton w-32 h-3 rounded-full"></div>
-          </div>
-          <p class="font-mono text-label text-on-surface-variant uppercase tracking-widest">Removing background...</p>
-        </div>
-      </div>
-
-      <!-- Result State (hidden) -->
-      <div id="result-zone" class="hidden bg-surface border border-border-whisper rounded-xl shadow-diffuse overflow-hidden">
-        <div class="checker min-h-[380px] flex items-center justify-center p-8">
-          <img id="result-img" src="" alt="Result" class="max-h-[360px] max-w-full object-contain rounded-lg shadow-diffuse"/>
-        </div>
-        <div class="p-6 border-t border-border-whisper flex flex-wrap items-center justify-between gap-4">
+      <!-- Batch Queue (hidden until files are added) -->
+      <div id="queue-zone" class="hidden mt-6 bg-surface border border-border-whisper rounded-xl shadow-diffuse overflow-hidden">
+        <div class="p-5 border-b border-border-whisper flex items-center justify-between">
           <div>
-            <div class="font-display font-bold text-primary" id="result-filename">output.png</div>
-            <div class="font-mono text-label text-outline mt-1">Transparent PNG · Ready to download</div>
+            <span class="font-display font-bold text-primary" id="queue-title">Memproses...</span>
+            <span class="font-mono text-label text-outline ml-3" id="queue-counter"></span>
           </div>
           <div class="flex gap-3">
-            <button id="download-btn" class="bg-accent-electric text-on-primary font-mono text-label uppercase tracking-widest px-6 py-3 rounded-full btn-press hover:bg-blue-600 transition-colors shadow-diffuse">
-              Download PNG
+            <button id="download-all-btn" class="hidden bg-accent-electric text-on-primary font-mono text-label uppercase tracking-widest px-5 py-2.5 rounded-full btn-press hover:bg-blue-600 transition-colors shadow-diffuse text-xs">
+              Download Semua
             </button>
-            <button id="reset-btn" class="bg-canvas border border-border-whisper text-primary font-mono text-label uppercase tracking-widest px-6 py-3 rounded-full btn-press hover:bg-surface-container transition-colors">
-              New Image
+            <button id="clear-btn" class="bg-canvas border border-border-whisper text-primary font-mono text-label uppercase tracking-widest px-5 py-2.5 rounded-full btn-press hover:bg-surface-container transition-colors text-xs">
+              Clear
             </button>
           </div>
         </div>
+        <ul id="file-list" class="divide-y divide-border-whisper max-h-[460px] overflow-y-auto"></ul>
       </div>
 
-      <!-- Error State (hidden) -->
-      <div id="error-zone" class="hidden bg-surface border border-error/30 rounded-xl p-10 shadow-diffuse flex flex-col items-center gap-4 text-center">
-        <span class="material-symbols-outlined text-5xl text-error">error_outline</span>
-        <h3 class="font-display font-bold text-xl text-primary">Something went wrong</h3>
-        <p class="font-body text-on-surface-variant text-sm" id="error-msg">An unexpected error occurred.</p>
-        <button id="error-reset-btn" class="bg-primary text-on-primary font-mono text-label uppercase tracking-widest px-6 py-3 rounded-full btn-press hover:bg-inverse-surface transition-colors mt-2">
-          Try Again
-        </button>
-      </div>
     </div>
 
     <!-- Sidebar Info -->
@@ -202,92 +179,143 @@
 </footer>
 
 <script>
-  const uploadZone = document.getElementById('upload-zone');
-  const fileInput = document.getElementById('file-input');
-  const processingZone = document.getElementById('processing-zone');
-  const resultZone = document.getElementById('result-zone');
-  const errorZone = document.getElementById('error-zone');
-  const resultImg = document.getElementById('result-img');
-  const downloadBtn = document.getElementById('download-btn');
-  const resetBtn = document.getElementById('reset-btn');
-  const errorResetBtn = document.getElementById('error-reset-btn');
-  const errorMsg = document.getElementById('error-msg');
-  const resultFilename = document.getElementById('result-filename');
-  let resultBlob = null;
-  let originalFilename = '';
+  const uploadZone   = document.getElementById('upload-zone');
+  const fileInput    = document.getElementById('file-input');
+  const queueZone    = document.getElementById('queue-zone');
+  const fileList     = document.getElementById('file-list');
+  const queueTitle   = document.getElementById('queue-title');
+  const queueCounter = document.getElementById('queue-counter');
+  const downloadAllBtn = document.getElementById('download-all-btn');
+  const clearBtn     = document.getElementById('clear-btn');
 
-  function showState(state) {
-    uploadZone.classList.add('hidden');
-    processingZone.classList.add('hidden');
-    resultZone.classList.add('hidden');
-    errorZone.classList.add('hidden');
-    document.getElementById(state + '-zone').classList.remove('hidden');
+  // State
+  let queue = [];   // { file, status: 'pending'|'processing'|'done'|'error', blob, outName, errorMsg }
+  let isProcessing = false;
+
+  /* ── RENDER QUEUE ────────────────────────────────── */
+  function renderQueue() {
+    const total = queue.length;
+    const done  = queue.filter(i => i.status === 'done').length;
+    const errs  = queue.filter(i => i.status === 'error').length;
+    const pend  = queue.filter(i => i.status === 'pending').length;
+
+    if (total === 0) { queueZone.classList.add('hidden'); return; }
+    queueZone.classList.remove('hidden');
+
+    const allSettled = done + errs === total;
+    queueTitle.textContent   = allSettled ? `Selesai ${done}/${total}` : 'Memproses...';
+    queueCounter.textContent = `${done} selesai · ${errs} error · ${pend} antrian`;
+    downloadAllBtn.classList.toggle('hidden', done === 0);
+
+    fileList.innerHTML = queue.map((item, idx) => {
+      const statusIcon = {
+        pending:    `<span class="material-symbols-outlined text-outline text-xl">schedule</span>`,
+        processing: `<div class="w-5 h-5 border-2 border-accent-electric border-t-transparent rounded-full animate-spin"></div>`,
+        done:       `<span class="material-symbols-outlined text-green-500 text-xl" style="font-variation-settings:'FILL' 1">check_circle</span>`,
+        error:      `<span class="material-symbols-outlined text-error text-xl" style="font-variation-settings:'FILL' 1">error</span>`,
+      }[item.status];
+
+      const rowBg = item.status === 'error' ? 'bg-red-50' : item.status === 'done' ? 'bg-green-50/50' : '';
+
+      const actionBtn = item.status === 'done'
+        ? `<button onclick="downloadItem(${idx})" class="bg-accent-electric text-on-primary font-mono text-xs uppercase tracking-widest px-4 py-2 rounded-full btn-press hover:bg-blue-600 transition-colors flex-shrink-0">Download</button>`
+        : item.status === 'error'
+        ? `<span class="font-mono text-xs text-error truncate max-w-[140px]" title="${item.errorMsg}">${item.errorMsg}</span>`
+        : '';
+
+      return `<li class="flex items-center gap-4 px-5 py-4 ${rowBg}">
+        <div class="flex-shrink-0">${statusIcon}</div>
+        <span class="flex-1 font-body text-sm text-primary truncate" title="${item.file.name}">${item.file.name}</span>
+        ${actionBtn}
+      </li>`;
+    }).join('');
   }
 
-  function resetAll() {
-    fileInput.value = '';
-    resultBlob = null;
-    showState('upload');
+  /* ── ADD FILES ───────────────────────────────────── */
+  function addFiles(files) {
+    const images = [...files].filter(f => f.type.startsWith('image/'));
+    images.forEach(f => queue.push({ file: f, status: 'pending', blob: null, outName: '', errorMsg: '' }));
+    renderQueue();
+    processNext();
   }
 
-  async function processFile(file) {
-    originalFilename = file.name;
-    showState('processing');
+  /* ── PROCESS SEQUENTIALLY ────────────────────────── */
+  async function processNext() {
+    if (isProcessing) return;
+    const item = queue.find(i => i.status === 'pending');
+    if (!item) return;
+
+    isProcessing = true;
+    item.status = 'processing';
+    renderQueue();
 
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append('file', item.file);
 
     try {
-      const response = await fetch('/api/remove-bg', { method: 'POST', body: formData });
-      if (!response.ok) {
-        const err = await response.json().catch(() => ({ detail: 'Unknown error' }));
-        throw new Error(err.detail || `Server error ${response.status}`);
+      const res = await fetch('/api/remove-bg', { method: 'POST', body: formData });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ detail: 'Unknown error' }));
+        throw new Error(err.detail || `Error ${res.status}`);
       }
-      resultBlob = await response.blob();
-      const url = URL.createObjectURL(resultBlob);
-      resultImg.src = url;
-      const outName = file.name.replace(/\.[^/.]+$/, '') + '_no_bg.png';
-      resultFilename.textContent = outName;
-      downloadBtn.onclick = () => {
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = outName;
-        a.click();
-      };
-      showState('result');
-    } catch (e) {
-      errorMsg.textContent = e.message;
-      showState('error');
+      item.blob    = await res.blob();
+      item.outName = item.file.name.replace(/\.[^/.]+$/, '') + '_no_bg.png';
+      item.status  = 'done';
+    } catch(e) {
+      item.status   = 'error';
+      item.errorMsg = e.message;
     }
+
+    isProcessing = false;
+    renderQueue();
+    processNext(); // process next in queue
   }
 
-  // Trigger file picker on button click or zone click
+  /* ── DOWNLOAD ────────────────────────────────────── */
+  function downloadItem(idx) {
+    const item = queue[idx];
+    if (!item || !item.blob) return;
+    const a = document.createElement('a');
+    a.href     = URL.createObjectURL(item.blob);
+    a.download = item.outName;
+    a.click();
+  }
+
+  downloadAllBtn.addEventListener('click', () => {
+    queue.filter(i => i.status === 'done').forEach((item, _, arr) => {
+      setTimeout(() => {
+        const a = document.createElement('a');
+        a.href     = URL.createObjectURL(item.blob);
+        a.download = item.outName;
+        a.click();
+      }, arr.indexOf(item) * 300);
+    });
+  });
+
+  clearBtn.addEventListener('click', () => {
+    queue = [];
+    isProcessing = false;
+    fileInput.value = '';
+    renderQueue();
+  });
+
+  /* ── EVENT LISTENERS ─────────────────────────────── */
   document.getElementById('browse-btn').addEventListener('click', e => {
-    e.stopPropagation();
-    fileInput.click();
+    e.stopPropagation(); fileInput.click();
   });
   uploadZone.addEventListener('click', e => {
-    if (e.target === uploadZone || e.target.closest('#upload-zone') && !e.target.closest('button')) {
-      fileInput.click();
-    }
+    if (!e.target.closest('button')) fileInput.click();
   });
-
   fileInput.addEventListener('change', e => {
-    if (e.target.files[0]) processFile(e.target.files[0]);
+    if (e.target.files.length) addFiles(e.target.files);
   });
-
   uploadZone.addEventListener('dragenter', e => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
-  uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
+  uploadZone.addEventListener('dragover',  e => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
   uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
   uploadZone.addEventListener('drop', e => {
-    e.preventDefault();
-    uploadZone.classList.remove('drag-over');
-    const file = e.dataTransfer.files[0];
-    if (file && file.type.startsWith('image/')) processFile(file);
+    e.preventDefault(); uploadZone.classList.remove('drag-over');
+    if (e.dataTransfer.files.length) addFiles(e.dataTransfer.files);
   });
-
-  resetBtn.addEventListener('click', resetAll);
-  errorResetBtn.addEventListener('click', resetAll);
 </script>
 </body>
 </html>

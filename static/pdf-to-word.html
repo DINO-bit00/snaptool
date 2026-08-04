@@ -122,65 +122,39 @@
 
     <!-- Right: Upload zone -->
     <div class="lg:col-span-7">
-      <!-- Upload -->
-      <div id="upload-zone" class="drop-zone bg-surface border-2 border-dashed border-outline-variant rounded-xl flex flex-col items-center justify-center min-h-[500px] p-12 cursor-pointer shadow-diffuse group relative overflow-hidden" role="button" tabindex="0" aria-label="Drop PDF here">
-        <!-- SVG grid decoration -->
+      <!-- Upload zone -->
+      <div id="upload-zone" class="drop-zone bg-surface border-2 border-dashed border-outline-variant rounded-xl flex flex-col items-center justify-center min-h-[360px] p-12 cursor-pointer shadow-diffuse group relative overflow-hidden" role="button" tabindex="0" aria-label="Drop PDF here">
         <div class="absolute inset-0 opacity-5 group-hover:opacity-10 transition-opacity pointer-events-none">
-          <svg width="100%" height="100%">
-            <defs><pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-              <path d="M 40 0 L 0 0 0 40" fill="none" stroke="currentColor" stroke-width="1"/>
-            </pattern></defs>
-            <rect width="100%" height="100%" fill="url(#grid)"/>
-          </svg>
+          <svg width="100%" height="100%"><defs><pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M 40 0 L 0 0 0 40" fill="none" stroke="currentColor" stroke-width="1"/></pattern></defs><rect width="100%" height="100%" fill="url(#grid)"/></svg>
         </div>
-        <div class="bg-surface-container-low p-6 rounded-full mb-6 group-hover:scale-110 transition-transform duration-300 ease-out">
-          <span class="material-symbols-outlined text-4xl text-primary" id="upload-icon">upload_file</span>
+        <div class="bg-surface-container-low p-5 rounded-full mb-5 group-hover:scale-110 transition-transform duration-300 ease-out">
+          <span class="material-symbols-outlined text-3xl text-primary">upload_file</span>
         </div>
-        <h3 class="font-display font-bold text-xl text-primary mb-2">Drop PDF file here</h3>
-        <p class="font-mono text-label text-on-surface-variant mb-8 uppercase">or click to browse</p>
+        <h3 class="font-display font-bold text-xl text-primary mb-2">Pilih file PDF</h3>
+        <p class="font-mono text-label text-on-surface-variant mb-7 uppercase text-xs">Pilih banyak file sekaligus</p>
         <button id="browse-btn" class="bg-surface border border-outline-variant text-primary font-mono text-label uppercase tracking-widest px-8 py-4 rounded-full btn-press hover:bg-surface-container hover:border-primary shadow-diffuse z-10 relative transition-all">
           Select PDF
         </button>
-        <p class="font-body text-sm text-outline mt-6 z-10 relative">Max file size: 50 MB</p>
-        <input id="file-input" type="file" accept=".pdf,application/pdf" class="hidden" aria-hidden="true"/>
+        <input id="file-input" type="file" accept=".pdf,application/pdf" multiple class="hidden" aria-hidden="true"/>
       </div>
 
-      <!-- Processing (hidden) -->
-      <div id="processing-zone" class="hidden bg-surface border border-border-whisper rounded-xl min-h-[500px] p-12 shadow-diffuse flex flex-col items-center justify-center gap-8">
-        <div class="skeleton w-40 h-52 rounded-lg"></div>
-        <div class="w-full max-w-xs overflow-hidden h-1.5 bg-surface-container-high rounded-full">
-          <div class="progress-bar h-full w-1/3 bg-accent-electric rounded-full"></div>
-        </div>
-        <p class="font-mono text-label text-on-surface-variant uppercase tracking-widest">Parsing document structure...</p>
-      </div>
-
-      <!-- Result (hidden) -->
-      <div id="result-zone" class="hidden bg-surface border border-border-whisper rounded-xl shadow-diffuse overflow-hidden">
-        <div class="p-12 flex flex-col items-center gap-4">
-          <div class="w-20 h-20 rounded-full bg-accent-electric/10 flex items-center justify-center">
-            <span class="material-symbols-outlined text-4xl text-accent-electric" style="font-variation-settings:'FILL' 1">description</span>
+      <!-- Batch Queue -->
+      <div id="queue-zone" class="hidden mt-6 bg-surface border border-border-whisper rounded-xl shadow-diffuse overflow-hidden">
+        <div class="p-5 border-b border-border-whisper flex items-center justify-between">
+          <div>
+            <span class="font-display font-bold text-primary" id="queue-title">Memproses...</span>
+            <span class="font-mono text-label text-outline ml-3" id="queue-counter"></span>
           </div>
-          <h3 class="font-display font-bold text-xl text-primary">Word Document Ready</h3>
-          <div class="font-body text-sm text-on-surface-variant" id="result-filename">output.docx</div>
+          <div class="flex gap-3">
+            <button id="download-all-btn" class="hidden bg-accent-electric text-on-primary font-mono text-label uppercase tracking-widest px-5 py-2.5 rounded-full btn-press hover:bg-blue-600 transition-colors shadow-diffuse text-xs">
+              Download Semua
+            </button>
+            <button id="clear-btn" class="bg-canvas border border-border-whisper text-primary font-mono text-label uppercase tracking-widest px-5 py-2.5 rounded-full btn-press hover:bg-surface-container transition-colors text-xs">
+              Clear
+            </button>
+          </div>
         </div>
-        <div class="p-6 border-t border-border-whisper flex flex-wrap gap-3 justify-center">
-          <button id="download-btn" class="bg-accent-electric text-on-primary font-mono text-label uppercase tracking-widest px-8 py-4 rounded-full btn-press hover:bg-blue-600 transition-colors shadow-diffuse">
-            Download .docx
-          </button>
-          <button id="reset-btn" class="bg-canvas border border-border-whisper text-primary font-mono text-label uppercase tracking-widest px-8 py-4 rounded-full btn-press hover:bg-surface-container transition-colors">
-            New File
-          </button>
-        </div>
-      </div>
-
-      <!-- Error (hidden) -->
-      <div id="error-zone" class="hidden bg-surface border border-error/30 rounded-xl p-10 shadow-diffuse flex flex-col items-center gap-4 text-center">
-        <span class="material-symbols-outlined text-5xl text-error">error_outline</span>
-        <h3 class="font-display font-bold text-xl text-primary">Conversion failed</h3>
-        <p class="font-body text-sm text-on-surface-variant" id="error-msg">An unexpected error occurred.</p>
-        <button id="error-reset-btn" class="bg-primary text-on-primary font-mono text-label uppercase tracking-widest px-6 py-3 rounded-full btn-press hover:bg-inverse-surface transition-colors mt-2">
-          Try Again
-        </button>
+        <ul id="file-list" class="divide-y divide-border-whisper max-h-[400px] overflow-y-auto"></ul>
       </div>
     </div>
   </div>
@@ -195,70 +169,89 @@
 </footer>
 
 <script>
-  const uploadZone = document.getElementById('upload-zone');
-  const fileInput  = document.getElementById('file-input');
-  const processingZone = document.getElementById('processing-zone');
-  const resultZone = document.getElementById('result-zone');
-  const errorZone  = document.getElementById('error-zone');
-  const downloadBtn = document.getElementById('download-btn');
-  const resetBtn   = document.getElementById('reset-btn');
-  const errorResetBtn = document.getElementById('error-reset-btn');
-  const errorMsg   = document.getElementById('error-msg');
-  const resultFilename = document.getElementById('result-filename');
-  const ocrToggle  = document.getElementById('ocr-toggle');
-  let resultBlob = null;
+  const uploadZone    = document.getElementById('upload-zone');
+  const fileInput     = document.getElementById('file-input');
+  const queueZone     = document.getElementById('queue-zone');
+  const fileList      = document.getElementById('file-list');
+  const queueTitle    = document.getElementById('queue-title');
+  const queueCounter  = document.getElementById('queue-counter');
+  const downloadAllBtn= document.getElementById('download-all-btn');
+  const clearBtn      = document.getElementById('clear-btn');
 
-  function showState(state) {
-    ['upload','processing','result','error'].forEach(s =>
-      document.getElementById(s + '-zone').classList.add('hidden'));
-    document.getElementById(state + '-zone').classList.remove('hidden');
+  let queue = [];
+  let isProcessing = false;
+
+  function renderQueue() {
+    const total = queue.length;
+    const done  = queue.filter(i => i.status === 'done').length;
+    const errs  = queue.filter(i => i.status === 'error').length;
+    const pend  = queue.filter(i => i.status === 'pending').length;
+    if (total === 0) { queueZone.classList.add('hidden'); return; }
+    queueZone.classList.remove('hidden');
+    queueTitle.textContent   = (done + errs === total) ? `Selesai ${done}/${total}` : 'Memproses...';
+    queueCounter.textContent = `${done} selesai · ${errs} error · ${pend} antrian`;
+    downloadAllBtn.classList.toggle('hidden', done === 0);
+    fileList.innerHTML = queue.map((item, idx) => {
+      const icon = {
+        pending:    `<span class="material-symbols-outlined text-outline text-xl">schedule</span>`,
+        processing: `<div class="w-5 h-5 border-2 border-accent-electric border-t-transparent rounded-full animate-spin"></div>`,
+        done:       `<span class="material-symbols-outlined text-green-500 text-xl" style="font-variation-settings:'FILL' 1">check_circle</span>`,
+        error:      `<span class="material-symbols-outlined text-error text-xl" style="font-variation-settings:'FILL' 1">error</span>`,
+      }[item.status];
+      const rowBg = item.status === 'error' ? 'bg-red-50' : item.status === 'done' ? 'bg-green-50/50' : '';
+      const action = item.status === 'done'
+        ? `<button onclick="downloadItem(${idx})" class="bg-accent-electric text-on-primary font-mono text-xs uppercase tracking-widest px-4 py-2 rounded-full btn-press hover:bg-blue-600 transition-colors flex-shrink-0">Download</button>`
+        : item.status === 'error' ? `<span class="font-mono text-xs text-error truncate max-w-[140px]">${item.errorMsg}</span>` : '';
+      return `<li class="flex items-center gap-4 px-5 py-4 ${rowBg}"><div class="flex-shrink-0">${icon}</div><span class="flex-1 font-body text-sm text-primary truncate">${item.file.name}</span>${action}</li>`;
+    }).join('');
   }
 
-  function resetAll() { fileInput.value = ''; resultBlob = null; showState('upload'); }
+  function addFiles(files) {
+    [...files].forEach(f => queue.push({ file: f, status: 'pending', blob: null, outName: '', errorMsg: '' }));
+    renderQueue();
+    processNext();
+  }
 
-  async function processFile(file) {
-    showState('processing');
+  async function processNext() {
+    if (isProcessing) return;
+    const item = queue.find(i => i.status === 'pending');
+    if (!item) return;
+    isProcessing = true;
+    item.status = 'processing';
+    renderQueue();
     const formData = new FormData();
-    formData.append('file', file);
-    // Note: OCR option noted — future extension point for backend
+    formData.append('file', item.file);
     try {
       const res = await fetch('/api/pdf-to-word', { method: 'POST', body: formData });
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({ detail: 'Unknown error' }));
-        throw new Error(err.detail || `Server error ${res.status}`);
-      }
-      resultBlob = await res.blob();
-      const outName = file.name.replace(/\.[^/.]+$/, '') + '.docx';
-      resultFilename.textContent = outName;
-      const url = URL.createObjectURL(resultBlob);
-      downloadBtn.onclick = () => { const a = document.createElement('a'); a.href = url; a.download = outName; a.click(); };
-      showState('result');
-    } catch (e) {
-      errorMsg.textContent = e.message;
-      showState('error');
-    }
+      if (!res.ok) { const err = await res.json().catch(() => ({ detail: 'Unknown error' })); throw new Error(err.detail || `Error ${res.status}`); }
+      item.blob    = await res.blob();
+      item.outName = item.file.name.replace(/\.[^/.]+$/, '') + '.docx';
+      item.status  = 'done';
+    } catch(e) { item.status = 'error'; item.errorMsg = e.message; }
+    isProcessing = false;
+    renderQueue();
+    processNext();
   }
 
-  // Trigger file picker on button or zone click
-  document.getElementById('browse-btn').addEventListener('click', e => {
-    e.stopPropagation();
-    fileInput.click();
-  });
-  uploadZone.addEventListener('click', e => {
-    if (!e.target.closest('button')) fileInput.click();
-  });
+  function downloadItem(idx) {
+    const item = queue[idx];
+    if (!item || !item.blob) return;
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(item.blob); a.download = item.outName; a.click();
+  }
 
-  fileInput.addEventListener('change', e => { if (e.target.files[0]) processFile(e.target.files[0]); });
+  downloadAllBtn.addEventListener('click', () => {
+    queue.filter(i => i.status === 'done').forEach((item, i) => setTimeout(() => downloadItem(queue.indexOf(item)), i * 300));
+  });
+  clearBtn.addEventListener('click', () => { queue = []; isProcessing = false; fileInput.value = ''; renderQueue(); });
+
+  document.getElementById('browse-btn').addEventListener('click', e => { e.stopPropagation(); fileInput.click(); });
+  uploadZone.addEventListener('click', e => { if (!e.target.closest('button')) fileInput.click(); });
+  fileInput.addEventListener('change', e => { if (e.target.files.length) addFiles(e.target.files); });
   uploadZone.addEventListener('dragenter', e => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
   uploadZone.addEventListener('dragover',  e => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
   uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
-  uploadZone.addEventListener('drop', e => {
-    e.preventDefault(); uploadZone.classList.remove('drag-over');
-    const file = e.dataTransfer.files[0];
-    if (file) processFile(file);
-  });
-  resetBtn.addEventListener('click', resetAll);
-  errorResetBtn.addEventListener('click', resetAll);
+  uploadZone.addEventListener('drop', e => { e.preventDefault(); uploadZone.classList.remove('drag-over'); if (e.dataTransfer.files.length) addFiles(e.dataTransfer.files); });
 </script>
 </body>
 </html>
