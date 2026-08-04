@@ -104,13 +104,25 @@
         <p class="text-xs text-on-surface-variant mt-2 font-mono">Separate chunks with commas. Each chunk becomes a separate file.</p>
       </div>
 
+      <!-- Word Merge Warning (Hidden by default) -->
+      <div id="merge-word-warning" class="hidden mb-6 bg-yellow-50 border border-yellow-200 text-yellow-800 rounded-xl p-4 flex gap-3">
+        <span class="material-symbols-outlined text-yellow-600">warning</span>
+        <div class="text-sm">
+          <strong>Note on Word Merging:</strong> Merging complex Word documents (.docx) may slightly alter formatting (e.g. headers, margins). For perfect visual results when combining chapters for print/submission, we recommend converting to PDF first and using <strong>Merge PDF</strong>.
+        </div>
+      </div>
+
       <!-- File List -->
       <div id="file-list" class="hidden flex flex-col gap-3 mb-6">
         <!-- JS will populate this -->
       </div>
 
       <!-- Preview Area -->
-      <div id="preview-area" class="hidden mb-6 border border-border-whisper rounded-xl overflow-hidden shadow-inner h-[600px]">
+      <div id="preview-area" class="hidden mb-6 border border-border-whisper rounded-xl overflow-hidden shadow-inner h-[600px] relative">
+        <div id="preview-loader" class="absolute inset-0 bg-canvas/80 backdrop-blur flex flex-col items-center justify-center hidden z-10">
+          <span class="material-symbols-outlined text-accent-electric text-4xl mb-2" style="animation: spin 1s linear infinite;">autorenew</span>
+          <span class="font-mono text-sm text-primary">Generating preview...</span>
+        </div>
         <iframe id="pdf-preview" class="w-full h-full" src=""></iframe>
       </div>
 
@@ -174,6 +186,12 @@
       splitOptions.classList.remove('hidden');
     } else {
       splitOptions.classList.add('hidden');
+    }
+
+    if (mode === 'merge-word') {
+      document.getElementById('merge-word-warning').classList.remove('hidden');
+    } else {
+      document.getElementById('merge-word-warning').classList.add('hidden');
     }
 
     clearState();
@@ -284,11 +302,38 @@
 
     if (!c.multiple) {
       selectedFiles = [validFiles[0]];
-      // If it's a PDF in Split mode, show preview
+      // If it's a PDF in Split mode, show preview directly
       if (currentMode === 'split-pdf') {
         const fileUrl = URL.createObjectURL(validFiles[0]);
         document.getElementById('pdf-preview').src = fileUrl;
         document.getElementById('preview-area').classList.remove('hidden');
+      } 
+      // If it's a Word document in Split mode, generate a PDF preview via API
+      else if (currentMode === 'split-word') {
+        document.getElementById('preview-area').classList.remove('hidden');
+        document.getElementById('preview-loader').classList.remove('hidden');
+        document.getElementById('pdf-preview').src = '';
+        
+        const fd = new FormData();
+        fd.append('file', validFiles[0]);
+        
+        fetch('/api/word-to-pdf', { method: 'POST', body: fd })
+          .then(res => {
+            if (!res.ok) throw new Error("Failed to generate preview");
+            return res.blob();
+          })
+          .then(blob => {
+            const fileUrl = URL.createObjectURL(blob);
+            document.getElementById('pdf-preview').src = fileUrl;
+          })
+          .catch(err => {
+            console.error(err);
+            alert("Could not generate preview for this Word document.");
+            document.getElementById('preview-area').classList.add('hidden');
+          })
+          .finally(() => {
+            document.getElementById('preview-loader').classList.add('hidden');
+          });
       } else {
         document.getElementById('preview-area').classList.add('hidden');
       }
