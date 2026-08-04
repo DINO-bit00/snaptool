@@ -1,7 +1,7 @@
 fastapi
 uvicorn[standard]
 python-multipart
-rembg
+rembg[cpu]
 pdf2docx
 aiofiles
 docx2pdf
