@@ -68,6 +68,15 @@
       animation: shimmer 1.5s infinite linear;
     }
 
+    .checkerboard-bg {
+        background-color: #fff;
+        background-image: 
+          linear-gradient(45deg, #f0f0f0 25%, transparent 25%, transparent 75%, #f0f0f0 75%),
+          linear-gradient(45deg, #f0f0f0 25%, transparent 25%, transparent 75%, #f0f0f0 75%);
+        background-size: 10px 10px;
+        background-position: 0 0, 5px 5px;
+    }
+
     /* Checkerboard for transparent bg preview */
     .checker {
       background-image: linear-gradient(45deg, #ccc 25%, transparent 25%),
@@ -212,7 +221,7 @@
       const statusIcon = {
         pending:    `<span class="material-symbols-outlined text-outline text-xl">schedule</span>`,
         processing: `<div class="w-5 h-5 border-2 border-accent-electric border-t-transparent rounded-full animate-spin"></div>`,
-        done:       `<span class="material-symbols-outlined text-green-500 text-xl" style="font-variation-settings:'FILL' 1">check_circle</span>`,
+        done:       item.previewUrl ? `<img src="${item.previewUrl}" class="w-10 h-10 object-contain rounded-md border border-border-whisper shadow-sm checkerboard-bg flex-shrink-0" alt="Preview"/>` : `<span class="material-symbols-outlined text-green-500 text-xl" style="font-variation-settings:'FILL' 1">check_circle</span>`,
         error:      `<span class="material-symbols-outlined text-error text-xl" style="font-variation-settings:'FILL' 1">error</span>`,
       }[item.status];
 
@@ -261,6 +270,7 @@
       }
       item.blob    = await res.blob();
       item.outName = item.file.name.replace(/\.[^/.]+$/, '') + '_no_bg.png';
+      item.previewUrl = URL.createObjectURL(item.blob);
       item.status  = 'done';
     } catch(e) {
       item.status   = 'error';
