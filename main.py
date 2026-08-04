@@ -21,6 +21,19 @@ app.add_middleware(
 TEMP_DIR = Path("temp")
 TEMP_DIR.mkdir(exist_ok=True)
 
+# Pre-load rembg session once at startup (avoids reloading model on every request)
+rembg_session = None
+
+@app.on_event("startup")
+async def load_rembg():
+    global rembg_session
+    def _load():
+        from rembg import new_session
+        return new_session()  # Downloads model on first run, then caches
+    loop = asyncio.get_event_loop()
+    rembg_session = await loop.run_in_executor(None, _load)
+    print("✅ rembg model loaded and ready.")
+
 def get_temp_path(suffix: str) -> Path:
     return TEMP_DIR / f"{uuid.uuid4().hex}{suffix}"
 
@@ -51,7 +64,7 @@ async def remove_background(file: UploadFile = File(...)):
         def _run_rembg():
             from rembg import remove
             with open(input_path, "rb") as inp, open(output_path, "wb") as out:
-                out.write(remove(inp.read()))
+                out.write(remove(inp.read(), session=rembg_session))
 
         await asyncio.get_event_loop().run_in_executor(None, _run_rembg)
 
