@@ -109,6 +109,11 @@
         <!-- JS will populate this -->
       </div>
 
+      <!-- Preview Area -->
+      <div id="preview-area" class="hidden mb-6 border border-border-whisper rounded-xl overflow-hidden shadow-inner h-[600px]">
+        <iframe id="pdf-preview" class="w-full h-full" src=""></iframe>
+      </div>
+
       <!-- Actions -->
       <div id="action-area" class="hidden flex justify-between items-center border-t border-border-whisper pt-6">
         <button id="clear-btn" class="text-error font-mono text-label uppercase tracking-widest px-4 py-2 hover:bg-error/10 rounded-full transition-colors">Clear</button>
@@ -180,6 +185,8 @@
     renderFileList();
     document.getElementById('ranges-input').value = '';
     actionArea.classList.add('hidden');
+    document.getElementById('preview-area').classList.add('hidden');
+    document.getElementById('pdf-preview').src = '';
   }
 
   function renderFileList() {
@@ -277,6 +284,14 @@
 
     if (!c.multiple) {
       selectedFiles = [validFiles[0]];
+      // If it's a PDF in Split mode, show preview
+      if (currentMode === 'split-pdf') {
+        const fileUrl = URL.createObjectURL(validFiles[0]);
+        document.getElementById('pdf-preview').src = fileUrl;
+        document.getElementById('preview-area').classList.remove('hidden');
+      } else {
+        document.getElementById('preview-area').classList.add('hidden');
+      }
     } else {
       selectedFiles = [...selectedFiles, ...validFiles];
     }
