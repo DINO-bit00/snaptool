@@ -80,32 +80,30 @@ async def word_to_pdf(file: UploadFile = File(...)):
             shutil.copyfileobj(file.file, f)
 
         def _convert():
-            # Try LibreOffice first (available on Linux/Render)
+            import sys
             import subprocess
-            result = subprocess.run(
-                ["libreoffice", "--headless", "--convert-to", "pdf",
-                 "--outdir", str(output_path.parent), str(input_path)],
-                capture_output=True, timeout=60
-            )
-            # LibreOffice names the output after the input file
-            lo_output = output_path.parent / (input_path.stem + ".pdf")
-            if lo_output.exists():
-                lo_output.rename(output_path)
-                return
-
-            # Fallback: docx2pdf (Windows with Word installed)
-            try:
-                from docx2pdf import convert
-                convert(str(input_path), str(output_path))
-                if output_path.exists():
-                    return
-            except Exception:
-                pass
-
-            raise RuntimeError(
-                "PDF conversion requires LibreOffice (Linux/Render) or "
-                "Microsoft Word (Windows). Neither was found on this server."
-            )
+            
+            if sys.platform != "win32":
+                # Linux / Render: Use LibreOffice
+                subprocess.run(
+                    ["libreoffice", "--headless", "--convert-to", "pdf",
+                     "--outdir", str(output_path.parent), str(input_path)],
+                    capture_output=True, timeout=60
+                )
+                lo_output = output_path.parent / (input_path.stem + ".pdf")
+                if lo_output.exists():
+                    lo_output.rename(output_path)
+                else:
+                    raise RuntimeError("LibreOffice conversion failed.")
+            else:
+                # Windows: Use docx2pdf CLI to avoid COM thread issues
+                try:
+                    subprocess.run(["docx2pdf", str(input_path), str(output_path)], capture_output=True, timeout=60)
+                except Exception as ex:
+                    raise RuntimeError(f"docx2pdf failed: {str(ex)}")
+                
+                if not output_path.exists():
+                    raise RuntimeError("Word conversion failed. Make sure Microsoft Word is installed and activated.")
 
         await asyncio.get_event_loop().run_in_executor(None, _convert)
 
