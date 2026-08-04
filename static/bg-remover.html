@@ -221,7 +221,7 @@
       const statusIcon = {
         pending:    `<span class="material-symbols-outlined text-outline text-xl">schedule</span>`,
         processing: `<div class="w-5 h-5 border-2 border-accent-electric border-t-transparent rounded-full animate-spin"></div>`,
-        done:       item.previewUrl ? `<img src="${item.previewUrl}" class="w-10 h-10 object-contain rounded-md border border-border-whisper shadow-sm checkerboard-bg flex-shrink-0" alt="Preview"/>` : `<span class="material-symbols-outlined text-green-500 text-xl" style="font-variation-settings:'FILL' 1">check_circle</span>`,
+        done:       item.previewUrl ? `<img src="${item.previewUrl}" class="w-20 h-20 object-contain rounded-md border border-border-whisper shadow-sm checkerboard-bg flex-shrink-0 hover:scale-[2] hover:z-10 transition-transform origin-left cursor-zoom-in relative" alt="Preview"/>` : `<span class="material-symbols-outlined text-green-500 text-xl" style="font-variation-settings:'FILL' 1">check_circle</span>`,
         error:      `<span class="material-symbols-outlined text-error text-xl" style="font-variation-settings:'FILL' 1">error</span>`,
       }[item.status];
 
