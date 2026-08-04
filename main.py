@@ -8,6 +8,9 @@ import uuid
 import asyncio
 import shutil
 from pathlib import Path
+from typing import List
+import zipfile
+from fastapi import Form
 
 app = FastAPI(title="SnapTool API", version="1.0.0")
 
@@ -172,6 +175,226 @@ async def pdf_to_word(file: UploadFile = File(...)):
 
 
 # ─────────────────────────────────────────────
+#  API: Merge PDF
+# ─────────────────────────────────────────────
+@app.post("/api/merge-pdf")
+async def merge_pdf(files: List[UploadFile] = File(...)):
+    if len(files) < 2:
+        raise HTTPException(400, "Please provide at least 2 PDF files to merge.")
+
+    output_path = get_temp_path(".pdf")
+    input_paths = []
+
+    try:
+        from pypdf import PdfWriter
+        
+        merger = PdfWriter()
+        for file in files:
+            if not (file.filename or "").lower().endswith(".pdf"):
+                raise HTTPException(400, "All files must be PDFs.")
+            temp_path = get_temp_path(".pdf")
+            input_paths.append(temp_path)
+            with open(temp_path, "wb") as f:
+                shutil.copyfileobj(file.file, f)
+            merger.append(temp_path)
+            
+        with open(output_path, "wb") as f:
+            merger.write(f)
+            
+        return FileResponse(output_path, media_type="application/pdf", filename="merged.pdf")
+    except HTTPException:
+        raise
+    except Exception as e:
+        cleanup(output_path)
+        raise HTTPException(500, f"Failed to merge PDFs: {str(e)}")
+    finally:
+        for p in input_paths:
+            cleanup(p)
+
+# ─────────────────────────────────────────────
+#  API: Split PDF
+# ─────────────────────────────────────────────
+def parse_ranges(ranges_str: str, max_pages: int) -> List[List[int]]:
+    chunks = []
+    for part in ranges_str.split(','):
+        part = part.strip()
+        if not part: continue
+        if '-' in part:
+            start_str, end_str = part.split('-', 1)
+            try:
+                start = max(1, int(start_str))
+                end = min(max_pages, int(end_str))
+                if start <= end:
+                    chunks.append(list(range(start - 1, end)))
+            except ValueError:
+                continue
+        else:
+            try:
+                p = int(part)
+                if 1 <= p <= max_pages:
+                    chunks.append([p - 1])
+            except ValueError:
+                continue
+    return chunks
+
+@app.post("/api/split-pdf")
+async def split_pdf(file: UploadFile = File(...), ranges: str = Form(...)):
+    if not (file.filename or "").lower().endswith(".pdf"):
+        raise HTTPException(400, "File must be a PDF.")
+
+    input_path = get_temp_path(".pdf")
+    zip_path = get_temp_path(".zip")
+    
+    try:
+        with open(input_path, "wb") as f:
+            shutil.copyfileobj(file.file, f)
+            
+        from pypdf import PdfReader, PdfWriter
+        reader = PdfReader(input_path)
+        total_pages = len(reader.pages)
+        
+        chunks = parse_ranges(ranges, total_pages)
+        if not chunks:
+            raise HTTPException(400, "Invalid page ranges or ranges out of bounds.")
+            
+        with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
+            for i, chunk in enumerate(chunks):
+                writer = PdfWriter()
+                for page_num in chunk:
+                    writer.add_page(reader.pages[page_num])
+                
+                chunk_path = get_temp_path(f"_part{i+1}.pdf")
+                with open(chunk_path, "wb") as out_f:
+                    writer.write(out_f)
+                
+                zipf.write(chunk_path, arcname=f"split_part_{i+1}.pdf")
+                cleanup(chunk_path)
+                
+        return FileResponse(zip_path, media_type="application/zip", filename=f"{Path(file.filename).stem}_split.zip")
+    except HTTPException:
+        raise
+    except Exception as e:
+        cleanup(zip_path)
+        raise HTTPException(500, f"Failed to split PDF: {str(e)}")
+    finally:
+        cleanup(input_path)
+
+# ─────────────────────────────────────────────
+#  API: Merge Word
+# ─────────────────────────────────────────────
+@app.post("/api/merge-word")
+async def merge_word(files: List[UploadFile] = File(...)):
+    if len(files) < 2:
+        raise HTTPException(400, "Please provide at least 2 Word documents to merge.")
+
+    output_path = get_temp_path(".docx")
+    input_paths = []
+
+    try:
+        from docx import Document
+        from docxcompose.composer import Composer
+        
+        for file in files:
+            if not (file.filename or "").lower().endswith((".doc", ".docx")):
+                raise HTTPException(400, "All files must be Word documents (.docx).")
+            temp_path = get_temp_path(".docx")
+            input_paths.append(temp_path)
+            with open(temp_path, "wb") as f:
+                shutil.copyfileobj(file.file, f)
+                
+        def _merge():
+            master = Document(input_paths[0])
+            composer = Composer(master)
+            for p in input_paths[1:]:
+                doc = Document(p)
+                composer.append(doc)
+            composer.save(output_path)
+
+        await asyncio.get_event_loop().run_in_executor(None, _merge)
+        return FileResponse(output_path, media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document", filename="merged.docx")
+    except HTTPException:
+        raise
+    except Exception as e:
+        cleanup(output_path)
+        raise HTTPException(500, f"Failed to merge Word documents: {str(e)}")
+    finally:
+        for p in input_paths:
+            cleanup(p)
+
+# ─────────────────────────────────────────────
+#  API: Split Word (via PDF conversion)
+# ─────────────────────────────────────────────
+@app.post("/api/split-word")
+async def split_word(file: UploadFile = File(...), ranges: str = Form(...)):
+    if not (file.filename or "").lower().endswith((".doc", ".docx")):
+        raise HTTPException(400, "File must be a Word document.")
+
+    input_path = get_temp_path(".docx")
+    pdf_path = get_temp_path(".pdf")
+    zip_path = get_temp_path(".zip")
+    
+    try:
+        with open(input_path, "wb") as f:
+            shutil.copyfileobj(file.file, f)
+
+        # 1. Convert DOCX to PDF
+        def _convert():
+            import sys, subprocess
+            if sys.platform != "win32":
+                subprocess.run(
+                    ["libreoffice", "--headless", "--convert-to", "pdf",
+                     "--outdir", str(pdf_path.parent), str(input_path)],
+                    capture_output=True, timeout=60
+                )
+                lo_output = pdf_path.parent / (input_path.stem + ".pdf")
+                if lo_output.exists():
+                    lo_output.rename(pdf_path)
+                else:
+                    raise RuntimeError("LibreOffice conversion failed.")
+            else:
+                try:
+                    subprocess.run(["docx2pdf", str(input_path), str(pdf_path)], capture_output=True, timeout=60)
+                except Exception as ex:
+                    raise RuntimeError(f"docx2pdf failed: {str(ex)}")
+                if not pdf_path.exists():
+                    raise RuntimeError("Word conversion failed.")
+
+        await asyncio.get_event_loop().run_in_executor(None, _convert)
+
+        # 2. Split the PDF
+        from pypdf import PdfReader, PdfWriter
+        reader = PdfReader(pdf_path)
+        total_pages = len(reader.pages)
+        
+        chunks = parse_ranges(ranges, total_pages)
+        if not chunks:
+            raise HTTPException(400, "Invalid page ranges or ranges out of bounds.")
+            
+        with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
+            for i, chunk in enumerate(chunks):
+                writer = PdfWriter()
+                for page_num in chunk:
+                    writer.add_page(reader.pages[page_num])
+                
+                chunk_path = get_temp_path(f"_part{i+1}.pdf")
+                with open(chunk_path, "wb") as out_f:
+                    writer.write(out_f)
+                
+                zipf.write(chunk_path, arcname=f"split_part_{i+1}.pdf")
+                cleanup(chunk_path)
+                
+        return FileResponse(zip_path, media_type="application/zip", filename=f"{Path(file.filename).stem}_split_pdf.zip")
+    except HTTPException:
+        raise
+    except Exception as e:
+        cleanup(zip_path)
+        raise HTTPException(500, f"Failed to split Word document: {str(e)}")
+    finally:
+        cleanup(input_path)
+        cleanup(pdf_path)
+
+
+# ─────────────────────────────────────────────
 #  Serve static HTML pages
 # ─────────────────────────────────────────────
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -191,6 +414,10 @@ async def word_to_pdf_page():
 @app.get("/pdf-to-word", response_class=HTMLResponse)
 async def pdf_to_word_page():
     return FileResponse("static/pdf-to-word.html")
+
+@app.get("/doc-tools", response_class=HTMLResponse)
+async def doc_tools_page():
+    return FileResponse("static/doc-tools.html")
 
 
 if __name__ == "__main__":

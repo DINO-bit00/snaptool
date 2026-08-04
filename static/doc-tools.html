@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="Merge and Split PDF and Word documents instantly. Combine chapters or split massive reports."/>
+  <title>SnapTool — Document Toolkit</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode:"class",
+      theme: {
+        extend: {
+          colors: {
+            "primary":"#18181B","on-primary":"#ffffff","canvas":"#F9FAFB","surface":"#FFFFFF",
+            "on-surface":"#1c1b1c","on-surface-variant":"#47464b","accent-electric":"#3B82F6",
+            "surface-container":"#f1eded","surface-container-low":"#f7f3f2","surface-container-high":"#ebe7e7",
+            "surface-tint":"#5f5e61","border-whisper":"rgba(226,232,240,0.5)","outline":"#77767b",
+            "outline-variant":"#c8c5cb","secondary-container":"#e3e1ec","on-secondary-container":"#63646c",
+            "inverse-surface":"#313030","error":"#ba1a1a",
+          },
+          borderRadius:{"DEFAULT":"1rem","lg":"2rem","xl":"3rem","full":"9999px"},
+          spacing:{"container-max":"1400px","gutter":"2rem","stack-lg":"2.5rem","stack-sm":"0.5rem","section-gap":"6rem","stack-md":"1.5rem"},
+          fontFamily:{"display":["Outfit"],"body":["Outfit"],"mono":["JetBrains Mono"]},
+          fontSize:{
+            "display":["clamp(2.5rem, 5vw, 4rem)",{"lineHeight":"1.05","letterSpacing":"-0.03em","fontWeight":"900"}],
+            "headline":["clamp(1.5rem, 3vw, 2rem)",{"lineHeight":"1.2","letterSpacing":"-0.02em","fontWeight":"700"}],
+            "body-lg":["1.125rem",{"lineHeight":"1.65"}],"body":["1rem",{"lineHeight":"1.65"}],
+            "label":["0.875rem",{"lineHeight":"1.5","letterSpacing":"0.05em","fontWeight":"500"}],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .material-symbols-outlined{font-variation-settings:'FILL' 0,'wght' 300,'GRAD' 0,'opsz' 24;}
+    .shadow-diffuse{box-shadow:0 20px 40px -15px rgba(0,0,0,0.05);}
+    .btn-press:active{transform:translateY(1px) scale(0.98);}
+    .drop-zone{transition:border-color .2s ease,background .2s ease;}
+    .drop-zone.drag-over{border-color:#3B82F6;background:rgba(59,130,246,0.04);}
+    .tab-active { border-bottom-color: #3B82F6; color: #3B82F6; }
+    .tab-inactive { border-bottom-color: transparent; color: #47464b; }
+    .tab-inactive:hover { color: #1c1b1c; }
+    
+    @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+    .skeleton{background:linear-gradient(90deg,#f1eded 25%,#e5e2e1 50%,#f1eded 75%);background-size:200% 100%;animation:shimmer 1.5s infinite linear;}
+  </style>
+</head>
+<body class="bg-canvas text-on-surface font-body antialiased min-h-[100dvh] flex flex-col overflow-x-hidden">
+
+<!-- NAV -->
+<nav class="sticky top-0 z-50 bg-surface/80 backdrop-blur-md border-b border-border-whisper">
+  <div class="max-w-container-max mx-auto px-gutter py-3 flex justify-between items-center">
+    <a href="/" class="font-display text-2xl font-black tracking-tighter text-primary">SnapTool</a>
+    <div class="hidden md:flex items-center gap-8">
+      <a href="/bg-remover" class="font-mono text-label text-on-surface-variant hover:text-accent-electric transition-colors">BG Remover</a>
+      <a href="/word-to-pdf" class="font-mono text-label text-on-surface-variant hover:text-accent-electric transition-colors">Word → PDF</a>
+      <a href="/pdf-to-word" class="font-mono text-label text-on-surface-variant hover:text-accent-electric transition-colors">PDF → Word</a>
+      <a href="/doc-tools" class="font-mono text-label text-accent-electric border-b-2 border-accent-electric pb-0.5">Doc Toolkit</a>
+    </div>
+    <a href="/" class="bg-primary text-on-primary font-mono text-label uppercase tracking-widest px-6 py-2.5 rounded-full btn-press hover:bg-inverse-surface transition-colors shadow-diffuse">
+      Back Home
+    </a>
+  </div>
+</nav>
+
+<main class="flex-grow max-w-container-max mx-auto px-gutter w-full py-12">
+  <div class="text-center mb-12">
+    <h1 class="font-display text-headline text-primary mb-3">Document Toolkit</h1>
+    <p class="font-body text-on-surface-variant max-w-xl mx-auto">Merge multiple chapters into one file, or split massive reports into manageable sections. Local, fast, secure.</p>
+  </div>
+
+  <!-- Tabs -->
+  <div class="flex flex-wrap justify-center gap-2 mb-10 border-b border-border-whisper pb-px">
+    <button onclick="switchTab('merge-pdf')" id="tab-merge-pdf" class="tab-active font-mono text-label uppercase tracking-widest px-6 py-3 border-b-2 transition-colors">Merge PDF</button>
+    <button onclick="switchTab('split-pdf')" id="tab-split-pdf" class="tab-inactive font-mono text-label uppercase tracking-widest px-6 py-3 border-b-2 transition-colors">Split PDF</button>
+    <button onclick="switchTab('merge-word')" id="tab-merge-word" class="tab-inactive font-mono text-label uppercase tracking-widest px-6 py-3 border-b-2 transition-colors">Merge Word</button>
+    <button onclick="switchTab('split-word')" id="tab-split-word" class="tab-inactive font-mono text-label uppercase tracking-widest px-6 py-3 border-b-2 transition-colors">Split Word</button>
+  </div>
+
+  <div class="max-w-3xl mx-auto">
+    <!-- Main UI Card -->
+    <div class="bg-surface border border-border-whisper rounded-2xl shadow-diffuse p-8">
+      
+      <!-- Upload Zone -->
+      <div id="upload-zone" class="drop-zone bg-canvas border-2 border-dashed border-outline-variant rounded-xl p-10 flex flex-col items-center justify-center cursor-pointer shadow-inner relative overflow-hidden mb-6">
+        <div class="w-14 h-14 rounded-full bg-secondary-container flex items-center justify-center mb-4 transition-transform duration-300">
+          <span class="material-symbols-outlined text-2xl text-on-surface-variant">upload_file</span>
+        </div>
+        <h3 class="font-display font-bold text-lg text-primary mb-1" id="upload-title">Select PDFs to merge</h3>
+        <p class="font-body text-sm text-on-surface-variant mb-6" id="upload-desc">You can upload multiple files (.pdf)</p>
+        <button id="browse-btn" class="bg-primary text-on-primary font-mono text-label uppercase tracking-widest px-6 py-3 rounded-full btn-press transition-colors z-10 relative">
+          Browse
+        </button>
+        <input id="file-input" type="file" multiple accept=".pdf" class="hidden" aria-hidden="true"/>
+      </div>
+
+      <!-- Split Options (Hidden by default) -->
+      <div id="split-options" class="hidden mb-6">
+        <label class="block font-mono text-label text-primary mb-2">Page Ranges</label>
+        <input type="text" id="ranges-input" placeholder="e.g. 1-5, 6-10, 11-15" class="w-full rounded-lg border-outline-variant shadow-sm focus:border-accent-electric focus:ring focus:ring-accent-electric/20 font-body text-primary p-3 bg-canvas"/>
+        <p class="text-xs text-on-surface-variant mt-2 font-mono">Separate chunks with commas. Each chunk becomes a separate file.</p>
+      </div>
+
+      <!-- File List -->
+      <div id="file-list" class="hidden flex flex-col gap-3 mb-6">
+        <!-- JS will populate this -->
+      </div>
+
+      <!-- Actions -->
+      <div id="action-area" class="hidden flex justify-between items-center border-t border-border-whisper pt-6">
+        <button id="clear-btn" class="text-error font-mono text-label uppercase tracking-widest px-4 py-2 hover:bg-error/10 rounded-full transition-colors">Clear</button>
+        <button id="process-btn" class="bg-accent-electric text-on-primary font-mono text-label uppercase tracking-widest px-8 py-3 rounded-full btn-press shadow-[0_8px_20px_-6px_rgba(59,130,246,0.4)] hover:bg-blue-600 transition-colors flex items-center gap-2">
+          <span>Process</span>
+          <span class="material-symbols-outlined text-sm hidden" id="spinner" style="animation: spin 1s linear infinite;">autorenew</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<style>
+  @keyframes spin { 100% { transform: rotate(360deg); } }
+</style>
+
+<script>
+  let currentMode = 'merge-pdf'; // 'merge-pdf', 'split-pdf', 'merge-word', 'split-word'
+  let selectedFiles = [];
+
+  const config = {
+    'merge-pdf': { title: 'Select PDFs to merge', desc: 'Select multiple .pdf files', accept: '.pdf', multiple: true },
+    'split-pdf': { title: 'Select PDF to split', desc: 'Select a single .pdf file', accept: '.pdf', multiple: false },
+    'merge-word': { title: 'Select Word documents to merge', desc: 'Select multiple .doc or .docx files', accept: '.doc,.docx', multiple: true },
+    'split-word': { title: 'Select Word document to split', desc: 'Select a single .doc or .docx file', accept: '.doc,.docx', multiple: false },
+  };
+
+  const uploadZone = document.getElementById('upload-zone');
+  const fileInput = document.getElementById('file-input');
+  const uploadTitle = document.getElementById('upload-title');
+  const uploadDesc = document.getElementById('upload-desc');
+  const splitOptions = document.getElementById('split-options');
+  const fileList = document.getElementById('file-list');
+  const actionArea = document.getElementById('action-area');
+  const browseBtn = document.getElementById('browse-btn');
+  const clearBtn = document.getElementById('clear-btn');
+  const processBtn = document.getElementById('process-btn');
+  const spinner = document.getElementById('spinner');
+
+  function switchTab(mode) {
+    currentMode = mode;
+    document.querySelectorAll('[id^="tab-"]').forEach(el => {
+      el.classList.remove('tab-active');
+      el.classList.add('tab-inactive');
+    });
+    document.getElementById(`tab-${mode}`).classList.remove('tab-inactive');
+    document.getElementById(`tab-${mode}`).classList.add('tab-active');
+    
+    // Update UI
+    const c = config[mode];
+    uploadTitle.textContent = c.title;
+    uploadDesc.textContent = c.desc;
+    fileInput.accept = c.accept;
+    fileInput.multiple = c.multiple;
+
+    if (mode.startsWith('split')) {
+      splitOptions.classList.remove('hidden');
+    } else {
+      splitOptions.classList.add('hidden');
+    }
+
+    clearState();
+  }
+
+  function clearState() {
+    selectedFiles = [];
+    fileInput.value = '';
+    renderFileList();
+    document.getElementById('ranges-input').value = '';
+    actionArea.classList.add('hidden');
+  }
+
+  function renderFileList() {
+    fileList.innerHTML = '';
+    if (selectedFiles.length === 0) {
+      fileList.classList.add('hidden');
+      return;
+    }
+    
+    fileList.classList.remove('hidden');
+    actionArea.classList.remove('hidden');
+
+    selectedFiles.forEach((file, index) => {
+      const item = document.createElement('div');
+      item.className = 'flex items-center justify-between p-3 bg-canvas border border-border-whisper rounded-lg';
+      
+      const left = document.createElement('div');
+      left.className = 'flex items-center gap-3 overflow-hidden';
+      
+      const icon = document.createElement('span');
+      icon.className = 'material-symbols-outlined text-accent-electric';
+      icon.textContent = currentMode.includes('word') ? 'description' : 'picture_as_pdf';
+      
+      const name = document.createElement('span');
+      name.className = 'font-mono text-sm text-primary truncate';
+      name.textContent = file.name;
+      
+      left.appendChild(icon);
+      left.appendChild(name);
+      
+      const right = document.createElement('div');
+      right.className = 'flex items-center gap-2 flex-shrink-0';
+      
+      // If merge mode, allow move up/down
+      if (currentMode.startsWith('merge')) {
+        if (index > 0) {
+          const upBtn = document.createElement('button');
+          upBtn.className = 'text-outline hover:text-primary transition-colors px-1';
+          upBtn.innerHTML = '<span class="material-symbols-outlined text-sm">arrow_upward</span>';
+          upBtn.onclick = () => moveFile(index, -1);
+          right.appendChild(upBtn);
+        }
+        if (index < selectedFiles.length - 1) {
+          const downBtn = document.createElement('button');
+          downBtn.className = 'text-outline hover:text-primary transition-colors px-1';
+          downBtn.innerHTML = '<span class="material-symbols-outlined text-sm">arrow_downward</span>';
+          downBtn.onclick = () => moveFile(index, 1);
+          right.appendChild(downBtn);
+        }
+      }
+      
+      const removeBtn = document.createElement('button');
+      removeBtn.className = 'text-error/70 hover:text-error transition-colors ml-2';
+      removeBtn.innerHTML = '<span class="material-symbols-outlined text-sm">close</span>';
+      removeBtn.onclick = () => {
+        selectedFiles.splice(index, 1);
+        renderFileList();
+        if (selectedFiles.length === 0) actionArea.classList.add('hidden');
+      };
+      
+      right.appendChild(removeBtn);
+      
+      item.appendChild(left);
+      item.appendChild(right);
+      fileList.appendChild(item);
+    });
+  }
+
+  function moveFile(index, direction) {
+    const newIndex = index + direction;
+    if (newIndex >= 0 && newIndex < selectedFiles.length) {
+      const temp = selectedFiles[index];
+      selectedFiles[index] = selectedFiles[newIndex];
+      selectedFiles[newIndex] = temp;
+      renderFileList();
+    }
+  }
+
+  function handleFiles(files) {
+    if (!files || files.length === 0) return;
+    const c = config[currentMode];
+    
+    // Filter invalid files
+    let validFiles = Array.from(files).filter(f => {
+      const ext = f.name.toLowerCase().split('.').pop();
+      if (currentMode.includes('pdf') && ext === 'pdf') return true;
+      if (currentMode.includes('word') && (ext === 'doc' || ext === 'docx')) return true;
+      return false;
+    });
+
+    if (validFiles.length === 0) {
+      alert(`Please select valid ${c.accept} files.`);
+      return;
+    }
+
+    if (!c.multiple) {
+      selectedFiles = [validFiles[0]];
+    } else {
+      selectedFiles = [...selectedFiles, ...validFiles];
+    }
+    
+    renderFileList();
+  }
+
+  // Event Listeners
+  browseBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    fileInput.click();
+  });
+  uploadZone.addEventListener('click', () => fileInput.click());
+  
+  fileInput.addEventListener('change', (e) => {
+    handleFiles(e.target.files);
+    e.target.value = '';
+  });
+
+  uploadZone.addEventListener('dragover', (e) => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
+  uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
+  uploadZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadZone.classList.remove('drag-over');
+    handleFiles(e.dataTransfer.files);
+  });
+
+  clearBtn.addEventListener('click', clearState);
+
+  processBtn.addEventListener('click', async () => {
+    if (selectedFiles.length === 0) return;
+    
+    const isMerge = currentMode.startsWith('merge');
+    if (isMerge && selectedFiles.length < 2) {
+      alert("Please select at least 2 files to merge.");
+      return;
+    }
+    
+    const ranges = document.getElementById('ranges-input').value;
+    if (!isMerge && !ranges.trim()) {
+      alert("Please specify page ranges (e.g. '1-5, 6-10').");
+      return;
+    }
+
+    // Prepare UI for processing
+    processBtn.disabled = true;
+    processBtn.classList.add('opacity-70');
+    spinner.classList.remove('hidden');
+
+    const formData = new FormData();
+    if (isMerge) {
+      selectedFiles.forEach(f => formData.append('files', f));
+    } else {
+      formData.append('file', selectedFiles[0]);
+      formData.append('ranges', ranges);
+    }
+
+    try {
+      const response = await fetch(`/api/${currentMode}`, {
+        method: 'POST',
+        body: formData
+      });
+
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.detail || "Processing failed");
+      }
+
+      // Download file
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      
+      // Get filename from content-disposition header if available
+      const disposition = response.headers.get('content-disposition');
+      let filename = 'result';
+      if (disposition && disposition.indexOf('filename=') !== -1) {
+        const matches = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(disposition);
+        if (matches != null && matches[1]) {
+          filename = matches[1].replace(/['"]/g, '');
+        }
+      } else {
+        filename = isMerge ? (currentMode.includes('pdf') ? 'merged.pdf' : 'merged.docx') : 'split_result.zip';
+      }
+      
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      a.remove();
+      
+    } catch (error) {
+      alert("Error: " + error.message);
+    } finally {
+      processBtn.disabled = false;
+      processBtn.classList.remove('opacity-70');
+      spinner.classList.add('hidden');
+    }
+  });
+
+</script>
+
+</body>
+</html>

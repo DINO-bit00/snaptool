@@ -5,3 +5,5 @@ rembg[cpu]
 pdf2docx
 aiofiles
 docx2pdf
+pypdf
+docxcompose
