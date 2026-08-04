@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="Convert PDF to editable Word documents. Extract text and layouts with high-fidelity precision."/>
+  <title>SnapTool — PDF to Word</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode:"class",
+      theme: {
+        extend: {
+          colors: {
+            "primary":"#18181B","on-primary":"#ffffff","canvas":"#F9FAFB","surface":"#FFFFFF",
+            "on-surface":"#1c1b1c","on-surface-variant":"#47464b","accent-electric":"#3B82F6",
+            "surface-container":"#f1eded","surface-container-low":"#f7f3f2","surface-container-high":"#ebe7e7",
+            "surface-tint":"#5f5e61","border-whisper":"rgba(226,232,240,0.5)","outline":"#77767b",
+            "outline-variant":"#c8c5cb","secondary-container":"#e3e1ec","on-secondary-container":"#63646c",
+            "inverse-surface":"#313030","error":"#ba1a1a",
+          },
+          borderRadius:{"DEFAULT":"1rem","lg":"2rem","xl":"3rem","full":"9999px"},
+          spacing:{"container-max":"1400px","gutter":"2rem","stack-lg":"2.5rem","stack-sm":"0.5rem","section-gap":"6rem","stack-md":"1.5rem"},
+          fontFamily:{"display":["Outfit"],"body":["Outfit"],"mono":["JetBrains Mono"]},
+          fontSize:{
+            "display":["clamp(2.5rem, 5vw, 4rem)",{"lineHeight":"1.05","letterSpacing":"-0.03em","fontWeight":"900"}],
+            "headline":["clamp(1.5rem, 3vw, 2rem)",{"lineHeight":"1.2","letterSpacing":"-0.02em","fontWeight":"700"}],
+            "body-lg":["1.125rem",{"lineHeight":"1.65"}],"body":["1rem",{"lineHeight":"1.65"}],
+            "label":["0.875rem",{"lineHeight":"1.5","letterSpacing":"0.05em","fontWeight":"500"}],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .material-symbols-outlined{font-variation-settings:'FILL' 0,'wght' 300,'GRAD' 0,'opsz' 24;}
+    .shadow-diffuse{box-shadow:0 20px 40px -15px rgba(0,0,0,0.05);}
+    .btn-press:active{transform:translateY(1px) scale(0.98);}
+    .drop-zone{transition:border-color .2s ease,background .2s ease;}
+    .drop-zone.drag-over{border-color:#3B82F6;background:rgba(59,130,246,0.04);}
+    @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+    .skeleton{background:linear-gradient(90deg,#f1eded 25%,#e5e2e1 50%,#f1eded 75%);background-size:200% 100%;animation:shimmer 1.5s infinite linear;}
+    
+    /* Toggle switch */
+    .toggle-input:checked + .toggle-track { background:#3B82F6; }
+    .toggle-input:checked + .toggle-track .toggle-thumb { transform: translateX(1.5rem); }
+    .toggle-track { background:#c8c5cb; transition:background .2s; }
+    .toggle-thumb { transition:transform .2s cubic-bezier(0.34,1.56,0.64,1); }
+
+    @keyframes progress-slide {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(400%); }
+    }
+    .progress-bar { animation: progress-slide 1.5s ease-in-out infinite; }
+  </style>
+</head>
+<body class="bg-canvas text-on-surface font-body antialiased min-h-[100dvh] flex flex-col overflow-x-hidden">
+
+<!-- NAV -->
+<nav class="sticky top-0 z-50 bg-surface/80 backdrop-blur-md border-b border-border-whisper">
+  <div class="max-w-container-max mx-auto px-gutter py-3 flex justify-between items-center">
+    <a href="/" class="font-display text-2xl font-black tracking-tighter text-primary">SnapTool</a>
+    <div class="hidden md:flex items-center gap-8">
+      <a href="/bg-remover" class="font-mono text-label text-on-surface-variant hover:text-accent-electric transition-colors">BG Remover</a>
+      <a href="/word-to-pdf" class="font-mono text-label text-on-surface-variant hover:text-accent-electric transition-colors">Word → PDF</a>
+      <a href="/pdf-to-word" class="font-mono text-label text-accent-electric border-b-2 border-accent-electric pb-0.5">PDF → Word</a>
+    </div>
+    <a href="/" class="bg-primary text-on-primary font-mono text-label uppercase tracking-widest px-6 py-2.5 rounded-full btn-press hover:bg-inverse-surface transition-colors shadow-diffuse">
+      Back Home
+    </a>
+  </div>
+</nav>
+
+<main class="flex-grow max-w-container-max mx-auto px-gutter w-full py-section-gap">
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
+
+    <!-- Left: Context, options, security -->
+    <div class="lg:col-span-5 flex flex-col gap-8">
+      <div>
+        <div class="font-mono text-label text-accent-electric uppercase tracking-widest mb-4">PDF to Word</div>
+        <h1 class="font-display text-display text-primary mb-5">Unlock<br/>your PDFs.</h1>
+        <p class="font-body text-body-lg text-on-surface-variant max-w-md">
+          Extract text, tables, and images with high-fidelity precision. Restore full editability while preserving original structural intent.
+        </p>
+      </div>
+
+      <!-- OCR Toggle -->
+      <div class="bg-surface border border-border-whisper rounded-xl p-6 shadow-diffuse">
+        <label for="ocr-toggle" class="flex items-center justify-between cursor-pointer gap-4">
+          <div class="flex gap-4 items-start">
+            <span class="material-symbols-outlined text-accent-electric mt-0.5" style="font-variation-settings:'FILL' 1">document_scanner</span>
+            <div>
+              <div class="font-display font-bold text-primary">Enable OCR</div>
+              <p class="font-body text-sm text-on-surface-variant mt-1">For scanned documents and image-based PDFs.</p>
+            </div>
+          </div>
+          <!-- Toggle -->
+          <div class="relative flex-shrink-0">
+            <input type="checkbox" id="ocr-toggle" class="toggle-input sr-only" checked/>
+            <div class="toggle-track w-12 h-6 rounded-full relative">
+              <div class="toggle-thumb absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow"></div>
+            </div>
+          </div>
+        </label>
+      </div>
+
+      <!-- Security -->
+      <div class="bg-surface-container-low border border-border-whisper rounded-xl p-6">
+        <div class="flex items-start gap-4">
+          <div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center flex-shrink-0">
+            <span class="material-symbols-outlined text-outline text-xl" style="font-variation-settings:'FILL' 1">lock</span>
+          </div>
+          <div>
+            <h3 class="font-mono text-label text-primary uppercase tracking-wider mb-1">Secure Processing</h3>
+            <p class="font-body text-sm text-on-surface-variant">All files encrypted in transit. Automatically purged from our servers after 1 hour. We never inspect or store your documents.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Upload zone -->
+    <div class="lg:col-span-7">
+      <!-- Upload -->
+      <div id="upload-zone" class="drop-zone bg-surface border-2 border-dashed border-outline-variant rounded-xl flex flex-col items-center justify-center min-h-[500px] p-12 cursor-pointer shadow-diffuse group relative overflow-hidden" role="button" tabindex="0" aria-label="Drop PDF here">
+        <!-- SVG grid decoration -->
+        <div class="absolute inset-0 opacity-5 group-hover:opacity-10 transition-opacity pointer-events-none">
+          <svg width="100%" height="100%">
+            <defs><pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+              <path d="M 40 0 L 0 0 0 40" fill="none" stroke="currentColor" stroke-width="1"/>
+            </pattern></defs>
+            <rect width="100%" height="100%" fill="url(#grid)"/>
+          </svg>
+        </div>
+        <div class="bg-surface-container-low p-6 rounded-full mb-6 group-hover:scale-110 transition-transform duration-300 ease-out">
+          <span class="material-symbols-outlined text-4xl text-primary" id="upload-icon">upload_file</span>
+        </div>
+        <h3 class="font-display font-bold text-xl text-primary mb-2">Drop PDF file here</h3>
+        <p class="font-mono text-label text-on-surface-variant mb-8 uppercase">or click to browse</p>
+        <button id="browse-btn" class="bg-surface border border-outline-variant text-primary font-mono text-label uppercase tracking-widest px-8 py-4 rounded-full btn-press hover:bg-surface-container hover:border-primary shadow-diffuse z-10 relative transition-all">
+          Select PDF
+        </button>
+        <p class="font-body text-sm text-outline mt-6 z-10 relative">Max file size: 50 MB</p>
+        <input id="file-input" type="file" accept=".pdf,application/pdf" class="hidden" aria-hidden="true"/>
+      </div>
+
+      <!-- Processing (hidden) -->
+      <div id="processing-zone" class="hidden bg-surface border border-border-whisper rounded-xl min-h-[500px] p-12 shadow-diffuse flex flex-col items-center justify-center gap-8">
+        <div class="skeleton w-40 h-52 rounded-lg"></div>
+        <div class="w-full max-w-xs overflow-hidden h-1.5 bg-surface-container-high rounded-full">
+          <div class="progress-bar h-full w-1/3 bg-accent-electric rounded-full"></div>
+        </div>
+        <p class="font-mono text-label text-on-surface-variant uppercase tracking-widest">Parsing document structure...</p>
+      </div>
+
+      <!-- Result (hidden) -->
+      <div id="result-zone" class="hidden bg-surface border border-border-whisper rounded-xl shadow-diffuse overflow-hidden">
+        <div class="p-12 flex flex-col items-center gap-4">
+          <div class="w-20 h-20 rounded-full bg-accent-electric/10 flex items-center justify-center">
+            <span class="material-symbols-outlined text-4xl text-accent-electric" style="font-variation-settings:'FILL' 1">description</span>
+          </div>
+          <h3 class="font-display font-bold text-xl text-primary">Word Document Ready</h3>
+          <div class="font-body text-sm text-on-surface-variant" id="result-filename">output.docx</div>
+        </div>
+        <div class="p-6 border-t border-border-whisper flex flex-wrap gap-3 justify-center">
+          <button id="download-btn" class="bg-accent-electric text-on-primary font-mono text-label uppercase tracking-widest px-8 py-4 rounded-full btn-press hover:bg-blue-600 transition-colors shadow-diffuse">
+            Download .docx
+          </button>
+          <button id="reset-btn" class="bg-canvas border border-border-whisper text-primary font-mono text-label uppercase tracking-widest px-8 py-4 rounded-full btn-press hover:bg-surface-container transition-colors">
+            New File
+          </button>
+        </div>
+      </div>
+
+      <!-- Error (hidden) -->
+      <div id="error-zone" class="hidden bg-surface border border-error/30 rounded-xl p-10 shadow-diffuse flex flex-col items-center gap-4 text-center">
+        <span class="material-symbols-outlined text-5xl text-error">error_outline</span>
+        <h3 class="font-display font-bold text-xl text-primary">Conversion failed</h3>
+        <p class="font-body text-sm text-on-surface-variant" id="error-msg">An unexpected error occurred.</p>
+        <button id="error-reset-btn" class="bg-primary text-on-primary font-mono text-label uppercase tracking-widest px-6 py-3 rounded-full btn-press hover:bg-inverse-surface transition-colors mt-2">
+          Try Again
+        </button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- FOOTER -->
+<footer class="border-t border-border-whisper mt-auto">
+  <div class="max-w-container-max mx-auto px-gutter py-8 flex flex-col md:flex-row justify-between items-center gap-4">
+    <div class="font-display font-black text-xl text-primary">SnapTool</div>
+    <p class="font-mono text-label text-outline">© 2024 SnapTool. Engineered for precision.</p>
+  </div>
+</footer>
+
+<script>
+  const uploadZone = document.getElementById('upload-zone');
+  const fileInput  = document.getElementById('file-input');
+  const processingZone = document.getElementById('processing-zone');
+  const resultZone = document.getElementById('result-zone');
+  const errorZone  = document.getElementById('error-zone');
+  const downloadBtn = document.getElementById('download-btn');
+  const resetBtn   = document.getElementById('reset-btn');
+  const errorResetBtn = document.getElementById('error-reset-btn');
+  const errorMsg   = document.getElementById('error-msg');
+  const resultFilename = document.getElementById('result-filename');
+  const ocrToggle  = document.getElementById('ocr-toggle');
+  let resultBlob = null;
+
+  function showState(state) {
+    ['upload','processing','result','error'].forEach(s =>
+      document.getElementById(s + '-zone').classList.add('hidden'));
+    document.getElementById(state + '-zone').classList.remove('hidden');
+  }
+
+  function resetAll() { fileInput.value = ''; resultBlob = null; showState('upload'); }
+
+  async function processFile(file) {
+    showState('processing');
+    const formData = new FormData();
+    formData.append('file', file);
+    // Note: OCR option noted — future extension point for backend
+    try {
+      const res = await fetch('/api/pdf-to-word', { method: 'POST', body: formData });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ detail: 'Unknown error' }));
+        throw new Error(err.detail || `Server error ${res.status}`);
+      }
+      resultBlob = await res.blob();
+      const outName = file.name.replace(/\.[^/.]+$/, '') + '.docx';
+      resultFilename.textContent = outName;
+      const url = URL.createObjectURL(resultBlob);
+      downloadBtn.onclick = () => { const a = document.createElement('a'); a.href = url; a.download = outName; a.click(); };
+      showState('result');
+    } catch (e) {
+      errorMsg.textContent = e.message;
+      showState('error');
+    }
+  }
+
+  // Trigger file picker on button or zone click
+  document.getElementById('browse-btn').addEventListener('click', e => {
+    e.stopPropagation();
+    fileInput.click();
+  });
+  uploadZone.addEventListener('click', e => {
+    if (!e.target.closest('button')) fileInput.click();
+  });
+
+  fileInput.addEventListener('change', e => { if (e.target.files[0]) processFile(e.target.files[0]); });
+  uploadZone.addEventListener('dragenter', e => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
+  uploadZone.addEventListener('dragover',  e => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
+  uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
+  uploadZone.addEventListener('drop', e => {
+    e.preventDefault(); uploadZone.classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if (file) processFile(file);
+  });
+  resetBtn.addEventListener('click', resetAll);
+  errorResetBtn.addEventListener('click', resetAll);
+</script>
+</body>
+</html>

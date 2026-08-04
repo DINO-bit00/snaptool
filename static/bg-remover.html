@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="Remove image backgrounds instantly with AI precision. Free, no sign-up, transparent PNG output."/>
+  <title>SnapTool — Background Remover</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#18181B",
+            "on-primary": "#ffffff",
+            "canvas": "#F9FAFB",
+            "surface": "#FFFFFF",
+            "on-surface": "#1c1b1c",
+            "on-surface-variant": "#47464b",
+            "accent-electric": "#3B82F6",
+            "surface-container": "#f1eded",
+            "surface-container-low": "#f7f3f2",
+            "surface-container-high": "#ebe7e7",
+            "surface-tint": "#5f5e61",
+            "border-whisper": "rgba(226,232,240,0.5)",
+            "outline": "#77767b",
+            "outline-variant": "#c8c5cb",
+            "secondary-container": "#e3e1ec",
+            "on-secondary-container": "#63646c",
+            "inverse-surface": "#313030",
+            "error": "#ba1a1a",
+          },
+          borderRadius: { "DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px" },
+          spacing: {
+            "container-max": "1400px", "gutter": "2rem", "stack-lg": "2.5rem",
+            "stack-sm": "0.5rem", "section-gap": "6rem", "stack-md": "1.5rem"
+          },
+          fontFamily: { "display": ["Outfit"], "body": ["Outfit"], "mono": ["JetBrains Mono"] },
+          fontSize: {
+            "display": ["clamp(2.5rem, 5vw, 4rem)", { "lineHeight": "1.05", "letterSpacing": "-0.03em", "fontWeight": "900" }],
+            "headline": ["clamp(1.5rem, 3vw, 2rem)", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+            "body-lg": ["1.125rem", { "lineHeight": "1.65" }],
+            "body": ["1rem", { "lineHeight": "1.65" }],
+            "label": ["0.875rem", { "lineHeight": "1.5", "letterSpacing": "0.05em", "fontWeight": "500" }],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24; }
+    .shadow-diffuse { box-shadow: 0 20px 40px -15px rgba(0,0,0,0.05); }
+    .btn-press:active { transform: translateY(1px) scale(0.98); }
+    .drop-zone { transition: border-color 0.2s ease, background 0.2s ease; }
+    .drop-zone.drag-over { border-color: #3B82F6; background: rgba(59,130,246,0.04); }
+
+    /* Skeleton shimmer */
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+    .skeleton {
+      background: linear-gradient(90deg, #f1eded 25%, #e5e2e1 50%, #f1eded 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite linear;
+    }
+
+    /* Checkerboard for transparent bg preview */
+    .checker {
+      background-image: linear-gradient(45deg, #ccc 25%, transparent 25%),
+        linear-gradient(-45deg, #ccc 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #ccc 75%),
+        linear-gradient(-45deg, transparent 75%, #ccc 75%);
+      background-size: 12px 12px;
+      background-position: 0 0, 0 6px, 6px -6px, -6px 0px;
+    }
+  </style>
+</head>
+<body class="bg-canvas text-on-surface font-body antialiased min-h-[100dvh] flex flex-col overflow-x-hidden">
+
+<!-- NAV -->
+<nav class="sticky top-0 z-50 bg-surface/80 backdrop-blur-md border-b border-border-whisper">
+  <div class="max-w-container-max mx-auto px-gutter py-3 flex justify-between items-center">
+    <a href="/" class="font-display text-2xl font-black tracking-tighter text-primary">SnapTool</a>
+    <div class="hidden md:flex items-center gap-8">
+      <a href="/#tools" class="font-mono text-label text-accent-electric border-b-2 border-accent-electric pb-0.5">Tools</a>
+      <a href="/word-to-pdf" class="font-mono text-label text-on-surface-variant hover:text-accent-electric transition-colors">Word → PDF</a>
+      <a href="/pdf-to-word" class="font-mono text-label text-on-surface-variant hover:text-accent-electric transition-colors">PDF → Word</a>
+    </div>
+    <a href="/" class="bg-primary text-on-primary font-mono text-label uppercase tracking-widest px-6 py-2.5 rounded-full btn-press hover:bg-inverse-surface transition-colors shadow-diffuse">
+      Back Home
+    </a>
+  </div>
+</nav>
+
+<main class="flex-grow max-w-container-max mx-auto px-gutter w-full pt-16 pb-section-gap">
+  <!-- Header -->
+  <header class="mb-14 max-w-2xl">
+    <h1 class="font-display text-display text-primary mb-4">Background<br/>Remover</h1>
+    <p class="font-body text-body-lg text-on-surface-variant">
+      Drop any image — our AI engine isolates the subject with pixel-perfect precision and returns a clean, transparent PNG.
+    </p>
+  </header>
+
+  <!-- Asymmetric Layout: Large drop zone + Info sidebar -->
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+
+    <!-- Drop Zone -->
+    <div class="lg:col-span-8">
+      <!-- Upload State -->
+      <div id="upload-zone" class="drop-zone bg-surface border-2 border-dashed border-outline-variant rounded-xl flex flex-col items-center justify-center min-h-[480px] p-12 cursor-pointer shadow-diffuse group relative overflow-hidden" role="button" tabindex="0" aria-label="Upload zone">
+        <div class="absolute inset-0 bg-accent-electric/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+        <span class="material-symbols-outlined text-7xl text-outline-variant mb-6 group-hover:text-accent-electric transition-colors duration-300" id="upload-icon">upload_file</span>
+        <h3 class="font-display font-bold text-xl text-primary mb-2">Drag &amp; drop your image</h3>
+        <p class="font-body text-on-surface-variant mb-8 text-center max-w-sm text-sm">Supports JPG, PNG, WebP up to 20 MB</p>
+        <button id="browse-btn" class="bg-accent-electric text-on-primary font-mono text-label uppercase tracking-widest px-8 py-4 rounded-full btn-press shadow-[0_8px_20px_-6px_rgba(59,130,246,0.4)] hover:bg-blue-600 transition-colors z-10 relative">
+          Select File
+        </button>
+        <input id="file-input" type="file" accept="image/png,image/jpeg,image/webp" class="hidden" aria-hidden="true"/>
+      </div>
+
+      <!-- Processing State (hidden) -->
+      <div id="processing-zone" class="hidden bg-surface border border-border-whisper rounded-xl min-h-[480px] p-12 shadow-diffuse">
+        <div class="flex flex-col items-center justify-center h-full gap-8">
+          <div class="skeleton w-64 h-48 rounded-xl"></div>
+          <div class="flex flex-col items-center gap-3">
+            <div class="skeleton w-48 h-4 rounded-full"></div>
+            <div class="skeleton w-32 h-3 rounded-full"></div>
+          </div>
+          <p class="font-mono text-label text-on-surface-variant uppercase tracking-widest">Removing background...</p>
+        </div>
+      </div>
+
+      <!-- Result State (hidden) -->
+      <div id="result-zone" class="hidden bg-surface border border-border-whisper rounded-xl shadow-diffuse overflow-hidden">
+        <div class="checker min-h-[380px] flex items-center justify-center p-8">
+          <img id="result-img" src="" alt="Result" class="max-h-[360px] max-w-full object-contain rounded-lg shadow-diffuse"/>
+        </div>
+        <div class="p-6 border-t border-border-whisper flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <div class="font-display font-bold text-primary" id="result-filename">output.png</div>
+            <div class="font-mono text-label text-outline mt-1">Transparent PNG · Ready to download</div>
+          </div>
+          <div class="flex gap-3">
+            <button id="download-btn" class="bg-accent-electric text-on-primary font-mono text-label uppercase tracking-widest px-6 py-3 rounded-full btn-press hover:bg-blue-600 transition-colors shadow-diffuse">
+              Download PNG
+            </button>
+            <button id="reset-btn" class="bg-canvas border border-border-whisper text-primary font-mono text-label uppercase tracking-widest px-6 py-3 rounded-full btn-press hover:bg-surface-container transition-colors">
+              New Image
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Error State (hidden) -->
+      <div id="error-zone" class="hidden bg-surface border border-error/30 rounded-xl p-10 shadow-diffuse flex flex-col items-center gap-4 text-center">
+        <span class="material-symbols-outlined text-5xl text-error">error_outline</span>
+        <h3 class="font-display font-bold text-xl text-primary">Something went wrong</h3>
+        <p class="font-body text-on-surface-variant text-sm" id="error-msg">An unexpected error occurred.</p>
+        <button id="error-reset-btn" class="bg-primary text-on-primary font-mono text-label uppercase tracking-widest px-6 py-3 rounded-full btn-press hover:bg-inverse-surface transition-colors mt-2">
+          Try Again
+        </button>
+      </div>
+    </div>
+
+    <!-- Sidebar Info -->
+    <div class="lg:col-span-4 flex flex-col gap-6 lg:pt-4">
+      <div class="bg-surface border border-border-whisper rounded-xl p-7 shadow-diffuse hover:-translate-y-1 transition-transform duration-300">
+        <div class="w-10 h-10 rounded-full bg-accent-electric/10 flex items-center justify-center mb-5">
+          <span class="material-symbols-outlined text-accent-electric" style="font-variation-settings:'FILL' 1">bolt</span>
+        </div>
+        <h4 class="font-display font-bold text-primary mb-2">Instant Results</h4>
+        <p class="font-body text-sm text-on-surface-variant">AI-powered masking completes in under 5 seconds using edge-optimized compute.</p>
+      </div>
+      <div class="bg-surface border border-border-whisper rounded-xl p-7 shadow-diffuse hover:-translate-y-1 transition-transform duration-300 lg:ml-8">
+        <div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center mb-5">
+          <span class="material-symbols-outlined text-primary" style="font-variation-settings:'FILL' 1">crop_free</span>
+        </div>
+        <h4 class="font-display font-bold text-primary mb-2">Pixel Perfect</h4>
+        <p class="font-body text-sm text-on-surface-variant">Hair, fur, and semi-transparent edges handled with sub-pixel accuracy.</p>
+      </div>
+      <div class="bg-surface border border-border-whisper rounded-xl p-7 shadow-diffuse hover:-translate-y-1 transition-transform duration-300">
+        <div class="w-10 h-10 rounded-full bg-accent-electric/10 flex items-center justify-center mb-5">
+          <span class="material-symbols-outlined text-accent-electric" style="font-variation-settings:'FILL' 1">lock</span>
+        </div>
+        <h4 class="font-display font-bold text-primary mb-2">Private &amp; Secure</h4>
+        <p class="font-body text-sm text-on-surface-variant">Files are processed locally and purged from our server automatically after 1 hour.</p>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- FOOTER -->
+<footer class="border-t border-border-whisper mt-auto">
+  <div class="max-w-container-max mx-auto px-gutter py-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+    <div class="font-display font-black text-xl text-primary">SnapTool</div>
+    <p class="font-mono text-label text-outline">© 2024 SnapTool. Engineered for precision.</p>
+  </div>
+</footer>
+
+<script>
+  const uploadZone = document.getElementById('upload-zone');
+  const fileInput = document.getElementById('file-input');
+  const processingZone = document.getElementById('processing-zone');
+  const resultZone = document.getElementById('result-zone');
+  const errorZone = document.getElementById('error-zone');
+  const resultImg = document.getElementById('result-img');
+  const downloadBtn = document.getElementById('download-btn');
+  const resetBtn = document.getElementById('reset-btn');
+  const errorResetBtn = document.getElementById('error-reset-btn');
+  const errorMsg = document.getElementById('error-msg');
+  const resultFilename = document.getElementById('result-filename');
+  let resultBlob = null;
+  let originalFilename = '';
+
+  function showState(state) {
+    uploadZone.classList.add('hidden');
+    processingZone.classList.add('hidden');
+    resultZone.classList.add('hidden');
+    errorZone.classList.add('hidden');
+    document.getElementById(state + '-zone').classList.remove('hidden');
+  }
+
+  function resetAll() {
+    fileInput.value = '';
+    resultBlob = null;
+    showState('upload');
+  }
+
+  async function processFile(file) {
+    originalFilename = file.name;
+    showState('processing');
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await fetch('/api/remove-bg', { method: 'POST', body: formData });
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({ detail: 'Unknown error' }));
+        throw new Error(err.detail || `Server error ${response.status}`);
+      }
+      resultBlob = await response.blob();
+      const url = URL.createObjectURL(resultBlob);
+      resultImg.src = url;
+      const outName = file.name.replace(/\.[^/.]+$/, '') + '_no_bg.png';
+      resultFilename.textContent = outName;
+      downloadBtn.onclick = () => {
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = outName;
+        a.click();
+      };
+      showState('result');
+    } catch (e) {
+      errorMsg.textContent = e.message;
+      showState('error');
+    }
+  }
+
+  // Trigger file picker on button click or zone click
+  document.getElementById('browse-btn').addEventListener('click', e => {
+    e.stopPropagation();
+    fileInput.click();
+  });
+  uploadZone.addEventListener('click', e => {
+    if (e.target === uploadZone || e.target.closest('#upload-zone') && !e.target.closest('button')) {
+      fileInput.click();
+    }
+  });
+
+  fileInput.addEventListener('change', e => {
+    if (e.target.files[0]) processFile(e.target.files[0]);
+  });
+
+  uploadZone.addEventListener('dragenter', e => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
+  uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
+  uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
+  uploadZone.addEventListener('drop', e => {
+    e.preventDefault();
+    uploadZone.classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.startsWith('image/')) processFile(file);
+  });
+
+  resetBtn.addEventListener('click', resetAll);
+  errorResetBtn.addEventListener('click', resetAll);
+</script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+fastapi
+uvicorn[standard]
+python-multipart
+rembg
+pdf2docx
+aiofiles
+docx2pdf
