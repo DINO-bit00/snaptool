@@ -58,14 +58,12 @@
       transition: all 0.2s;
       margin-bottom: -1px;
     }
-    .tab-btn:hover {
-      color: #111111;
-    }
-    .tab-btn.active {
-      color: #111111;
-      border-bottom: 2px solid #111111;
-      font-weight: 500;
-    }
+    .tab-btn:hover { color: var(--black); }
+    .tab-btn.active { color: var(--black); border-bottom-color: var(--black); font-weight: 500; }
+
+    /* ANIMATIONS */
+    .anim { opacity: 0; transform: translateY(12px); transition: opacity 0.5s ease-out, transform 0.5s ease-out; }
+    .anim.visible { opacity: 1; transform: translateY(0); }
 
     /* Container */
     .tool-container {
@@ -245,18 +243,20 @@
   </nav>
 
   <main>
-    <h1>Doc Toolkit</h1>
-    <p class="desc">Merge multiple chapters into one file, or split massive reports into manageable sections. Local, fast, secure.</p>
+    <div class="page-header anim">
+      <h1 class="serif">Doc Toolkit</h1>
+      <p>Merge multiple chapters into one file, or split massive reports into manageable sections. Local, fast, secure.</p>
+    </div>
 
     <!-- Tabs -->
-    <div class="tab-group">
+    <div class="tab-group anim" style="transition-delay: 0.1s;">
       <button onclick="switchTab('merge-pdf')" id="tab-merge-pdf" class="tab-btn active">Merge PDF</button>
       <button onclick="switchTab('split-pdf')" id="tab-split-pdf" class="tab-btn">Split PDF</button>
       <button onclick="switchTab('merge-word')" id="tab-merge-word" class="tab-btn">Merge Word</button>
       <button onclick="switchTab('split-word')" id="tab-split-word" class="tab-btn">Split Word</button>
     </div>
 
-    <div class="tool-container">
+    <div class="tool-container anim" style="transition-delay: 0.2s;">
       
       <!-- Upload Zone -->
       <div id="upload-zone" class="drop-zone" style="margin-bottom: 32px;">
@@ -602,15 +602,15 @@
         window.URL.revokeObjectURL(url);
         a.remove();
         
-      } catch (error) {
-        alert("Error: " + error.message);
-      } finally {
-        processBtn.disabled = false;
-        spinner.classList.add('hidden');
-      }
-    });
-
+      } catch(e) {
+      alert(e.message);
+    } finally {
+      processBtn.disabled = false;
+      spinner.classList.add('hidden');
+    }
+  });
+  
+  setTimeout(() => document.querySelectorAll('.anim').forEach(el => el.classList.add('visible')), 50);
   </script>
 </body>
 </html>
-

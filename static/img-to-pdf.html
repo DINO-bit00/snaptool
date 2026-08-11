@@ -88,6 +88,10 @@
     #loader-overlay { position: fixed; inset: 0; background: rgba(251,251,250,0.8); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 200; }
     .spinner { border: 2px solid var(--border); border-top-color: var(--black); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
+    
+    /* ANIMATIONS */
+    .anim { opacity: 0; transform: translateY(12px); transition: opacity 0.5s ease-out, transform 0.5s ease-out; }
+    .anim.visible { opacity: 1; transform: translateY(0); }
   </style>
 </head>
 <body>
@@ -103,12 +107,12 @@
   </nav>
 
   <main>
-    <div class="page-header">
+    <div class="page-header anim">
       <h1 class="serif">Image to PDF.</h1>
       <p>Compile multiple images into a clean A4 PDF document. Drag to reorder, choose layout per image, and convert locally.</p>
     </div>
 
-    <div class="two-col">
+    <div class="two-col anim" style="transition-delay: 0.1s;">
       <!-- Main Area (Upload + Grid) -->
       <div>
         <div id="upload-zone">
@@ -119,12 +123,6 @@
           <input type="file" id="file-input" accept="image/png, image/jpeg, image/webp, image/bmp, image/gif" multiple style="display:none;"/>
         </div>
 
-        <div id="grid-header">
-          <h4 id="grid-count">0 images</h4>
-          <button id="clear-all-btn">Clear all</button>
-        </div>
-        
-        <div id="images-grid"></div>
       </div>
 
       <!-- Options Sidebar -->
@@ -147,6 +145,13 @@
         </div>
       </div>
     </div>
+
+    <div id="grid-header" style="margin-top: 40px;">
+      <h4 id="grid-count">0 images</h4>
+      <button id="clear-all-btn">Clear all</button>
+    </div>
+    
+    <div id="images-grid"></div>
   </main>
 
   <div id="loader-overlay">
@@ -384,6 +389,7 @@
     }
   });
 
+  setTimeout(() => document.querySelectorAll('.anim').forEach(el => el.classList.add('visible')), 50);
 </script>
 </body>
 </html>
