@@ -1,256 +1,321 @@
 <!DOCTYPE html>
-<html lang="en" class="light">
+<html lang="en">
 <head>
-  <meta charset="utf-8"/>
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <meta name="description" content="Remove image backgrounds instantly with AI precision. Free, no sign-up, transparent PNG output."/>
-  <title>SnapTool — Background Remover</title>
-  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-  <script id="tailwind-config">
-    tailwind.config = {
-      darkMode: "class",
-      theme: {
-        extend: {
-          colors: {
-            "primary": "#18181B",
-            "on-primary": "#ffffff",
-            "canvas": "#F9FAFB",
-            "surface": "#FFFFFF",
-            "on-surface": "#1c1b1c",
-            "on-surface-variant": "#47464b",
-            "accent-electric": "#3B82F6",
-            "surface-container": "#f1eded",
-            "surface-container-low": "#f7f3f2",
-            "surface-container-high": "#ebe7e7",
-            "surface-tint": "#5f5e61",
-            "border-whisper": "rgba(226,232,240,0.5)",
-            "outline": "#77767b",
-            "outline-variant": "#c8c5cb",
-            "secondary-container": "#e3e1ec",
-            "on-secondary-container": "#63646c",
-            "inverse-surface": "#313030",
-            "error": "#ba1a1a",
-          },
-          borderRadius: { "DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px" },
-          spacing: {
-            "container-max": "1400px", "gutter": "2rem", "stack-lg": "2.5rem",
-            "stack-sm": "0.5rem", "section-gap": "6rem", "stack-md": "1.5rem"
-          },
-          fontFamily: { "display": ["Outfit"], "body": ["Outfit"], "mono": ["JetBrains Mono"] },
-          fontSize: {
-            "display": ["clamp(2.5rem, 5vw, 4rem)", { "lineHeight": "1.05", "letterSpacing": "-0.03em", "fontWeight": "900" }],
-            "headline": ["clamp(1.5rem, 3vw, 2rem)", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700" }],
-            "body-lg": ["1.125rem", { "lineHeight": "1.65" }],
-            "body": ["1rem", { "lineHeight": "1.65" }],
-            "label": ["0.875rem", { "lineHeight": "1.5", "letterSpacing": "0.05em", "fontWeight": "500" }],
-          }
-        }
-      }
-    }
-  </script>
+  <title>Background Remover — SnapTool</title>
+  <meta name="description" content="AI-powered background removal. Upload images, get transparent PNGs instantly. Batch supported."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800;900&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
   <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #050508; --surface: #0e0e12; --surface-2: #16161c; --surface-3: #1c1c24;
+      --border: rgba(255,255,255,0.06); --border-h: rgba(255,255,255,0.12);
+      --text: #f0f0f4; --text-2: #9090a0; --text-3: #50505e;
+      --accent: #3b82f6; --accent-2: #60a5fa; --accent-g: rgba(59,130,246,0.15);
+      --green: #22c55e; --red: #ef4444;
+    }
+    body { background: var(--bg); color: var(--text); font-family: 'Geist',sans-serif; min-height: 100dvh; display: flex; flex-direction: column; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
     .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24; }
-    .shadow-diffuse { box-shadow: 0 20px 40px -15px rgba(0,0,0,0.05); }
-    .btn-press:active { transform: translateY(1px) scale(0.98); }
-    .drop-zone { transition: border-color 0.2s ease, background 0.2s ease; }
-    .drop-zone.drag-over { border-color: #3B82F6; background: rgba(59,130,246,0.04); }
 
-    /* Skeleton shimmer */
-    @keyframes shimmer {
-      0% { background-position: -200% 0; }
-      100% { background-position: 200% 0; }
-    }
-    .skeleton {
-      background: linear-gradient(90deg, #f1eded 25%, #e5e2e1 50%, #f1eded 75%);
-      background-size: 200% 100%;
-      animation: shimmer 1.5s infinite linear;
-    }
+    /* Orbs */
+    .orb { position: fixed; border-radius: 9999px; filter: blur(120px); pointer-events: none; z-index: 0; }
+    .orb-1 { width: 500px; height: 500px; background: radial-gradient(circle, rgba(59,130,246,0.1) 0%, transparent 70%); top: -150px; left: -100px; animation: o1 22s ease-in-out infinite; }
+    .orb-2 { width: 400px; height: 400px; background: radial-gradient(circle, rgba(59,130,246,0.06) 0%, transparent 70%); bottom: 5%; right: -80px; animation: o2 28s ease-in-out infinite; }
+    @keyframes o1 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(50px,70px)} }
+    @keyframes o2 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-60px,-50px)} }
 
-    .checkerboard-bg {
-        background-color: #fff;
-        background-image: 
-          linear-gradient(45deg, #f0f0f0 25%, transparent 25%, transparent 75%, #f0f0f0 75%),
-          linear-gradient(45deg, #f0f0f0 25%, transparent 25%, transparent 75%, #f0f0f0 75%);
-        background-size: 10px 10px;
-        background-position: 0 0, 5px 5px;
-    }
+    /* Nav */
+    #navbar { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 100; }
+    .nav-inner { display: flex; align-items: center; gap: 4px; background: rgba(14,14,18,0.9); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); border: 1px solid rgba(255,255,255,0.08); border-radius: 9999px; padding: 6px 6px 6px 20px; box-shadow: 0 0 0 1px rgba(0,0,0,0.6), 0 20px 48px rgba(0,0,0,0.5); white-space: nowrap; }
+    .nav-logo { font-weight: 800; font-size: 0.9rem; color: var(--text); text-decoration: none; letter-spacing: -0.03em; margin-right: 6px; }
+    .nav-sep { width: 1px; height: 16px; background: rgba(255,255,255,0.08); margin: 0 8px; flex-shrink: 0; }
+    .nav-pill { color: var(--text-2); font-family: 'Geist Mono',monospace; font-size: 0.72rem; letter-spacing: 0.04em; padding: 6px 12px; border-radius: 9999px; text-decoration: none; transition: color 0.15s, background 0.15s; }
+    .nav-pill:hover { color: var(--text); background: rgba(255,255,255,0.06); }
+    .nav-pill.active { color: var(--accent-2); background: rgba(59,130,246,0.12); }
+    .nav-cta { background: var(--text); color: var(--bg); font-family: 'Geist Mono',monospace; font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; padding: 7px 16px; border-radius: 9999px; text-decoration: none; font-weight: 600; transition: background 0.15s; }
+    .nav-cta:hover { background: #d0d0d8; }
 
-    /* Checkerboard for transparent bg preview */
-    .checker {
-      background-image: linear-gradient(45deg, #ccc 25%, transparent 25%),
-        linear-gradient(-45deg, #ccc 25%, transparent 25%),
-        linear-gradient(45deg, transparent 75%, #ccc 75%),
-        linear-gradient(-45deg, transparent 75%, #ccc 75%);
-      background-size: 12px 12px;
-      background-position: 0 0, 0 6px, 6px -6px, -6px 0px;
+    /* Animations */
+    @keyframes fadeUp { from { opacity:0; transform:translateY(18px); filter:blur(4px); } to { opacity:1; transform:translateY(0); filter:blur(0); } }
+    .anim { opacity:0; }
+    .anim.visible { animation: fadeUp 0.7s cubic-bezier(0.16,1,0.3,1) forwards; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinning { animation: spin 0.9s linear infinite; }
+
+    /* Layout */
+    main { position: relative; z-index: 1; flex: 1; max-width: 1200px; width: 100%; margin: 0 auto; padding: 120px clamp(1.25rem,5vw,4rem) 80px; }
+    .page-header { margin-bottom: 52px; }
+    .eyebrow { display: inline-flex; align-items: center; gap: 8px; background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.2); border-radius: 9999px; padding: 5px 14px 5px 8px; margin-bottom: 20px; }
+    .eyebrow-dot { width: 6px; height: 6px; background: var(--accent); border-radius: 9999px; animation: pulse 2s ease infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+    .eyebrow span { font-family: 'Geist Mono',monospace; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent-2); }
+    h1 { font-size: clamp(2rem,4vw,3rem); font-weight: 900; letter-spacing: -0.05em; line-height: 1.05; color: var(--text); margin-bottom: 12px; }
+    .subtitle { font-size: 0.9375rem; color: var(--text-2); max-width: 52ch; line-height: 1.65; }
+
+    /* Two-col */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+    /* Upload zone */
+    #upload-zone {
+      position: relative;
+      background: var(--surface);
+      border: 1.5px dashed rgba(255,255,255,0.1);
+      border-radius: 20px;
+      padding: clamp(2rem,4vw,3rem);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      min-height: 360px;
+      transition: border-color 0.2s, background 0.2s;
+      overflow: hidden;
+    }
+    #upload-zone::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 0%, rgba(59,130,246,0.05) 0%, transparent 65%);
+      transition: opacity 0.3s;
+    }
+    #upload-zone:hover, #upload-zone.drag-over { border-color: rgba(59,130,246,0.45); background: rgba(59,130,246,0.03); }
+    #upload-zone.drag-over::after { background: radial-gradient(ellipse at 50% 0%, rgba(59,130,246,0.12) 0%, transparent 65%); }
+    .upload-icon-wrap { width: 64px; height: 64px; border-radius: 18px; background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.2); display: flex; align-items: center; justify-content: center; margin-bottom: 20px; position: relative; z-index: 1; }
+    .upload-h { font-size: 1.1rem; font-weight: 700; letter-spacing: -0.025em; color: var(--text); margin-bottom: 6px; position: relative; z-index: 1; }
+    .upload-sub { font-size: 0.8125rem; color: var(--text-3); margin-bottom: 28px; position: relative; z-index: 1; }
+    .btn-upload { background: var(--accent); color: #fff; font-family: 'Geist Mono',monospace; font-size: 0.78rem; letter-spacing: 0.06em; text-transform: uppercase; padding: 11px 24px; border-radius: 9999px; border: none; cursor: pointer; font-weight: 600; transition: background 0.15s, transform 0.1s, box-shadow 0.15s; position: relative; z-index: 1; }
+    .btn-upload:hover { background: #2563eb; box-shadow: 0 8px 24px rgba(59,130,246,0.3); }
+    .btn-upload:active { transform: translateY(1px) scale(0.98); }
+    .upload-hint { margin-top: 16px; font-family: 'Geist Mono',monospace; font-size: 0.7rem; color: var(--text-3); letter-spacing: 0.06em; position: relative; z-index: 1; }
+
+    /* Queue zone */
+    #queue-zone { display: none; }
+    #queue-zone.visible-q { display: flex; flex-direction: column; gap: 0; }
+
+    .queue-header {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px 16px 0 0;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .queue-title { font-weight: 700; font-size: 0.9rem; color: var(--text); letter-spacing: -0.02em; }
+    .queue-counter { font-family: 'Geist Mono',monospace; font-size: 0.72rem; color: var(--text-3); }
+    .queue-actions { margin-left: auto; display: flex; gap: 8px; }
+    .btn-dl-all { background: var(--accent); color: #fff; font-family: 'Geist Mono',monospace; font-size: 0.72rem; letter-spacing: 0.05em; text-transform: uppercase; padding: 7px 16px; border-radius: 9999px; border: none; cursor: pointer; font-weight: 600; transition: background 0.15s; }
+    .btn-dl-all:hover { background: #2563eb; }
+    .btn-clear { background: transparent; border: 1px solid rgba(255,255,255,0.08); color: var(--text-3); font-family: 'Geist Mono',monospace; font-size: 0.72rem; letter-spacing: 0.05em; text-transform: uppercase; padding: 7px 14px; border-radius: 9999px; cursor: pointer; transition: all 0.15s; }
+    .btn-clear:hover { border-color: rgba(239,68,68,0.3); color: var(--red); }
+
+    #file-list { list-style: none; background: var(--surface); border: 1px solid var(--border); border-top: none; border-radius: 0 0 16px 16px; overflow: hidden; }
+
+    /* Checker bg for transparent images */
+    .checker-bg { background-color: #1a1a1a; background-image: linear-gradient(45deg,#222 25%,transparent 25%,transparent 75%,#222 75%), linear-gradient(45deg,#222 25%,transparent 25%,transparent 75%,#222 75%); background-size: 8px 8px; background-position: 0 0, 4px 4px; }
+
+    /* Features strip */
+    .features { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-top: 16px; }
+    .feat { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 20px; }
+    .feat-icon { width: 32px; height: 32px; border-radius: 9px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; }
+    .feat h4 { font-size: 0.875rem; font-weight: 700; color: var(--text); margin-bottom: 6px; letter-spacing: -0.02em; }
+    .feat p { font-size: 0.78rem; color: var(--text-2); line-height: 1.55; }
+
+    /* Footer */
+    footer { position: relative; z-index: 1; border-top: 1px solid rgba(255,255,255,0.04); padding: 32px clamp(1.25rem,5vw,4rem); margin-top: auto; }
+    .footer-inner { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .footer-logo { font-weight: 800; font-size: 0.9rem; letter-spacing: -0.02em; color: var(--text-3); }
+    .footer-copy { font-family: 'Geist Mono',monospace; font-size: 0.7rem; color: var(--text-3); }
+
+    @media (max-width: 768px) {
+      .two-col { grid-template-columns: 1fr; }
+      .features { grid-template-columns: 1fr; }
+      .nav-pill { display: none; }
     }
   </style>
 </head>
-<body class="bg-canvas text-on-surface font-body antialiased min-h-[100dvh] flex flex-col overflow-x-hidden">
+<body>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
 
-<!-- NAV -->
-<nav class="sticky top-0 z-50 bg-surface/80 backdrop-blur-md border-b border-border-whisper">
-  <div class="max-w-container-max mx-auto px-gutter py-3 flex justify-between items-center">
-    <a href="/" class="font-display text-2xl font-black tracking-tighter text-primary">SnapTool</a>
-    <div class="hidden md:flex items-center gap-8">
-      <a href="/bg-remover" class="font-mono text-label text-accent-electric border-b-2 border-accent-electric pb-0.5">BG Remover</a>
-      <a href="/word-to-pdf" class="font-mono text-label text-on-surface-variant hover:text-accent-electric transition-colors">Word → PDF</a>
-      <a href="/pdf-to-word" class="font-mono text-label text-on-surface-variant hover:text-accent-electric transition-colors">PDF → Word</a>
-      <a href="/doc-tools" class="font-mono text-label text-on-surface-variant hover:text-accent-electric transition-colors">Doc Toolkit</a>
-      <a href="/img-to-pdf" class="font-mono text-label text-on-surface-variant hover:text-accent-electric transition-colors">Img → PDF</a>
+  <!-- NAV -->
+  <nav id="navbar">
+    <div class="nav-inner">
+      <a href="/" class="nav-logo">SnapTool</a>
+      <div class="nav-sep"></div>
+      <a href="/bg-remover" class="nav-pill active">BG Remover</a>
+      <a href="/word-to-pdf" class="nav-pill">Word → PDF</a>
+      <a href="/pdf-to-word" class="nav-pill">PDF → Word</a>
+      <a href="/doc-tools" class="nav-pill">Doc Toolkit</a>
+      <a href="/img-to-pdf" class="nav-pill">Img → PDF</a>
+      <div class="nav-sep"></div>
+      <a href="/" class="nav-cta">← Home</a>
     </div>
-    <a href="/" class="bg-primary text-on-primary font-mono text-label uppercase tracking-widest px-6 py-2.5 rounded-full btn-press hover:bg-inverse-surface transition-colors shadow-diffuse">
-      Back Home
-    </a>
-  </div>
-</nav>
+  </nav>
 
-<main class="flex-grow max-w-container-max mx-auto px-gutter w-full pt-16 pb-section-gap">
-  <!-- Header -->
-  <header class="mb-14 max-w-2xl">
-    <h1 class="font-display text-display text-primary mb-4">Background<br/>Remover</h1>
-    <p class="font-body text-body-lg text-on-surface-variant">
-      Drop any image — our AI engine isolates the subject with pixel-perfect precision and returns a clean, transparent PNG.
-    </p>
-  </header>
+  <main>
+    <!-- Header -->
+    <div class="page-header anim">
+      <div class="eyebrow"><div class="eyebrow-dot"></div><span>AI-Powered · Local Processing</span></div>
+      <h1>Background<br/>Remover.</h1>
+      <p class="subtitle">Drop any image — our AI isolates the subject with pixel-perfect precision and returns a clean, transparent PNG. Batch upload supported.</p>
+    </div>
 
-  <!-- Asymmetric Layout: Large drop zone + Info sidebar -->
-  <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-
-    <!-- Drop Zone -->
-    <div class="lg:col-span-8">
-      <!-- Drop Zone -->
-      <div id="upload-zone" class="drop-zone bg-surface border-2 border-dashed border-outline-variant rounded-xl flex flex-col items-center justify-center min-h-[300px] p-12 cursor-pointer shadow-diffuse group relative overflow-hidden" role="button" tabindex="0" aria-label="Upload zone">
-        <div class="absolute inset-0 bg-accent-electric/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
-        <span class="material-symbols-outlined text-6xl text-outline-variant mb-5 group-hover:text-accent-electric transition-colors duration-300">upload_file</span>
-        <h3 class="font-display font-bold text-xl text-primary mb-2">Drag &amp; drop images here</h3>
-        <p class="font-body text-on-surface-variant mb-7 text-center text-sm">JPG, PNG, WebP — pilih banyak sekaligus</p>
-        <button id="browse-btn" class="bg-accent-electric text-on-primary font-mono text-label uppercase tracking-widest px-8 py-4 rounded-full btn-press shadow-[0_8px_20px_-6px_rgba(59,130,246,0.4)] hover:bg-blue-600 transition-colors z-10 relative">
-          Pilih File
-        </button>
-        <input id="file-input" type="file" accept="image/png,image/jpeg,image/webp" multiple class="hidden" aria-hidden="true"/>
-      </div>
-
-      <!-- Batch Queue (hidden until files are added) -->
-      <div id="queue-zone" class="hidden mt-6 bg-surface border border-border-whisper rounded-xl shadow-diffuse overflow-hidden">
-        <div class="p-5 border-b border-border-whisper flex items-center justify-between">
-          <div>
-            <span class="font-display font-bold text-primary" id="queue-title">Memproses...</span>
-            <span class="font-mono text-label text-outline ml-3" id="queue-counter"></span>
+    <!-- Main two-col -->
+    <div class="two-col anim" style="animation-delay:0.1s">
+      <!-- Upload zone -->
+      <div>
+        <div id="upload-zone">
+          <div class="upload-icon-wrap">
+            <span class="material-symbols-outlined" style="color:var(--accent-2);font-size:1.6rem;font-variation-settings:'FILL' 0,'wght' 200">add_photo_alternate</span>
           </div>
-          <div class="flex gap-3">
-            <button id="download-all-btn" class="hidden bg-accent-electric text-on-primary font-mono text-label uppercase tracking-widest px-5 py-2.5 rounded-full btn-press hover:bg-blue-600 transition-colors shadow-diffuse text-xs">
-              Download Semua
-            </button>
-            <button id="clear-btn" class="bg-canvas border border-border-whisper text-primary font-mono text-label uppercase tracking-widest px-5 py-2.5 rounded-full btn-press hover:bg-surface-container transition-colors text-xs">
-              Clear
-            </button>
+          <p class="upload-h">Drop images here</p>
+          <p class="upload-sub">JPG, PNG, WebP — select multiple at once</p>
+          <button id="browse-btn" class="btn-upload">
+            <span class="material-symbols-outlined" style="font-size:0.9rem;vertical-align:middle;margin-right:4px;">upload</span>
+            Choose Files
+          </button>
+          <input type="file" id="file-input" accept="image/*" multiple style="display:none;"/>
+          <p class="upload-hint">Drag & drop · Any size · Batch supported</p>
+        </div>
+      </div>
+
+      <!-- Queue -->
+      <div>
+        <div id="queue-zone">
+          <div class="queue-header">
+            <span id="queue-title" class="queue-title">Processing…</span>
+            <span id="queue-counter" class="queue-counter"></span>
+            <div class="queue-actions">
+              <button id="download-all-btn" class="btn-dl-all" style="display:none;">↓ Download All</button>
+              <button id="clear-btn" class="btn-clear">Clear</button>
+            </div>
           </div>
+          <ul id="file-list"></ul>
         </div>
-        <ul id="file-list" class="divide-y divide-border-whisper max-h-[460px] overflow-y-auto"></ul>
-      </div>
 
+        <!-- Empty state when no queue -->
+        <div id="empty-state" style="background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:48px 32px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;min-height:200px;gap:12px;">
+          <span class="material-symbols-outlined" style="font-size:2rem;color:var(--text-3);font-variation-settings:'FILL' 0,'wght' 200;">image</span>
+          <p style="font-size:0.875rem;color:var(--text-3);">Results appear here after processing.</p>
+        </div>
+      </div>
     </div>
 
-    <!-- Sidebar Info -->
-    <div class="lg:col-span-4 flex flex-col gap-6 lg:pt-4">
-      <div class="bg-surface border border-border-whisper rounded-xl p-7 shadow-diffuse hover:-translate-y-1 transition-transform duration-300">
-        <div class="w-10 h-10 rounded-full bg-accent-electric/10 flex items-center justify-center mb-5">
-          <span class="material-symbols-outlined text-accent-electric" style="font-variation-settings:'FILL' 1">bolt</span>
+    <!-- Features -->
+    <div class="features anim" style="animation-delay:0.2s">
+      <div class="feat">
+        <div class="feat-icon" style="background:rgba(59,130,246,0.1);">
+          <span class="material-symbols-outlined" style="color:var(--accent-2);font-size:1rem;font-variation-settings:'FILL' 1,'wght' 400">bolt</span>
         </div>
-        <h4 class="font-display font-bold text-primary mb-2">Instant Results</h4>
-        <p class="font-body text-sm text-on-surface-variant">AI-powered masking completes in under 5 seconds using edge-optimized compute.</p>
+        <h4>Instant Results</h4>
+        <p>AI masking completes in seconds using edge-optimized compute.</p>
       </div>
-      <div class="bg-surface border border-border-whisper rounded-xl p-7 shadow-diffuse hover:-translate-y-1 transition-transform duration-300 lg:ml-8">
-        <div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center mb-5">
-          <span class="material-symbols-outlined text-primary" style="font-variation-settings:'FILL' 1">crop_free</span>
+      <div class="feat">
+        <div class="feat-icon" style="background:rgba(34,197,94,0.1);">
+          <span class="material-symbols-outlined" style="color:var(--green);font-size:1rem;font-variation-settings:'FILL' 1,'wght' 400">crop_free</span>
         </div>
-        <h4 class="font-display font-bold text-primary mb-2">Pixel Perfect</h4>
-        <p class="font-body text-sm text-on-surface-variant">Hair, fur, and semi-transparent edges handled with sub-pixel accuracy.</p>
+        <h4>Pixel Perfect</h4>
+        <p>Hair, fur, and semi-transparent edges handled with sub-pixel accuracy.</p>
       </div>
-      <div class="bg-surface border border-border-whisper rounded-xl p-7 shadow-diffuse hover:-translate-y-1 transition-transform duration-300">
-        <div class="w-10 h-10 rounded-full bg-accent-electric/10 flex items-center justify-center mb-5">
-          <span class="material-symbols-outlined text-accent-electric" style="font-variation-settings:'FILL' 1">lock</span>
+      <div class="feat">
+        <div class="feat-icon" style="background:rgba(168,85,247,0.1);">
+          <span class="material-symbols-outlined" style="color:#a855f7;font-size:1rem;font-variation-settings:'FILL' 1,'wght' 400">lock</span>
         </div>
-        <h4 class="font-display font-bold text-primary mb-2">Private &amp; Secure</h4>
-        <p class="font-body text-sm text-on-surface-variant">Files are processed locally and purged from our server automatically after 1 hour.</p>
+        <h4>Private & Secure</h4>
+        <p>Files are processed and purged from our server automatically after 1 hour.</p>
       </div>
     </div>
-  </div>
-</main>
+  </main>
 
-<!-- FOOTER -->
-<footer class="border-t border-border-whisper mt-auto">
-  <div class="max-w-container-max mx-auto px-gutter py-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-    <div class="font-display font-black text-xl text-primary">SnapTool</div>
-    <p class="font-mono text-label text-outline">© 2024 SnapTool. Engineered for precision.</p>
-  </div>
-</footer>
+  <footer>
+    <div class="footer-inner">
+      <span class="footer-logo">SnapTool</span>
+      <span class="footer-copy">© 2024 SnapTool · All processing is local.</span>
+    </div>
+  </footer>
 
 <script>
-  const uploadZone   = document.getElementById('upload-zone');
-  const fileInput    = document.getElementById('file-input');
-  const queueZone    = document.getElementById('queue-zone');
-  const fileList     = document.getElementById('file-list');
-  const queueTitle   = document.getElementById('queue-title');
-  const queueCounter = document.getElementById('queue-counter');
+  const uploadZone     = document.getElementById('upload-zone');
+  const fileInput      = document.getElementById('file-input');
+  const queueZone      = document.getElementById('queue-zone');
+  const fileList       = document.getElementById('file-list');
+  const queueTitle     = document.getElementById('queue-title');
+  const queueCounter   = document.getElementById('queue-counter');
   const downloadAllBtn = document.getElementById('download-all-btn');
-  const clearBtn     = document.getElementById('clear-btn');
+  const clearBtn       = document.getElementById('clear-btn');
+  const emptyState     = document.getElementById('empty-state');
 
-  // State
-  let queue = [];   // { file, status: 'pending'|'processing'|'done'|'error', blob, outName, errorMsg }
+  let queue = [];
   let isProcessing = false;
 
-  /* ── RENDER QUEUE ────────────────────────────────── */
   function renderQueue() {
     const total = queue.length;
     const done  = queue.filter(i => i.status === 'done').length;
     const errs  = queue.filter(i => i.status === 'error').length;
     const pend  = queue.filter(i => i.status === 'pending').length;
 
-    if (total === 0) { queueZone.classList.add('hidden'); return; }
-    queueZone.classList.remove('hidden');
+    if (total === 0) {
+      queueZone.classList.remove('visible-q');
+      emptyState.style.display = 'flex';
+      return;
+    }
+    queueZone.classList.add('visible-q');
+    emptyState.style.display = 'none';
 
     const allSettled = done + errs === total;
-    queueTitle.textContent   = allSettled ? `Selesai ${done}/${total}` : 'Memproses...';
-    queueCounter.textContent = `${done} selesai · ${errs} error · ${pend} antrian`;
-    downloadAllBtn.classList.toggle('hidden', done === 0);
+    queueTitle.textContent   = allSettled ? `Done ${done}/${total}` : 'Processing…';
+    queueCounter.textContent = `${done} done · ${errs} error · ${pend} pending`;
+    downloadAllBtn.style.display = done > 0 ? '' : 'none';
 
     fileList.innerHTML = queue.map((item, idx) => {
-      const statusIcon = {
-        pending:    `<span class="material-symbols-outlined text-outline text-xl">schedule</span>`,
-        processing: `<div class="w-5 h-5 border-2 border-accent-electric border-t-transparent rounded-full animate-spin"></div>`,
-        done:       item.previewUrl ? `<img src="${item.previewUrl}" class="w-20 h-20 object-contain rounded-md border border-border-whisper shadow-sm checkerboard-bg flex-shrink-0 hover:scale-[2] hover:z-10 transition-transform origin-left cursor-zoom-in relative" alt="Preview"/>` : `<span class="material-symbols-outlined text-green-500 text-xl" style="font-variation-settings:'FILL' 1">check_circle</span>`,
-        error:      `<span class="material-symbols-outlined text-error text-xl" style="font-variation-settings:'FILL' 1">error</span>`,
-      }[item.status];
-
-      const rowBg = item.status === 'error' ? 'bg-red-50' : item.status === 'done' ? 'bg-green-50/50' : '';
+      let leftContent = '';
+      if (item.status === 'done' && item.previewUrl) {
+        leftContent = `<div class="checker-bg" style="width:56px;height:56px;border-radius:10px;overflow:hidden;flex-shrink:0;border:1px solid rgba(255,255,255,0.08);">
+          <img src="${item.previewUrl}" style="width:100%;height:100%;object-fit:contain;" alt="preview"/>
+        </div>`;
+      } else if (item.status === 'processing') {
+        leftContent = `<div style="width:56px;height:56px;border-radius:10px;background:rgba(59,130,246,0.1);display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1px solid rgba(59,130,246,0.2);">
+          <span class="material-symbols-outlined spinning" style="color:var(--accent-2);font-size:1.2rem;">autorenew</span>
+        </div>`;
+      } else if (item.status === 'error') {
+        leftContent = `<div style="width:56px;height:56px;border-radius:10px;background:rgba(239,68,68,0.1);display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1px solid rgba(239,68,68,0.2);">
+          <span class="material-symbols-outlined" style="color:var(--red);font-size:1.2rem;font-variation-settings:'FILL' 1,'wght' 400">error</span>
+        </div>`;
+      } else {
+        leftContent = `<div style="width:56px;height:56px;border-radius:10px;background:rgba(255,255,255,0.03);display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1px solid var(--border);">
+          <span class="material-symbols-outlined" style="color:var(--text-3);font-size:1.2rem;">schedule</span>
+        </div>`;
+      }
 
       const actionBtn = item.status === 'done'
-        ? `<button onclick="downloadItem(${idx})" class="bg-accent-electric text-on-primary font-mono text-xs uppercase tracking-widest px-4 py-2 rounded-full btn-press hover:bg-blue-600 transition-colors flex-shrink-0">Download</button>`
+        ? `<button onclick="downloadItem(${idx})" style="background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.25);color:#22c55e;font-family:'Geist Mono',monospace;font-size:0.7rem;letter-spacing:0.05em;text-transform:uppercase;padding:7px 14px;border-radius:9999px;cursor:pointer;white-space:nowrap;transition:all 0.15s;" onmouseover="this.style.background='rgba(34,197,94,0.2)'" onmouseout="this.style.background='rgba(34,197,94,0.12)'">↓ Save</button>`
         : item.status === 'error'
-        ? `<span class="font-mono text-xs text-error truncate max-w-[140px]" title="${item.errorMsg}">${item.errorMsg}</span>`
+        ? `<span style="font-family:'Geist Mono',monospace;font-size:0.7rem;color:var(--red);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${item.errorMsg}">${item.errorMsg}</span>`
         : '';
 
-      return `<li class="flex items-center gap-4 px-5 py-4 ${rowBg}">
-        <div class="flex-shrink-0">${statusIcon}</div>
-        <span class="flex-1 font-body text-sm text-primary truncate" title="${item.file.name}">${item.file.name}</span>
+      const rowBg = item.status === 'done' ? 'rgba(34,197,94,0.03)' : item.status === 'error' ? 'rgba(239,68,68,0.03)' : 'transparent';
+
+      return `<li style="display:flex;align-items:center;gap:14px;padding:14px 20px;border-bottom:1px solid var(--border);background:${rowBg};">
+        ${leftContent}
+        <span style="flex:1;font-size:0.8125rem;color:var(--text-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${item.file.name}">${item.file.name}</span>
         ${actionBtn}
       </li>`;
     }).join('');
   }
 
-  /* ── ADD FILES ───────────────────────────────────── */
   function addFiles(files) {
     const images = [...files].filter(f => f.type.startsWith('image/'));
-    images.forEach(f => queue.push({ file: f, status: 'pending', blob: null, outName: '', errorMsg: '' }));
+    images.forEach(f => queue.push({ file: f, status: 'pending', blob: null, outName: '', errorMsg: '', previewUrl: null }));
     renderQueue();
     processNext();
   }
 
-  /* ── PROCESS SEQUENTIALLY ────────────────────────── */
   async function processNext() {
     if (isProcessing) return;
     const item = queue.find(i => i.status === 'pending');
@@ -269,38 +334,37 @@
         const err = await res.json().catch(() => ({ detail: 'Unknown error' }));
         throw new Error(err.detail || `Error ${res.status}`);
       }
-      item.blob    = await res.blob();
+      item.blob = await res.blob();
       item.outName = item.file.name.replace(/\.[^/.]+$/, '') + '_no_bg.png';
       item.previewUrl = URL.createObjectURL(item.blob);
-      item.status  = 'done';
+      item.status = 'done';
     } catch(e) {
-      item.status   = 'error';
+      item.status = 'error';
       item.errorMsg = e.message;
     }
 
     isProcessing = false;
     renderQueue();
-    processNext(); // process next in queue
+    processNext();
   }
 
-  /* ── DOWNLOAD ────────────────────────────────────── */
   function downloadItem(idx) {
     const item = queue[idx];
     if (!item || !item.blob) return;
     const a = document.createElement('a');
-    a.href     = URL.createObjectURL(item.blob);
+    a.href = URL.createObjectURL(item.blob);
     a.download = item.outName;
     a.click();
   }
 
   downloadAllBtn.addEventListener('click', () => {
-    queue.filter(i => i.status === 'done').forEach((item, _, arr) => {
+    queue.filter(i => i.status === 'done').forEach((item, i) => {
       setTimeout(() => {
         const a = document.createElement('a');
-        a.href     = URL.createObjectURL(item.blob);
+        a.href = URL.createObjectURL(item.blob);
         a.download = item.outName;
         a.click();
-      }, arr.indexOf(item) * 300);
+      }, i * 300);
     });
   });
 
@@ -311,23 +375,22 @@
     renderQueue();
   });
 
-  /* ── EVENT LISTENERS ─────────────────────────────── */
-  document.getElementById('browse-btn').addEventListener('click', e => {
-    e.stopPropagation(); fileInput.click();
-  });
-  uploadZone.addEventListener('click', e => {
-    if (!e.target.closest('button')) fileInput.click();
-  });
-  fileInput.addEventListener('change', e => {
-    if (e.target.files.length) addFiles(e.target.files);
-  });
+  document.getElementById('browse-btn').addEventListener('click', e => { e.stopPropagation(); fileInput.click(); });
+  uploadZone.addEventListener('click', e => { if (!e.target.closest('button')) fileInput.click(); });
+  fileInput.addEventListener('change', e => { if (e.target.files.length) addFiles(e.target.files); });
   uploadZone.addEventListener('dragenter', e => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
   uploadZone.addEventListener('dragover',  e => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
   uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
   uploadZone.addEventListener('drop', e => {
-    e.preventDefault(); uploadZone.classList.remove('drag-over');
+    e.preventDefault();
+    uploadZone.classList.remove('drag-over');
     if (e.dataTransfer.files.length) addFiles(e.dataTransfer.files);
   });
+
+  // Scroll reveal
+  const obs = new IntersectionObserver(e => e.forEach(x => { if(x.isIntersecting){x.target.classList.add('visible');obs.unobserve(x.target);} }), {threshold:0.08});
+  document.querySelectorAll('.anim').forEach(el => obs.observe(el));
+  setTimeout(() => { document.querySelectorAll('.anim:not(.visible)').forEach(el => { if(el.getBoundingClientRect().top < window.innerHeight*0.95) el.classList.add('visible'); }); }, 50);
 </script>
 </body>
 </html>

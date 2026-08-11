@@ -1,246 +1,349 @@
 <!DOCTYPE html>
-<html lang="en" class="light">
+<html lang="en">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <meta name="description" content="Convert Word documents to PDF instantly. Maintain formatting fidelity. Free, no sign-up required."/>
-  <title>SnapTool — Word to PDF</title>
-  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-  <script id="tailwind-config">
-    tailwind.config = {
-      darkMode:"class",
-      theme: {
-        extend: {
-          colors: {
-            "primary":"#18181B","on-primary":"#ffffff","canvas":"#F9FAFB","surface":"#FFFFFF",
-            "on-surface":"#1c1b1c","on-surface-variant":"#47464b","accent-electric":"#3B82F6",
-            "surface-container":"#f1eded","surface-container-low":"#f7f3f2","surface-container-high":"#ebe7e7",
-            "surface-tint":"#5f5e61","border-whisper":"rgba(226,232,240,0.5)","outline":"#77767b",
-            "outline-variant":"#c8c5cb","secondary-container":"#e3e1ec","on-secondary-container":"#63646c",
-            "inverse-surface":"#313030","error":"#ba1a1a",
-          },
-          borderRadius:{"DEFAULT":"1rem","lg":"2rem","xl":"3rem","full":"9999px"},
-          spacing:{"container-max":"1400px","gutter":"2rem","stack-lg":"2.5rem","stack-sm":"0.5rem","section-gap":"6rem","stack-md":"1.5rem"},
-          fontFamily:{"display":["Outfit"],"body":["Outfit"],"mono":["JetBrains Mono"]},
-          fontSize:{
-            "display":["clamp(2.5rem, 5vw, 4rem)",{"lineHeight":"1.05","letterSpacing":"-0.03em","fontWeight":"900"}],
-            "headline":["clamp(1.5rem, 3vw, 2rem)",{"lineHeight":"1.2","letterSpacing":"-0.02em","fontWeight":"700"}],
-            "body-lg":["1.125rem",{"lineHeight":"1.65"}],"body":["1rem",{"lineHeight":"1.65"}],
-            "label":["0.875rem",{"lineHeight":"1.5","letterSpacing":"0.05em","fontWeight":"500"}],
-          }
-        }
-      }
-    }
-  </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Word to PDF - SnapTool</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;600&family=Geist:wght@400;500;600;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,300,0,0" rel="stylesheet">
   <style>
-    .material-symbols-outlined{font-variation-settings:'FILL' 0,'wght' 300,'GRAD' 0,'opsz' 24;}
-    .shadow-diffuse{box-shadow:0 20px 40px -15px rgba(0,0,0,0.05);}
-    .btn-press:active{transform:translateY(1px) scale(0.98);}
-    .drop-zone{transition:border-color .2s ease,background .2s ease;}
-    .drop-zone.drag-over{border-color:#3B82F6;background:rgba(59,130,246,0.04);}
-    @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
-    .skeleton{background:linear-gradient(90deg,#f1eded 25%,#e5e2e1 50%,#f1eded 75%);background-size:200% 100%;animation:shimmer 1.5s infinite linear;}
-    .step-line{position:absolute;left:1.2rem;top:3.5rem;bottom:-1rem;width:2px;background:rgba(226,232,240,0.7);}
-    .step-item:last-child .step-line{display:none;}
+    :root {
+      --bg: #050508;
+      --surface: #0e0e12;
+      --surface2: #16161c;
+      --surface3: #1c1c24;
+      --border: rgba(255,255,255,0.06);
+      --border-hover: rgba(255,255,255,0.12);
+      --text: #f0f0f4;
+      --text2: #9090a0;
+      --text3: #50505e;
+      --accent: #3b82f6;
+      --accent2: #60a5fa;
+      --accent-glow: rgba(59,130,246,0.15);
+      --green: #22c55e;
+      --red: #ef4444;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg); color: var(--text); font-family: 'Geist', sans-serif; min-height: 100dvh; display: flex; flex-direction: column; padding-top: 90px;
+      overflow-x: hidden; position: relative;
+    }
+    .bg-orbs {
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: -1;
+    }
+    .orb1 { position: absolute; top: -10%; left: -10%; width: 50vw; height: 50vw; background: radial-gradient(circle, rgba(59,130,246,0.08) 0%, transparent 70%); filter: blur(60px); }
+    .orb2 { position: absolute; bottom: -10%; right: -10%; width: 50vw; height: 50vw; background: radial-gradient(circle, rgba(96,165,250,0.05) 0%, transparent 70%); filter: blur(60px); }
+
+    .nav-pill { color: #9090a0; font-family: 'Geist Mono',monospace; font-size: 0.72rem; letter-spacing: 0.04em; padding: 6px 12px; border-radius: 9999px; text-decoration: none; transition: color 0.15s, background 0.15s; white-space: nowrap; }
+    .nav-pill:hover { color: #f0f0f4; background: rgba(255,255,255,0.06); }
+    .nav-pill.active { color: #60a5fa; background: rgba(59,130,246,0.12); }
+
+    .container { max-width: 900px; margin: 0 auto; width: 100%; padding: 40px 20px; flex: 1; display: flex; flex-direction: column; gap: 40px; }
+    
+    .header { text-align: center; }
+    .header h1 { font-weight: 800; font-size: clamp(2rem, 5vw, 3rem); letter-spacing: -0.04em; margin-bottom: 12px; }
+    .header p { color: var(--text2); font-size: 1.1rem; }
+
+    .upload-wrapper { position: relative; padding: 1px; border-radius: 24px; background: linear-gradient(180deg, rgba(255,255,255,0.1), rgba(255,255,255,0.02)); transition: all 0.3s ease; }
+    .upload-wrapper:hover { background: linear-gradient(180deg, rgba(96,165,250,0.3), rgba(255,255,255,0.05)); box-shadow: 0 0 40px var(--accent-glow); }
+    .upload-zone {
+      background: var(--surface); border-radius: 23px; padding: 60px 20px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      border: 1px dashed var(--border-hover); cursor: pointer; transition: all 0.3s ease;
+    }
+    .upload-wrapper:hover .upload-zone { border-color: rgba(96,165,250,0.4); background: var(--surface2); }
+    .upload-zone.drag-active { border-color: var(--accent); background: var(--surface2); box-shadow: inset 0 0 0 1px var(--accent); }
+    
+    .upload-icon { font-size: 48px; color: var(--text3); margin-bottom: 20px; transition: color 0.3s ease; }
+    .upload-wrapper:hover .upload-icon { color: var(--accent2); }
+    
+    .upload-title { font-size: 1.25rem; font-weight: 600; margin-bottom: 8px; }
+    .upload-desc { color: var(--text2); margin-bottom: 24px; text-align: center; font-size: 0.95rem; }
+    
+    .btn {
+      font-family: 'Geist Mono', monospace; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase;
+      padding: 10px 20px; border-radius: 9999px; border: none; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px; text-decoration: none;
+    }
+    .btn-accent { background: var(--accent); color: #fff; }
+    .btn-accent:hover { background: var(--accent2); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(59,130,246,0.3); }
+    .btn-ghost { background: transparent; color: var(--text2); border: 1px solid var(--border); }
+    .btn-ghost:hover { background: var(--border); color: var(--text); }
+    
+    .queue-zone { display: none; margin-top: 20px; }
+    .queue-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border); flex-wrap: wrap; gap: 16px; }
+    .queue-header-left { display: flex; align-items: center; gap: 12px; }
+    .queue-header-right { display: flex; align-items: center; gap: 12px; }
+    #queue-title { font-size: 1.25rem; font-weight: 600; }
+    #queue-counter { background: var(--surface3); color: var(--text2); padding: 4px 10px; border-radius: 9999px; font-family: 'Geist Mono', monospace; font-size: 0.75rem; }
+    
+    .file-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+    .file-item {
+      display: flex; align-items: center; justify-content: space-between; padding: 16px; background: var(--surface); border-radius: 12px; border: 1px solid var(--border);
+      transition: all 0.2s;
+    }
+    .file-item:hover { border-color: var(--border-hover); background: var(--surface2); }
+    .file-info { display: flex; align-items: center; gap: 16px; flex: 1; min-width: 0; }
+    .file-icon { color: var(--text2); font-size: 24px; }
+    .file-details { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+    .file-name { font-weight: 500; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 300px; }
+    .file-status-text { font-size: 0.8rem; color: var(--text2); display: flex; align-items: center; gap: 6px; }
+    .file-actions { display: flex; align-items: center; gap: 12px; }
+    
+    .status-icon { font-size: 18px; }
+    .status-pending { color: var(--text3); }
+    .status-processing { color: var(--accent); animation: spin 1s linear infinite; }
+    .status-done { color: var(--green); }
+    .status-error { color: var(--red); }
+    
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+    
+    /* ANIMATIONS */
+    @keyframes fadeUp { from { opacity:0; transform:translateY(18px); filter:blur(4px); } to { opacity:1; transform:translateY(0); filter:blur(0); } }
+    .anim { opacity:0; } 
+    .anim.visible { animation: fadeUp 0.7s cubic-bezier(0.16,1,0.3,1) forwards; }
+
+    @media (max-width: 600px) {
+      .header h1 { font-size: 2rem; }
+      .upload-zone { padding: 40px 20px; }
+      .file-item { flex-direction: column; align-items: flex-start; gap: 16px; }
+      .file-actions { align-self: flex-end; }
+      .file-name { max-width: 200px; }
+    }
   </style>
 </head>
-<body class="bg-canvas text-on-surface font-body antialiased min-h-[100dvh] flex flex-col overflow-x-hidden">
-
-<!-- NAV -->
-<nav class="sticky top-0 z-50 bg-surface/80 backdrop-blur-md border-b border-border-whisper">
-  <div class="max-w-container-max mx-auto px-gutter py-3 flex justify-between items-center">
-    <a href="/" class="font-display text-2xl font-black tracking-tighter text-primary">SnapTool</a>
-    <div class="hidden md:flex items-center gap-8">
-      <a href="/bg-remover" class="font-mono text-label text-on-surface-variant hover:text-accent-electric transition-colors">BG Remover</a>
-      <a href="/word-to-pdf" class="font-mono text-label text-accent-electric border-b-2 border-accent-electric pb-0.5">Word → PDF</a>
-      <a href="/pdf-to-word" class="font-mono text-label text-on-surface-variant hover:text-accent-electric transition-colors">PDF → Word</a>
-      <a href="/doc-tools" class="font-mono text-label text-on-surface-variant hover:text-accent-electric transition-colors">Doc Toolkit</a>
-      <a href="/img-to-pdf" class="font-mono text-label text-on-surface-variant hover:text-accent-electric transition-colors">Img → PDF</a>
-    </div>
-    <a href="/" class="bg-primary text-on-primary font-mono text-label uppercase tracking-widest px-6 py-2.5 rounded-full btn-press hover:bg-inverse-surface transition-colors shadow-diffuse">
-      Back Home
-    </a>
+<body>
+  <div class="bg-orbs">
+    <div class="orb1"></div>
+    <div class="orb2"></div>
   </div>
-</nav>
 
-<main class="flex-grow max-w-container-max mx-auto px-gutter w-full py-section-gap">
-  <!-- Hero split: headline left, upload right -->
-  <div class="grid grid-cols-1 lg:grid-cols-12 gap-16 items-end mb-20">
-    <div class="lg:col-span-5">
-      <div class="font-mono text-label text-accent-electric uppercase tracking-widest mb-4">Word to PDF</div>
-      <h1 class="font-display text-display text-primary mb-5">Perfect<br/>formatting,<br/>every time.</h1>
-      <p class="font-body text-body-lg text-on-surface-variant max-w-md">Upload your .doc or .docx and receive a pristine, distribution-ready PDF — zero layout distortion, enterprise-grade output.</p>
+  <nav id="navbar" style="position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:100;transition:all 0.4s cubic-bezier(0.16,1,0.3,1);">
+    <div style="display:flex;align-items:center;gap:6px;background:rgba(14,14,18,0.85);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,0.08);border-radius:9999px;padding:6px 6px 6px 20px;box-shadow:0 0 0 1px rgba(0,0,0,0.5),0 20px 40px rgba(0,0,0,0.4);">
+      <a href="/" style="font-weight:800;font-size:0.9rem;color:#f0f0f4;text-decoration:none;letter-spacing:-0.03em;margin-right:8px;">SnapTool</a>
+      <div style="width:1px;height:16px;background:rgba(255,255,255,0.08);margin:0 8px;"></div>
+      <a href="/bg-remover" class="nav-pill">BG Remover</a>
+      <a href="/word-to-pdf" class="nav-pill active">Word → PDF</a>
+      <a href="/pdf-to-word" class="nav-pill">PDF → Word</a>
+      <a href="/doc-tools" class="nav-pill">Doc Toolkit</a>
+      <a href="/img-to-pdf" class="nav-pill">Img → PDF</a>
+      <div style="width:1px;height:16px;background:rgba(255,255,255,0.08);margin:0 6px;"></div>
+      <a href="/" style="background:#f0f0f4;color:#050508;font-family:'Geist Mono',monospace;font-size:0.7rem;letter-spacing:0.06em;text-transform:uppercase;padding:7px 14px;border-radius:9999px;text-decoration:none;font-weight:600;white-space:nowrap;">← Home</a>
     </div>
-    <div class="lg:col-span-7">
-      <!-- Upload zone -->
-      <div id="upload-zone" class="drop-zone bg-surface border-2 border-dashed border-outline-variant rounded-xl p-12 flex flex-col items-center justify-center min-h-[280px] cursor-pointer shadow-diffuse group relative overflow-hidden" role="button" tabindex="0" aria-label="Upload zone">
-        <div class="absolute inset-0 bg-accent-electric/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
-        <div class="w-16 h-16 rounded-full bg-secondary-container flex items-center justify-center mb-5 group-hover:bg-accent-electric/10 group-hover:scale-110 transition-all duration-300">
-          <span class="material-symbols-outlined text-3xl text-on-surface-variant group-hover:text-accent-electric transition-colors">upload_file</span>
-        </div>
-        <h3 class="font-display font-bold text-xl text-primary mb-2">Pilih dokumen Word</h3>
-        <p class="font-body text-sm text-on-surface-variant mb-7">Pilih banyak file .docx sekaligus</p>
-        <button id="browse-btn" class="bg-accent-electric text-on-primary font-mono text-label uppercase tracking-widest px-8 py-4 rounded-full btn-press shadow-[0_8px_20px_-6px_rgba(59,130,246,0.4)] hover:bg-blue-600 transition-colors z-10 relative">
-          Browse Files
+  </nav>
+
+  <div class="container">
+    <div class="header anim">
+      <h1>Word → PDF</h1>
+      <p>Convert your Word documents to PDF securely in your browser.</p>
+    </div>
+
+    <div class="upload-wrapper anim" style="animation-delay: 0.1s;">
+      <div class="upload-zone" id="upload-zone">
+        <span class="material-symbols-outlined upload-icon">description</span>
+        <div class="upload-title">Drag & drop files here</div>
+        <div class="upload-desc">or click to browse from your computer</div>
+        <button class="btn btn-accent" id="browse-btn">
+          <span class="material-symbols-outlined" style="font-size:18px;">folder_open</span> Browse Files
         </button>
-        <input id="file-input" type="file" accept=".doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" multiple class="hidden" aria-hidden="true"/>
+        <input type="file" id="file-input" multiple accept=".doc,.docx" style="display:none;">
       </div>
+    </div>
 
-      <!-- Batch Queue -->
-      <div id="queue-zone" class="hidden mt-6 bg-surface border border-border-whisper rounded-xl shadow-diffuse overflow-hidden">
-        <div class="p-5 border-b border-border-whisper flex items-center justify-between">
-          <div>
-            <span class="font-display font-bold text-primary" id="queue-title">Memproses...</span>
-            <span class="font-mono text-label text-outline ml-3" id="queue-counter"></span>
-          </div>
-          <div class="flex gap-3">
-            <button id="download-all-btn" class="hidden bg-accent-electric text-on-primary font-mono text-label uppercase tracking-widest px-5 py-2.5 rounded-full btn-press hover:bg-blue-600 transition-colors shadow-diffuse text-xs">
-              Download Semua
-            </button>
-            <button id="clear-btn" class="bg-canvas border border-border-whisper text-primary font-mono text-label uppercase tracking-widest px-5 py-2.5 rounded-full btn-press hover:bg-surface-container transition-colors text-xs">
-              Clear
-            </button>
-          </div>
+    <div class="queue-zone anim" id="queue-zone" style="animation-delay: 0.2s;">
+      <div class="queue-header">
+        <div class="queue-header-left">
+          <div id="queue-title">Conversion Queue</div>
+          <div id="queue-counter">0/0</div>
         </div>
-        <ul id="file-list" class="divide-y divide-border-whisper max-h-[400px] overflow-y-auto"></ul>
+        <div class="queue-header-right">
+          <button class="btn btn-ghost" id="clear-btn">Clear All</button>
+          <button class="btn btn-accent" id="download-all-btn" style="display:none;">
+            <span class="material-symbols-outlined" style="font-size:18px;">download</span> Download All
+          </button>
+        </div>
       </div>
-
+      <ul class="file-list" id="file-list"></ul>
     </div>
   </div>
 
-  <!-- 3-Step Process -->
-  <div>
-    <div class="font-mono text-label text-accent-electric uppercase tracking-widest mb-12">How it works</div>
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-0 relative max-w-3xl">
-      <!-- Vertical line on desktop -->
-      <div class="hidden lg:block absolute left-1/2 top-0 bottom-0 w-px bg-border-whisper -translate-x-1/2"></div>
-
-      <div class="step-item relative pb-14 lg:pr-16 flex items-start gap-5 col-span-1">
-        <div class="step-line hidden lg:block"></div>
-        <div class="w-9 h-9 rounded-full bg-surface border border-border-whisper flex items-center justify-center shadow-diffuse font-mono text-label text-accent-electric flex-shrink-0 relative z-10 mt-1">01</div>
-        <div class="bg-surface border border-border-whisper rounded-xl p-6 shadow-diffuse flex-1">
-          <span class="material-symbols-outlined text-accent-electric mb-3 block" style="font-variation-settings:'FILL' 1">cloud_upload</span>
-          <h4 class="font-display font-bold text-primary mb-2">Upload</h4>
-          <p class="font-body text-sm text-on-surface-variant">Securely transfer your Word document using enterprise-grade encryption.</p>
-        </div>
-      </div>
-
-      <div class="step-item relative pb-14 lg:col-start-2 lg:pl-16 lg:mt-20 flex items-start gap-5">
-        <div class="w-9 h-9 rounded-full bg-surface border border-border-whisper flex items-center justify-center shadow-diffuse font-mono text-label text-accent-electric flex-shrink-0 relative z-10 mt-1">02</div>
-        <div class="bg-surface border border-border-whisper rounded-xl p-6 shadow-diffuse flex-1">
-          <span class="material-symbols-outlined text-accent-electric mb-3 block" style="font-variation-settings:'FILL' 1">transform</span>
-          <h4 class="font-display font-bold text-primary mb-2">Convert</h4>
-          <p class="font-body text-sm text-on-surface-variant">Our engine parses typography, layout, and images — creating an exact PDF replica.</p>
-        </div>
-      </div>
-
-      <div class="step-item relative pb-14 lg:pr-16 flex items-start gap-5 col-span-1 lg:mt-[-2rem]">
-        <div class="w-9 h-9 rounded-full bg-surface border border-border-whisper flex items-center justify-center shadow-diffuse font-mono text-label text-accent-electric flex-shrink-0 relative z-10 mt-1">03</div>
-        <div class="bg-surface border border-border-whisper rounded-xl p-6 shadow-diffuse flex-1">
-          <span class="material-symbols-outlined text-accent-electric mb-3 block" style="font-variation-settings:'FILL' 1">download</span>
-          <h4 class="font-display font-bold text-primary mb-2">Download</h4>
-          <p class="font-body text-sm text-on-surface-variant">Retrieve your PDF instantly. Original files are purged from our servers after 1 hour.</p>
-        </div>
-      </div>
+  <footer style="border-top:1px solid rgba(255,255,255,0.04);padding:32px clamp(1.25rem,5vw,4rem);margin-top:auto;">
+    <div style="max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
+      <span style="font-weight:800;font-size:0.9rem;letter-spacing:-0.02em;color:#3f3f50;">SnapTool</span>
+      <span style="font-family:'Geist Mono',monospace;font-size:0.7rem;color:#3f3f50;">© 2024 SnapTool · All processing is local.</span>
     </div>
-  </div>
-</main>
+  </footer>
 
-<!-- FOOTER -->
-<footer class="border-t border-border-whisper mt-auto">
-  <div class="max-w-container-max mx-auto px-gutter py-8 flex flex-col md:flex-row justify-between items-center gap-4">
-    <div class="font-display font-black text-xl text-primary">SnapTool</div>
-    <p class="font-mono text-label text-outline">© 2024 SnapTool. Engineered for precision.</p>
-  </div>
-</footer>
+  <script>
+    const obs = new IntersectionObserver(entries => entries.forEach(e => { if(e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } }), { threshold: 0.1 });
+    document.querySelectorAll('.anim').forEach(el => obs.observe(el));
 
-<script>
-  const uploadZone    = document.getElementById('upload-zone');
-  const fileInput     = document.getElementById('file-input');
-  const queueZone     = document.getElementById('queue-zone');
-  const fileList      = document.getElementById('file-list');
-  const queueTitle    = document.getElementById('queue-title');
-  const queueCounter  = document.getElementById('queue-counter');
-  const downloadAllBtn= document.getElementById('download-all-btn');
-  const clearBtn      = document.getElementById('clear-btn');
+    let queue = [];
+    let isProcessing = false;
 
-  let queue = [];
-  let isProcessing = false;
+    const uploadZone = document.getElementById('upload-zone');
+    const fileInput = document.getElementById('file-input');
+    const browseBtn = document.getElementById('browse-btn');
+    const queueZone = document.getElementById('queue-zone');
+    const fileList = document.getElementById('file-list');
+    const queueCounter = document.getElementById('queue-counter');
+    const downloadAllBtn = document.getElementById('download-all-btn');
+    const clearBtn = document.getElementById('clear-btn');
 
-  function renderQueue() {
-    const total = queue.length;
-    const done  = queue.filter(i => i.status === 'done').length;
-    const errs  = queue.filter(i => i.status === 'error').length;
-    const pend  = queue.filter(i => i.status === 'pending').length;
-    if (total === 0) { queueZone.classList.add('hidden'); return; }
-    queueZone.classList.remove('hidden');
-    const allSettled = done + errs === total;
-    queueTitle.textContent   = allSettled ? `Selesai ${done}/${total}` : 'Memproses...';
-    queueCounter.textContent = `${done} selesai · ${errs} error · ${pend} antrian`;
-    downloadAllBtn.classList.toggle('hidden', done === 0);
-    fileList.innerHTML = queue.map((item, idx) => {
-      const icon = {
-        pending:    `<span class="material-symbols-outlined text-outline text-xl">schedule</span>`,
-        processing: `<div class="w-5 h-5 border-2 border-accent-electric border-t-transparent rounded-full animate-spin"></div>`,
-        done:       `<span class="material-symbols-outlined text-green-500 text-xl" style="font-variation-settings:'FILL' 1">check_circle</span>`,
-        error:      `<span class="material-symbols-outlined text-error text-xl" style="font-variation-settings:'FILL' 1">error</span>`,
-      }[item.status];
-      const rowBg = item.status === 'error' ? 'bg-red-50' : item.status === 'done' ? 'bg-green-50/50' : '';
-      const action = item.status === 'done'
-        ? `<button onclick="downloadItem(${idx})" class="bg-accent-electric text-on-primary font-mono text-xs uppercase tracking-widest px-4 py-2 rounded-full btn-press hover:bg-blue-600 transition-colors flex-shrink-0">Download</button>`
-        : item.status === 'error' ? `<span class="font-mono text-xs text-error truncate max-w-[140px]">${item.errorMsg}</span>` : '';
-      return `<li class="flex items-center gap-4 px-5 py-4 ${rowBg}"><div class="flex-shrink-0">${icon}</div><span class="flex-1 font-body text-sm text-primary truncate">${item.file.name}</span>${action}</li>`;
-    }).join('');
-  }
+    uploadZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      uploadZone.classList.add('drag-active');
+    });
+    uploadZone.addEventListener('dragleave', (e) => {
+      e.preventDefault();
+      uploadZone.classList.remove('drag-active');
+    });
+    uploadZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      uploadZone.classList.remove('drag-active');
+      if (e.dataTransfer.files.length) {
+        addFiles(Array.from(e.dataTransfer.files));
+      }
+    });
 
-  function addFiles(files) {
-    [...files].forEach(f => queue.push({ file: f, status: 'pending', blob: null, outName: '', errorMsg: '' }));
-    renderQueue();
-    processNext();
-  }
+    browseBtn.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', () => {
+      if (fileInput.files.length) {
+        addFiles(Array.from(fileInput.files));
+        fileInput.value = '';
+      }
+    });
 
-  async function processNext() {
-    if (isProcessing) return;
-    const item = queue.find(i => i.status === 'pending');
-    if (!item) return;
-    isProcessing = true;
-    item.status = 'processing';
-    renderQueue();
-    const formData = new FormData();
-    formData.append('file', item.file);
-    try {
-      const res = await fetch('/api/word-to-pdf', { method: 'POST', body: formData });
-      if (!res.ok) { const err = await res.json().catch(() => ({ detail: 'Unknown error' })); throw new Error(err.detail || `Error ${res.status}`); }
-      item.blob    = await res.blob();
-      item.outName = item.file.name.replace(/\.[^/.]+$/, '') + '.pdf';
-      item.status  = 'done';
-    } catch(e) { item.status = 'error'; item.errorMsg = e.message; }
-    isProcessing = false;
-    renderQueue();
-    processNext();
-  }
+    function addFiles(files) {
+      files.forEach(file => {
+        queue.push({
+          file: file,
+          status: 'pending',
+          blob: null,
+          outName: null,
+          errorMsg: null
+        });
+      });
+      renderQueue();
+      if (!isProcessing) processNext();
+    }
 
-  function downloadItem(idx) {
-    const item = queue[idx];
-    if (!item || !item.blob) return;
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(item.blob); a.download = item.outName; a.click();
-  }
+    async function processNext() {
+      const nextItem = queue.find(item => item.status === 'pending');
+      if (!nextItem) {
+        isProcessing = false;
+        renderQueue();
+        return;
+      }
 
-  downloadAllBtn.addEventListener('click', () => {
-    queue.filter(i => i.status === 'done').forEach((item, i) => setTimeout(() => downloadItem(queue.indexOf(item)), i * 300));
-  });
-  clearBtn.addEventListener('click', () => { queue = []; isProcessing = false; fileInput.value = ''; renderQueue(); });
+      isProcessing = true;
+      nextItem.status = 'processing';
+      renderQueue();
 
-  document.getElementById('browse-btn').addEventListener('click', e => { e.stopPropagation(); fileInput.click(); });
-  uploadZone.addEventListener('click', e => { if (!e.target.closest('button')) fileInput.click(); });
-  fileInput.addEventListener('change', e => { if (e.target.files.length) addFiles(e.target.files); });
-  uploadZone.addEventListener('dragenter', e => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
-  uploadZone.addEventListener('dragover',  e => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
-  uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
-  uploadZone.addEventListener('drop', e => { e.preventDefault(); uploadZone.classList.remove('drag-over'); if (e.dataTransfer.files.length) addFiles(e.dataTransfer.files); });
-</script>
+      try {
+        const formData = new FormData();
+        formData.append('file', nextItem.file);
+
+        const response = await fetch('/api/word-to-pdf', {
+          method: 'POST',
+          body: formData
+        });
+
+        if (!response.ok) {
+          throw new Error('Conversion failed');
+        }
+
+        const blob = await response.blob();
+        nextItem.blob = blob;
+        nextItem.outName = nextItem.file.name.replace(/\\.[^/.]+$/, '') + '.pdf';
+        nextItem.status = 'done';
+      } catch (err) {
+        nextItem.status = 'error';
+        nextItem.errorMsg = err.message || 'Error occurred';
+      }
+
+      processNext();
+    }
+
+    function renderQueue() {
+      if (queue.length === 0) {
+        queueZone.style.display = 'none';
+        return;
+      }
+      queueZone.style.display = 'block';
+      fileList.innerHTML = '';
+
+      let doneCount = 0;
+      queue.forEach((item, index) => {
+        if (item.status === 'done') doneCount++;
+
+        const li = document.createElement('li');
+        li.className = 'file-item';
+
+        let statusIcon, statusText;
+        if (item.status === 'pending') {
+          statusIcon = '<span class="material-symbols-outlined status-icon status-pending">schedule</span>';
+          statusText = '<span class="status-pending">Waiting...</span>';
+        } else if (item.status === 'processing') {
+          statusIcon = '<span class="material-symbols-outlined status-icon status-processing">progress_activity</span>';
+          statusText = '<span class="status-processing">Processing...</span>';
+        } else if (item.status === 'done') {
+          statusIcon = '<span class="material-symbols-outlined status-icon status-done">check_circle</span>';
+          statusText = '<span class="status-done">Completed</span>';
+        } else {
+          statusIcon = '<span class="material-symbols-outlined status-icon status-error">error</span>';
+          statusText = `<span class="status-error">${item.errorMsg}</span>`;
+        }
+
+        let actionBtn = '';
+        if (item.status === 'done') {
+          actionBtn = `<button class="btn btn-accent" onclick="downloadItem(${index})">Download</button>`;
+        }
+
+        li.innerHTML = `
+          <div class="file-info">
+            <span class="material-symbols-outlined file-icon">description</span>
+            <div class="file-details">
+              <div class="file-name" title="${item.file.name}">${item.file.name}</div>
+              <div class="file-status-text">${statusIcon} ${statusText}</div>
+            </div>
+          </div>
+          <div class="file-actions">
+            ${actionBtn}
+          </div>
+        `;
+        fileList.appendChild(li);
+      });
+
+      queueCounter.textContent = `${doneCount}/${queue.length}`;
+      downloadAllBtn.style.display = doneCount > 0 ? 'inline-flex' : 'none';
+    }
+
+    window.downloadItem = function(index) {
+      const item = queue[index];
+      if (item.status !== 'done' || !item.blob) return;
+      const url = window.URL.createObjectURL(item.blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = item.outName;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    };
+
+    downloadAllBtn.addEventListener('click', () => {
+      queue.forEach((item, index) => {
+        if (item.status === 'done') {
+          downloadItem(index);
+        }
+      });
+    });
+
+    clearBtn.addEventListener('click', () => {
+      queue = queue.filter(item => item.status === 'processing');
+      renderQueue();
+    });
+  </script>
 </body>
 </html>

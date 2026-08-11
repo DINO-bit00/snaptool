@@ -1,271 +1,675 @@
 <!DOCTYPE html>
-<html lang="en" class="light">
+<html lang="en">
 <head>
-  <meta charset="utf-8"/>
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <meta name="description" content="SnapTool — Precision-engineered utilities for the modern workflow. Remove backgrounds, convert documents instantly."/>
-  <title>SnapTool — Premium Utilities</title>
-  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-  <script id="tailwind-config">
-    tailwind.config = {
-      darkMode: "class",
-      theme: {
-        extend: {
-          colors: {
-            "primary": "#18181B",
-            "on-primary": "#ffffff",
-            "canvas": "#F9FAFB",
-            "surface": "#FFFFFF",
-            "on-surface": "#1c1b1c",
-            "on-surface-variant": "#47464b",
-            "accent-electric": "#3B82F6",
-            "surface-container": "#f1eded",
-            "surface-container-low": "#f7f3f2",
-            "surface-container-high": "#ebe7e7",
-            "surface-tint": "#5f5e61",
-            "border-whisper": "rgba(226,232,240,0.5)",
-            "outline": "#77767b",
-            "outline-variant": "#c8c5cb",
-            "secondary-container": "#e3e1ec",
-            "on-secondary-container": "#63646c",
-            "inverse-surface": "#313030",
-            "error": "#ba1a1a",
-          },
-          borderRadius: {
-            "DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"
-          },
-          spacing: {
-            "container-max": "1400px",
-            "gutter": "2rem",
-            "stack-lg": "2.5rem",
-            "stack-sm": "0.5rem",
-            "section-gap": "7rem",
-            "stack-md": "1.5rem"
-          },
-          fontFamily: {
-            "display": ["Outfit"],
-            "body": ["Outfit"],
-            "mono": ["JetBrains Mono"],
-          },
-          fontSize: {
-            "display": ["clamp(2.5rem, 5vw, 4rem)", { "lineHeight": "1.05", "letterSpacing": "-0.03em", "fontWeight": "900" }],
-            "headline": ["clamp(1.5rem, 3vw, 2rem)", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700" }],
-            "body-lg": ["1.125rem", { "lineHeight": "1.65", "fontWeight": "400" }],
-            "body": ["1rem", { "lineHeight": "1.65", "fontWeight": "400" }],
-            "label": ["0.875rem", { "lineHeight": "1.5", "letterSpacing": "0.05em", "fontWeight": "500" }],
-          }
-        }
-      }
-    }
-  </script>
+  <title>SnapTool — Precision Document & Image Tools</title>
+  <meta name="description" content="Remove backgrounds, convert documents, merge and split PDFs — all locally, no signup, no friction."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800;900&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
   <style>
-    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24; }
-    .shadow-diffuse { box-shadow: 0 20px 40px -15px rgba(0,0,0,0.05); }
-    .tool-card { transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease; }
-    .tool-card:hover { transform: translateY(-4px); box-shadow: 0 32px 48px -12px rgba(0,0,0,0.1); }
-    .btn-press:active { transform: translateY(1px) scale(0.98); }
-    @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
-    .float { animation: float 3s ease-in-out infinite; }
-    @keyframes shimmer { 0%{background-position:-200% 0} 100%{background-position:200% 0} }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #050508;
+      --surface: #0e0e12;
+      --surface-2: #16161c;
+      --surface-3: #1c1c24;
+      --border: rgba(255,255,255,0.06);
+      --border-h: rgba(255,255,255,0.12);
+      --text: #f0f0f4;
+      --text-2: #9090a0;
+      --text-3: #50505e;
+      --accent: #3b82f6;
+      --accent-2: #60a5fa;
+      --accent-g: rgba(59,130,246,0.15);
+      --accent-b: rgba(59,130,246,0.25);
+      --green: #22c55e;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Geist', sans-serif;
+      min-height: 100dvh;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── BACKGROUND ORBS ──────────────────────── */
+    .orb {
+      position: fixed;
+      border-radius: 9999px;
+      filter: blur(100px);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .orb-1 {
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(59,130,246,0.12) 0%, transparent 70%);
+      top: -200px; left: -150px;
+      animation: orbFloat1 20s ease-in-out infinite;
+    }
+    .orb-2 {
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(139,92,246,0.07) 0%, transparent 70%);
+      bottom: 10%; right: -100px;
+      animation: orbFloat2 25s ease-in-out infinite;
+    }
+    .orb-3 {
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(59,130,246,0.06) 0%, transparent 70%);
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      animation: orbFloat3 30s ease-in-out infinite;
+    }
+    @keyframes orbFloat1 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(60px,80px)} }
+    @keyframes orbFloat2 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-80px,-60px)} }
+    @keyframes orbFloat3 { 0%,100%{transform:translate(-50%,-50%)} 50%{transform:translate(-48%,-52%) scale(1.1)} }
+
+    /* ── NAV ──────────────────────────────────── */
+    #navbar {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 100;
+    }
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(14,14,18,0.88);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 9999px;
+      padding: 6px 6px 6px 20px;
+      box-shadow: 0 0 0 1px rgba(0,0,0,0.6), 0 24px 48px rgba(0,0,0,0.5);
+      white-space: nowrap;
+    }
+    .nav-logo {
+      font-weight: 800;
+      font-size: 0.9rem;
+      color: var(--text);
+      text-decoration: none;
+      letter-spacing: -0.03em;
+      margin-right: 6px;
+    }
+    .nav-sep { width: 1px; height: 16px; background: rgba(255,255,255,0.08); margin: 0 8px; flex-shrink: 0; }
+    .nav-pill {
+      color: var(--text-2);
+      font-family: 'Geist Mono', monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.04em;
+      padding: 6px 12px;
+      border-radius: 9999px;
+      text-decoration: none;
+      transition: color 0.15s, background 0.15s;
+    }
+    .nav-pill:hover { color: var(--text); background: rgba(255,255,255,0.06); }
+    .nav-cta {
+      background: var(--text);
+      color: var(--bg);
+      font-family: 'Geist Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 7px 16px;
+      border-radius: 9999px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: background 0.15s;
+    }
+    .nav-cta:hover { background: #d0d0d8; }
+
+    /* ── ANIMATIONS ───────────────────────────── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); filter: blur(4px); }
+      to { opacity: 1; transform: translateY(0); filter: blur(0); }
+    }
+    .anim { opacity: 0; }
+    .anim.visible { animation: fadeUp 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+    /* ── HERO ─────────────────────────────────── */
+    .hero {
+      position: relative;
+      z-index: 1;
+      min-height: 100dvh;
+      display: flex;
+      align-items: center;
+      padding: 120px clamp(1.25rem,5vw,4rem) 80px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .hero-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 64px;
+      align-items: center;
+      width: 100%;
+    }
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(59,130,246,0.1);
+      border: 1px solid rgba(59,130,246,0.2);
+      border-radius: 9999px;
+      padding: 5px 14px 5px 8px;
+      margin-bottom: 28px;
+    }
+    .hero-eyebrow-dot {
+      width: 6px; height: 6px;
+      background: var(--accent);
+      border-radius: 9999px;
+      animation: pulse 2s ease infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+    .hero-eyebrow span { font-family: 'Geist Mono',monospace; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent-2); }
+    .hero-h1 {
+      font-size: clamp(2.6rem, 5.5vw, 4.2rem);
+      font-weight: 900;
+      letter-spacing: -0.05em;
+      line-height: 1.0;
+      color: var(--text);
+      margin-bottom: 20px;
+    }
+    .hero-h1 em { font-style: normal; color: var(--accent-2); }
+    .hero-sub {
+      font-size: 1rem;
+      color: var(--text-2);
+      line-height: 1.7;
+      max-width: 44ch;
+      margin-bottom: 40px;
+    }
+    .hero-sub strong { color: var(--text); font-weight: 600; }
+    .hero-ctas { display: flex; gap: 12px; flex-wrap: wrap; }
+    .btn-hero-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--accent);
+      color: #fff;
+      font-family: 'Geist Mono',monospace;
+      font-size: 0.8rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 13px 24px;
+      border-radius: 9999px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: background 0.15s, transform 0.15s, box-shadow 0.15s;
+      box-shadow: 0 0 0 0 rgba(59,130,246,0);
+    }
+    .btn-hero-primary:hover { background: #2563eb; transform: translateY(-1px); box-shadow: 0 12px 32px rgba(59,130,246,0.35); }
+    .btn-hero-primary:active { transform: translateY(0) scale(0.98); }
+    .btn-hero-ghost {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid var(--border-h);
+      color: var(--text-2);
+      font-family: 'Geist Mono',monospace;
+      font-size: 0.8rem;
+      letter-spacing: 0.04em;
+      padding: 12px 20px;
+      border-radius: 9999px;
+      text-decoration: none;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .btn-hero-ghost:hover { border-color: var(--border-h); color: var(--text); }
+
+    /* ── HERO RIGHT (mini bento) ──────────────── */
+    .hero-right {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: auto auto;
+      gap: 12px;
+    }
+    .mini-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      transition: border-color 0.2s, transform 0.3s cubic-bezier(0.16,1,0.3,1);
+    }
+    .mini-card:hover { border-color: var(--border-h); transform: translateY(-3px); }
+    .mini-card.span2 { grid-column: span 2; }
+    .mini-card-icon {
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 12px;
+    }
+    .mini-card .label { font-weight: 700; font-size: 0.875rem; color: var(--text); margin-bottom: 4px; }
+    .mini-card .sub { font-size: 0.75rem; color: var(--text-3); line-height: 1.5; }
+    .mini-card.featured {
+      background: linear-gradient(135deg, #1a2040 0%, #0e0e12 100%);
+      border-color: rgba(59,130,246,0.2);
+    }
+
+    /* ── DIVIDER ──────────────────────────────── */
+    .section-divider {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 clamp(1.25rem,5vw,4rem);
+      position: relative;
+      z-index: 1;
+    }
+    .divider-line {
+      height: 1px;
+      background: linear-gradient(to right, transparent, rgba(255,255,255,0.06) 20%, rgba(255,255,255,0.06) 80%, transparent);
+    }
+
+    /* ── TOOLS SECTION ────────────────────────── */
+    .tools-section {
+      position: relative;
+      z-index: 1;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 100px clamp(1.25rem,5vw,4rem);
+    }
+    .section-label {
+      font-family: 'Geist Mono',monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      margin-bottom: 16px;
+    }
+    .section-h2 {
+      font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      line-height: 1.1;
+      color: var(--text);
+      margin-bottom: 56px;
+    }
+
+    /* ── BENTO GRID ───────────────────────────── */
+    .bento {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      grid-template-rows: auto;
+      gap: 12px;
+    }
+    .tool-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 32px;
+      text-decoration: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      transition: border-color 0.25s, transform 0.3s cubic-bezier(0.16,1,0.3,1), box-shadow 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+    .tool-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 0% 0%, rgba(59,130,246,0.05) 0%, transparent 60%);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .tool-card:hover { border-color: rgba(255,255,255,0.14); transform: translateY(-4px); box-shadow: 0 24px 64px rgba(0,0,0,0.4); }
+    .tool-card:hover::before { opacity: 1; }
+    .tool-card:active { transform: translateY(-2px) scale(0.995); }
+
+    .tool-card.c7 { grid-column: span 7; min-height: 340px; }
+    .tool-card.c5 { grid-column: span 5; }
+    .tool-card.c6 { grid-column: span 6; }
+    .tool-card.c12 { grid-column: span 12; flex-direction: row; align-items: center; }
+
+    .tool-icon {
+      width: 48px; height: 48px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 24px;
+      flex-shrink: 0;
+    }
+    .tool-card .tool-name {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.025em;
+      margin-bottom: 8px;
+    }
+    .tool-card .tool-desc {
+      font-size: 0.875rem;
+      color: var(--text-2);
+      line-height: 1.65;
+      flex: 1;
+    }
+    .tool-card .tool-arrow {
+      margin-top: 28px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'Geist Mono',monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--accent-2);
+      transition: gap 0.2s;
+    }
+    .tool-card:hover .tool-arrow { gap: 12px; }
+    .tool-card.c12 .tool-arrow { margin-top: 0; margin-left: auto; }
+    .tool-card.c12 .tool-icon { margin-bottom: 0; margin-right: 24px; }
+    .tool-card.c12 .tool-name { margin-bottom: 4px; }
+
+    /* card accent backgrounds */
+    .card-bg-blue { background: linear-gradient(135deg, #0f172a 0%, var(--surface) 60%); border-color: rgba(59,130,246,0.15); }
+    .card-bg-purple { background: linear-gradient(135deg, #110d1f 0%, var(--surface) 60%); }
+    .card-bg-green { background: linear-gradient(135deg, #091a12 0%, var(--surface) 60%); }
+
+    /* ── HOW IT WORKS ─────────────────────────── */
+    .how-section {
+      position: relative;
+      z-index: 1;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 clamp(1.25rem,5vw,4rem) 100px;
+    }
+    .steps-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      overflow: hidden;
+    }
+    .step {
+      background: var(--surface);
+      padding: 40px 36px;
+      position: relative;
+    }
+    .step-num {
+      font-family: 'Geist Mono',monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.12em;
+      color: var(--accent-2);
+      margin-bottom: 28px;
+      display: block;
+    }
+    .step h4 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      color: var(--text);
+      margin-bottom: 10px;
+    }
+    .step p { font-size: 0.875rem; color: var(--text-2); line-height: 1.65; }
+
+    /* ── FOOTER ───────────────────────────────── */
+    footer {
+      position: relative;
+      z-index: 1;
+      border-top: 1px solid rgba(255,255,255,0.04);
+      padding: 40px clamp(1.25rem,5vw,4rem);
+    }
+    .footer-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .footer-logo { font-weight: 800; font-size: 1rem; letter-spacing: -0.03em; color: var(--text-3); }
+    .footer-copy { font-family: 'Geist Mono',monospace; font-size: 0.72rem; color: var(--text-3); }
+
+    /* ── RESPONSIVE ───────────────────────────── */
+    @media (max-width: 900px) {
+      .hero-inner { grid-template-columns: 1fr; gap: 48px; }
+      .hero-right { display: none; }
+      .bento { grid-template-columns: 1fr; }
+      .tool-card.c7, .tool-card.c5, .tool-card.c6, .tool-card.c12 { grid-column: span 1; flex-direction: column; }
+      .tool-card.c12 .tool-arrow { margin-top: 20px; margin-left: 0; }
+      .tool-card.c12 .tool-icon { margin-right: 0; margin-bottom: 16px; }
+      .steps-row { grid-template-columns: 1fr; }
+      .step + .step { border-top: 1px solid var(--border); }
+      .nav-inner { gap: 2px; padding: 6px 6px 6px 14px; }
+      .nav-pill { display: none; }
+      .nav-pill:nth-child(-n+2) { display: block; font-size: 0.65rem; padding: 5px 8px; }
+    }
   </style>
 </head>
-<body class="bg-canvas text-on-surface font-body antialiased min-h-[100dvh] flex flex-col overflow-x-hidden">
+<body>
+  <!-- Background orbs -->
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
 
-<!-- NAV -->
-<nav class="sticky top-0 z-50 bg-surface/80 backdrop-blur-md border-b border-border-whisper">
-  <div class="max-w-container-max mx-auto px-gutter py-3 flex justify-between items-center">
-    <a href="/" class="font-display text-2xl font-black tracking-tighter text-primary">SnapTool</a>
-    <div class="hidden md:flex items-center gap-8">
-      <a href="#tools" class="font-mono text-label text-on-surface-variant hover:text-accent-electric transition-colors duration-200">Tools</a>
-      <a href="#how" class="font-mono text-label text-on-surface-variant hover:text-accent-electric transition-colors duration-200">How it works</a>
+  <!-- NAV -->
+  <nav id="navbar">
+    <div class="nav-inner">
+      <a href="/" class="nav-logo">SnapTool</a>
+      <div class="nav-sep"></div>
+      <a href="/bg-remover" class="nav-pill">BG Remover</a>
+      <a href="/word-to-pdf" class="nav-pill">Word → PDF</a>
+      <a href="/pdf-to-word" class="nav-pill">PDF → Word</a>
+      <a href="/doc-tools" class="nav-pill">Doc Toolkit</a>
+      <a href="/img-to-pdf" class="nav-pill">Img → PDF</a>
+      <div class="nav-sep"></div>
+      <a href="#tools" class="nav-cta">Explore Tools</a>
     </div>
-    <a href="#tools" class="bg-primary text-on-primary font-mono text-label uppercase tracking-widest px-6 py-2.5 rounded-full btn-press hover:bg-inverse-surface transition-colors duration-200 shadow-diffuse">
-      Get Started
-    </a>
-  </div>
-</nav>
+  </nav>
 
-<!-- HERO -->
-<section class="max-w-container-max mx-auto px-gutter pt-section-gap pb-24 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-  <!-- Left: Text -->
-  <div class="lg:col-span-7 flex flex-col gap-6">
-    <div class="inline-flex items-center gap-2 bg-accent-electric/10 text-accent-electric rounded-full px-4 py-1.5 w-fit">
-      <span class="material-symbols-outlined text-base">auto_awesome</span>
-      <span class="font-mono text-label uppercase tracking-wider">5 tools, zero friction</span>
-    </div>
-    <h1 class="font-display text-display text-primary">
-      One platform,<br/>
-      every
-      <span class="inline-flex items-center mx-2 align-middle overflow-hidden rounded-2xl w-20 h-12 md:w-28 md:h-16 shadow-diffuse border border-border-whisper float">
-        <img src="https://picsum.photos/seed/snaptool42/224/128" alt="tool" class="w-full h-full object-cover"/>
-      </span>
-      tool.
-    </h1>
-    <p class="font-body text-body-lg text-on-surface-variant max-w-xl">
-      Precision-engineered utilities for the modern workflow. Remove backgrounds, convert documents — instantly, locally, no sign-up required.
-    </p>
-    <div class="flex flex-wrap gap-4 mt-2">
-      <a href="#tools" id="cta-explore" class="bg-accent-electric text-on-primary font-mono text-label uppercase tracking-widest px-8 py-4 rounded-full btn-press shadow-diffuse hover:bg-blue-600 transition-colors duration-200">
-        Explore Tools
-      </a>
-    </div>
-  </div>
-  <!-- Right: Feature preview cards stacked -->
-  <div class="lg:col-span-5 grid grid-cols-2 gap-4">
-    <div class="col-span-2 bg-surface rounded-xl p-5 shadow-diffuse border border-border-whisper flex items-center gap-4">
-      <div class="w-12 h-12 rounded-full bg-accent-electric/10 flex items-center justify-center flex-shrink-0">
-        <span class="material-symbols-outlined text-accent-electric" style="font-variation-settings:'FILL' 1">image</span>
-      </div>
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-inner">
+      <!-- Left -->
       <div>
-        <div class="font-display font-bold text-primary">Background Remover</div>
-        <div class="font-body text-sm text-on-surface-variant">Neural-net precision, transparent PNG output</div>
+        <div class="hero-eyebrow anim" style="animation-delay:0.05s">
+          <div class="hero-eyebrow-dot"></div>
+          <span>5 tools · zero friction · fully local</span>
+        </div>
+        <h1 class="hero-h1 anim" style="animation-delay:0.12s">
+          Every tool<br/>your files<br/><em>deserve.</em>
+        </h1>
+        <p class="hero-sub anim" style="animation-delay:0.2s">
+          Remove backgrounds with <strong>AI precision</strong>. Convert documents. Merge & split PDFs. Images to PDF. Everything runs <strong>locally</strong> — no upload limits, no accounts.
+        </p>
+        <div class="hero-ctas anim" style="animation-delay:0.28s">
+          <a href="#tools" class="btn-hero-primary">
+            Explore all tools
+            <span class="material-symbols-outlined" style="font-size:1rem;font-variation-settings:'FILL' 0,'wght' 300;">arrow_downward</span>
+          </a>
+          <a href="/bg-remover" class="btn-hero-ghost">
+            <span class="material-symbols-outlined" style="font-size:1rem;font-variation-settings:'FILL' 1,'wght' 400;">auto_fix_high</span>
+            Try BG Remover
+          </a>
+        </div>
       </div>
-      <span class="material-symbols-outlined text-outline ml-auto">arrow_forward</span>
-    </div>
-    <div class="bg-surface rounded-xl p-5 shadow-diffuse border border-border-whisper">
-      <span class="material-symbols-outlined text-accent-electric mb-3 block" style="font-variation-settings:'FILL' 1">description</span>
-      <div class="font-display font-bold text-primary text-sm">Word → PDF</div>
-      <div class="font-body text-xs text-on-surface-variant mt-1">Zero formatting loss</div>
-    </div>
-    <div class="bg-primary text-on-primary rounded-xl p-5 shadow-diffuse">
-      <span class="material-symbols-outlined mb-3 block opacity-70" style="font-variation-settings:'FILL' 1">picture_as_pdf</span>
-      <div class="font-display font-bold text-sm">PDF → Word</div>
-      <div class="font-body text-xs opacity-60 mt-1">Fully editable output</div>
-    </div>
-  </div>
-</section>
-
-<!-- TOOLS SECTION -->
-<section id="tools" class="bg-white border-t border-border-whisper">
-  <div class="max-w-container-max mx-auto px-gutter py-section-gap">
-    <div class="mb-16">
-      <div class="font-mono text-label text-accent-electric uppercase tracking-widest mb-3">Choose a tool</div>
-      <h2 class="font-display text-headline text-primary">What do you need today?</h2>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-12 gap-6 auto-rows-fr">
-      <!-- Card 1: Background Remover (Large) -->
-      <a href="/bg-remover" class="md:col-span-7 tool-card bg-canvas rounded-xl border border-border-whisper shadow-diffuse overflow-hidden flex flex-col group">
-        <div class="h-52 overflow-hidden relative">
-          <img src="https://picsum.photos/seed/bgremove81/800/400" alt="Background Remover" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"/>
-          <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
-          <div class="absolute bottom-4 left-5">
-            <span class="font-mono text-label text-white uppercase tracking-widest">Try it free</span>
+      <!-- Right: mini bento -->
+      <div class="hero-right anim" style="animation-delay:0.3s">
+        <div class="mini-card featured" style="grid-column:span 2;">
+          <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px;">
+            <div class="mini-card-icon" style="background:rgba(59,130,246,0.15);">
+              <span class="material-symbols-outlined" style="color:var(--accent-2);font-variation-settings:'FILL' 1,'wght' 400;">auto_fix_high</span>
+            </div>
+            <div>
+              <div class="label">Background Remover</div>
+              <div class="sub">Neural-net isolation, transparent PNG</div>
+            </div>
+          </div>
+          <div style="height:80px;background:linear-gradient(135deg,rgba(59,130,246,0.08),rgba(139,92,246,0.05));border-radius:10px;border:1px solid rgba(59,130,246,0.1);display:flex;align-items:center;justify-content:center;">
+            <span style="font-family:'Geist Mono',monospace;font-size:0.72rem;color:var(--text-3);letter-spacing:0.08em;">DROP IMAGE → TRANSPARENT PNG</span>
           </div>
         </div>
-        <div class="p-8 flex flex-col gap-3 flex-1">
-          <div class="flex items-center gap-3">
-            <span class="material-symbols-outlined text-accent-electric" style="font-variation-settings:'FILL' 1">image</span>
-            <h3 class="font-display font-bold text-xl text-primary">Background Remover</h3>
+        <div class="mini-card">
+          <div class="mini-card-icon" style="background:rgba(34,197,94,0.1);">
+            <span class="material-symbols-outlined" style="color:#22c55e;font-size:1.1rem;font-variation-settings:'FILL' 1,'wght' 400;">description</span>
           </div>
-          <p class="font-body text-on-surface-variant">Instantly isolate subjects with AI precision. Clean edges, transparent PNG — drag, drop, done.</p>
-          <div class="mt-auto pt-4 flex items-center gap-2 text-accent-electric font-mono text-label">
-            <span>Open tool</span>
-            <span class="material-symbols-outlined text-base transition-transform duration-200 group-hover:translate-x-1">arrow_forward</span>
+          <div class="label">Word → PDF</div>
+          <div class="sub">Zero formatting loss</div>
+        </div>
+        <div class="mini-card">
+          <div class="mini-card-icon" style="background:rgba(249,115,22,0.1);">
+            <span class="material-symbols-outlined" style="color:#f97316;font-size:1.1rem;font-variation-settings:'FILL' 1,'wght' 400;">picture_as_pdf</span>
           </div>
+          <div class="label">PDF → Word</div>
+          <div class="sub">Editable output</div>
+        </div>
+        <div class="mini-card">
+          <div class="mini-card-icon" style="background:rgba(168,85,247,0.1);">
+            <span class="material-symbols-outlined" style="color:#a855f7;font-size:1.1rem;font-variation-settings:'FILL' 1,'wght' 400;">call_split</span>
+          </div>
+          <div class="label">Doc Toolkit</div>
+          <div class="sub">Merge & split</div>
+        </div>
+        <div class="mini-card">
+          <div class="mini-card-icon" style="background:rgba(59,130,246,0.1);">
+            <span class="material-symbols-outlined" style="color:var(--accent-2);font-size:1.1rem;font-variation-settings:'FILL' 1,'wght' 400;">add_photo_alternate</span>
+          </div>
+          <div class="label">Img → PDF</div>
+          <div class="sub">Multi-image, A4</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- divider -->
+  <div class="section-divider"><div class="divider-line"></div></div>
+
+  <!-- TOOLS -->
+  <section class="tools-section" id="tools">
+    <p class="section-label anim">Choose a tool</p>
+    <h2 class="section-h2 anim" style="animation-delay:0.06s">What do you need?</h2>
+
+    <div class="bento">
+      <!-- Card 1: BG Remover — large -->
+      <a href="/bg-remover" class="tool-card c7 card-bg-blue anim" style="animation-delay:0.1s">
+        <div class="tool-icon" style="background:rgba(59,130,246,0.15);">
+          <span class="material-symbols-outlined" style="color:var(--accent-2);font-size:1.3rem;font-variation-settings:'FILL' 1,'wght' 400;">auto_fix_high</span>
+        </div>
+        <div class="tool-name">Background Remover</div>
+        <div class="tool-desc">AI-powered subject isolation. Upload any image and get a pixel-perfect transparent PNG. Handles hair, fur, and complex edges. Batch-supported.</div>
+        <div class="tool-arrow">
+          Open tool
+          <span class="material-symbols-outlined" style="font-size:0.9rem;font-variation-settings:'FILL' 0,'wght' 300;">arrow_forward</span>
         </div>
       </a>
 
-      <!-- Right stack -->
-      <div class="md:col-span-5 flex flex-col gap-6">
-        <!-- Card 2: Word to PDF -->
-        <a href="/word-to-pdf" class="tool-card flex-1 bg-primary text-on-primary rounded-xl border border-primary shadow-diffuse p-8 flex flex-col gap-3 group">
-          <span class="material-symbols-outlined text-on-primary/70" style="font-variation-settings:'FILL' 1">description</span>
-          <h3 class="font-display font-bold text-xl">Word to PDF</h3>
-          <p class="font-body opacity-60 text-sm">Maintain formatting fidelity across all document conversions. Enterprise-grade output.</p>
-          <div class="mt-auto pt-4 flex items-center gap-2 font-mono text-label opacity-80 group-hover:opacity-100">
-            <span>Convert now</span>
-            <span class="material-symbols-outlined text-base transition-transform duration-200 group-hover:translate-x-1">arrow_forward</span>
+      <!-- Card 2: Word→PDF stacked with PDF→Word -->
+      <div style="grid-column:span 5;display:flex;flex-direction:column;gap:12px;">
+        <a href="/word-to-pdf" class="tool-card anim" style="animation-delay:0.15s;flex:1;">
+          <div class="tool-icon" style="background:rgba(34,197,94,0.12);">
+            <span class="material-symbols-outlined" style="color:#22c55e;font-size:1.2rem;font-variation-settings:'FILL' 1,'wght' 400;">description</span>
+          </div>
+          <div class="tool-name">Word → PDF</div>
+          <div class="tool-desc">Fidelity-preserving conversion. Batch files supported.</div>
+          <div class="tool-arrow">
+            Convert
+            <span class="material-symbols-outlined" style="font-size:0.9rem;font-variation-settings:'FILL' 0,'wght' 300;">arrow_forward</span>
           </div>
         </a>
-        <!-- Card 3: PDF to Word -->
-        <a href="/pdf-to-word" class="tool-card flex-1 bg-surface rounded-xl border border-border-whisper shadow-diffuse p-8 flex flex-col gap-3 group">
-          <span class="material-symbols-outlined text-accent-electric" style="font-variation-settings:'FILL' 1">picture_as_pdf</span>
-          <h3 class="font-display font-bold text-xl text-primary">PDF to Word</h3>
-          <p class="font-body text-on-surface-variant text-sm">Extract text and layouts flawlessly. Say goodbye to garbled formatting.</p>
-          <div class="mt-auto pt-4 flex items-center gap-2 text-accent-electric font-mono text-label group-hover:gap-3 transition-all duration-200">
-            <span>Convert now</span>
-            <span class="material-symbols-outlined text-base transition-transform duration-200 group-hover:translate-x-1">arrow_forward</span>
+        <a href="/pdf-to-word" class="tool-card anim" style="animation-delay:0.2s;flex:1;">
+          <div class="tool-icon" style="background:rgba(249,115,22,0.12);">
+            <span class="material-symbols-outlined" style="color:#f97316;font-size:1.2rem;font-variation-settings:'FILL' 1,'wght' 400;">picture_as_pdf</span>
+          </div>
+          <div class="tool-name">PDF → Word</div>
+          <div class="tool-desc">Fully editable .docx output with layout intact.</div>
+          <div class="tool-arrow">
+            Convert
+            <span class="material-symbols-outlined" style="font-size:0.9rem;font-variation-settings:'FILL' 0,'wght' 300;">arrow_forward</span>
           </div>
         </a>
       </div>
-      
-      <!-- Card 4: Document Toolkit -->
-      <a href="/doc-tools" class="md:col-span-12 tool-card bg-surface rounded-xl border border-border-whisper shadow-diffuse p-8 flex flex-col md:flex-row items-start md:items-center gap-6 group">
-        <div class="w-16 h-16 rounded-full bg-accent-electric/10 flex items-center justify-center flex-shrink-0">
-          <span class="material-symbols-outlined text-accent-electric text-3xl" style="font-variation-settings:'FILL' 1">call_split</span>
+
+      <!-- Card 3: Doc Toolkit -->
+      <a href="/doc-tools" class="tool-card c6 card-bg-purple anim" style="animation-delay:0.22s">
+        <div class="tool-icon" style="background:rgba(168,85,247,0.12);">
+          <span class="material-symbols-outlined" style="color:#a855f7;font-size:1.3rem;font-variation-settings:'FILL' 1,'wght' 400;">call_split</span>
         </div>
-        <div class="flex-1">
-          <h3 class="font-display font-bold text-xl text-primary mb-2">Merge & Split Toolkit</h3>
-          <p class="font-body text-on-surface-variant text-sm max-w-2xl">Combine multiple chapters into one final report, or split massive documents into manageable sections. Supports both PDF and Word (.docx).</p>
-        </div>
-        <div class="flex items-center gap-2 text-accent-electric font-mono text-label group-hover:gap-3 transition-all duration-200 whitespace-nowrap">
-          <span>Open toolkit</span>
-          <span class="material-symbols-outlined text-base transition-transform duration-200 group-hover:translate-x-1">arrow_forward</span>
+        <div class="tool-name">Merge & Split Toolkit</div>
+        <div class="tool-desc">Combine chapters into one final report, or split massive documents into sections. Supports PDF and Word (.docx) with page-range precision.</div>
+        <div class="tool-arrow">
+          Open toolkit
+          <span class="material-symbols-outlined" style="font-size:0.9rem;font-variation-settings:'FILL' 0,'wght' 300;">arrow_forward</span>
         </div>
       </a>
 
-      <!-- Card 5: Image to PDF -->
-      <a href="/img-to-pdf" class="md:col-span-6 tool-card bg-canvas rounded-xl border border-border-whisper shadow-diffuse overflow-hidden flex flex-col group">
-        <div class="p-8 flex flex-col gap-5 flex-1">
-          <div class="w-14 h-14 rounded-full bg-accent-electric/10 flex items-center justify-center">
-            <span class="material-symbols-outlined text-accent-electric text-2xl" style="font-variation-settings:'FILL' 1">add_photo_alternate</span>
-          </div>
-          <div>
-            <h3 class="font-display font-bold text-xl text-primary mb-2">Image → PDF</h3>
-            <p class="font-body text-on-surface-variant text-sm">Combine JPG, PNG, and WebP images into a single A4 PDF. Drag to reorder pages, choose portrait or landscape layout.</p>
-          </div>
-          <div class="mt-auto flex items-center gap-2 text-accent-electric font-mono text-label group-hover:gap-3 transition-all duration-200">
-            <span>Convert Images</span>
-            <span class="material-symbols-outlined text-base transition-transform duration-200 group-hover:translate-x-1">arrow_forward</span>
-          </div>
+      <!-- Card 4: Img→PDF -->
+      <a href="/img-to-pdf" class="tool-card c6 card-bg-green anim" style="animation-delay:0.26s">
+        <div class="tool-icon" style="background:rgba(59,130,246,0.12);">
+          <span class="material-symbols-outlined" style="color:var(--accent-2);font-size:1.3rem;font-variation-settings:'FILL' 1,'wght' 400;">add_photo_alternate</span>
+        </div>
+        <div class="tool-name">Image → PDF</div>
+        <div class="tool-desc">Convert JPG, PNG, WebP images into a polished A4 PDF. Drag to reorder pages, choose portrait or landscape layout per image.</div>
+        <div class="tool-arrow">
+          Convert images
+          <span class="material-symbols-outlined" style="font-size:0.9rem;font-variation-settings:'FILL' 0,'wght' 300;">arrow_forward</span>
         </div>
       </a>
     </div>
-  </div>
-</section>
+  </section>
 
-<!-- HOW IT WORKS -->
-<section id="how" class="max-w-container-max mx-auto px-gutter py-section-gap">
-  <div class="mb-16">
-    <div class="font-mono text-label text-accent-electric uppercase tracking-widest mb-3">Process</div>
-    <h2 class="font-display text-headline text-primary">Three steps, every time</h2>
-  </div>
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-px bg-border-whisper rounded-xl overflow-hidden border border-border-whisper">
-    <div class="bg-canvas p-10">
-      <div class="w-10 h-10 rounded-full bg-accent-electric/10 text-accent-electric font-mono text-label flex items-center justify-center mb-6">01</div>
-      <h4 class="font-display font-bold text-primary mb-3">Upload</h4>
-      <p class="font-body text-on-surface-variant text-sm">Drag and drop your file into the tool zone, or click to browse. No account needed.</p>
-    </div>
-    <div class="bg-canvas p-10 border-l border-border-whisper">
-      <div class="w-10 h-10 rounded-full bg-accent-electric/10 text-accent-electric font-mono text-label flex items-center justify-center mb-6">02</div>
-      <h4 class="font-display font-bold text-primary mb-3">Process</h4>
-      <p class="font-body text-on-surface-variant text-sm">Our engine handles everything — AI masking, document parsing, format conversion.</p>
-    </div>
-    <div class="bg-canvas p-10 border-l border-border-whisper">
-      <div class="w-10 h-10 rounded-full bg-accent-electric/10 text-accent-electric font-mono text-label flex items-center justify-center mb-6">03</div>
-      <h4 class="font-display font-bold text-primary mb-3">Download</h4>
-      <p class="font-body text-on-surface-variant text-sm">Your file is ready instantly. Download it. Files are purged from our servers after 1 hour.</p>
-    </div>
-  </div>
-</section>
+  <!-- divider -->
+  <div class="section-divider"><div class="divider-line"></div></div>
 
-<!-- FOOTER -->
-<footer class="border-t border-border-whisper mt-auto">
-  <div class="max-w-container-max mx-auto px-gutter py-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-    <div>
-      <div class="font-display font-black text-xl text-primary mb-1">SnapTool</div>
-      <p class="font-mono text-label text-outline">© 2024 SnapTool. Engineered for precision.</p>
+  <!-- HOW IT WORKS -->
+  <section class="how-section" style="padding-top:100px;">
+    <h2 class="section-h2 anim" style="text-align:center;margin-bottom:40px;">Three steps, every time.</h2>
+    <div class="steps-row anim" style="animation-delay:0.1s">
+      <div class="step">
+        <span class="step-num">01 — Upload</span>
+        <h4>Drag, drop, done</h4>
+        <p>Drag files into the tool or click to browse. No account, no tracking, no upload limits beyond what your browser can handle.</p>
+      </div>
+      <div class="step" style="border-left:1px solid var(--border);">
+        <span class="step-num">02 — Process</span>
+        <h4>Local & instant</h4>
+        <p>Your files stay on your machine or pass through our server without being stored. AI masking, PDF parsing, and format conversion all complete in seconds.</p>
+      </div>
+      <div class="step" style="border-left:1px solid var(--border);">
+        <span class="step-num">03 — Download</span>
+        <h4>Your file, ready</h4>
+        <p>Download the result immediately. Temporary server files are purged within 1 hour. Nothing is retained.</p>
+      </div>
     </div>
-    <div class="flex flex-wrap gap-6">
-      <a href="#" class="font-mono text-label text-outline hover:text-primary transition-colors">Terms</a>
-      <a href="#" class="font-mono text-label text-outline hover:text-primary transition-colors">Privacy</a>
-      <a href="#" class="font-mono text-label text-outline hover:text-primary transition-colors">Contact</a>
-    </div>
-  </div>
-</footer>
+  </section>
 
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-inner">
+      <span class="footer-logo">SnapTool</span>
+      <span class="footer-copy">© 2024 SnapTool · All processing is local or ephemeral.</span>
+    </div>
+  </footer>
+
+  <script>
+    // Scroll reveal
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach((e, i) => {
+        if (e.isIntersecting) {
+          e.target.classList.add('visible');
+          obs.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.08 });
+    document.querySelectorAll('.anim').forEach(el => obs.observe(el));
+
+    // Animate .anim elements that are already in view on load
+    setTimeout(() => {
+      document.querySelectorAll('.anim:not(.visible)').forEach(el => {
+        const rect = el.getBoundingClientRect();
+        if (rect.top < window.innerHeight * 0.95) {
+          el.classList.add('visible');
+        }
+      });
+    }, 50);
+  </script>
 </body>
 </html>
