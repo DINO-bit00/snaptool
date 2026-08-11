@@ -4,10 +4,10 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Image to PDF — SnapTool</title>
-  <meta name="description" content="Convert multiple images (JPG, PNG, WebP) into a single PDF file. Drag to reorder pages, choose layout, and preview before downloading."/>
+  <meta name="description" content="Convert multiple images into a single PDF. Drag to reorder, choose layout, preview before downloading."/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800;900&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -15,248 +15,412 @@
       theme: {
         extend: {
           colors: {
-            "canvas": "#F5F4F2",
-            "surface": "#FFFFFF",
-            "primary": "#0F0F0F",
-            "on-primary": "#FFFFFF",
-            "on-surface": "#1A1A1A",
-            "on-surface-variant": "#6B6B6B",
-            "accent-electric": "#2563EB",
-            "border-whisper": "#E8E6E3",
-            "outline": "#B5B3B0",
-            "outline-variant": "#D9D7D4",
-            "error": "#DC2626",
-            "surface-container-high": "#EDEBE8",
+            "ink": "#09090b",
+            "ink-2": "#111113",
+            "surface": "#18181b",
+            "surface-2": "#1f1f23",
+            "border": "#2a2a2e",
+            "border-2": "#3a3a3e",
+            "muted": "#71717a",
+            "text": "#e4e4e7",
+            "text-2": "#a1a1aa",
+            "accent": "#3b82f6",
+            "accent-2": "#60a5fa",
+            "accent-dim": "rgba(59,130,246,0.12)",
+            "accent-border": "rgba(59,130,246,0.3)",
+            "green": "#22c55e",
+            "red": "#ef4444",
           },
           fontFamily: {
-            "display": ["Inter", "sans-serif"],
-            "body": ["Inter", "sans-serif"],
-            "mono": ["JetBrains Mono", "monospace"],
+            "sans": ["Geist", "sans-serif"],
+            "mono": ["Geist Mono", "monospace"],
           },
-          spacing: {
-            "gutter": "clamp(1.25rem, 5vw, 3rem)",
-            "section-gap": "clamp(3rem, 8vw, 6rem)",
-          },
-          maxWidth: { "container-max": "1200px" },
         }
       }
     }
   </script>
   <style>
-    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24; }
-    .shadow-diffuse { box-shadow: 0 20px 40px -15px rgba(0,0,0,0.06); }
-    .btn-press:active { transform: translateY(1px) scale(0.98); }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .spinning { animation: spin 1s linear infinite; }
-    @keyframes fadeUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
-    .fade-up { animation: fadeUp 0.35s ease both; }
+    * { box-sizing: border-box; }
+    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24; font-size: 1.1rem; }
 
-    /* Drag and drop zone */
-    #upload-zone.drag-over {
-      border-color: #2563EB;
-      background: rgba(37,99,235,0.05);
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: #18181b; }
+    ::-webkit-scrollbar-thumb { background: #3a3a3e; border-radius: 2px; }
+
+    /* Transitions */
+    .fade-in { animation: fadeIn 0.4s cubic-bezier(0.16,1,0.3,1) both; }
+    .slide-up { animation: slideUp 0.4s cubic-bezier(0.16,1,0.3,1) both; }
+    @keyframes fadeIn { from { opacity:0 } to { opacity:1 } }
+    @keyframes slideUp { from { opacity:0; transform:translateY(10px) } to { opacity:1; transform:translateY(0) } }
+
+    /* Upload zone */
+    #upload-zone {
+      background: linear-gradient(135deg, #1f1f23 0%, #18181b 100%);
+      border: 1.5px dashed #2a2a2e;
+      transition: border-color 0.2s, background 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+    #upload-zone::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 0%, rgba(59,130,246,0.06) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    #upload-zone:hover, #upload-zone.drag-over {
+      border-color: rgba(59,130,246,0.5);
+      background: linear-gradient(135deg, #1f1f23 0%, rgba(59,130,246,0.04) 100%);
+    }
+    #upload-zone.drag-over::before {
+      background: radial-gradient(ellipse at 50% 0%, rgba(59,130,246,0.15) 0%, transparent 70%);
     }
 
-    /* Image card grid */
+    /* Image cards */
     .img-card {
-      position: relative;
+      background: #1f1f23;
+      border: 1.5px solid #2a2a2e;
       border-radius: 10px;
       overflow: hidden;
-      background: #fff;
-      border: 2px solid #E8E6E3;
-      transition: border-color 0.2s, box-shadow 0.2s;
-      cursor: grab;
+      transition: border-color 0.2s, transform 0.2s;
+      position: relative;
     }
-    .img-card:hover { border-color: #2563EB; box-shadow: 0 4px 16px rgba(37,99,235,0.12); }
-    .img-card.dragging { opacity: 0.4; cursor: grabbing; }
-    .img-card.drag-target { border-color: #2563EB; border-style: dashed; }
+    .img-card:hover { border-color: #3a3a3e; transform: translateY(-2px); }
+    .img-card.dragging { opacity: 0.35; cursor: grabbing; }
+    .img-card.drag-target { border-color: rgba(59,130,246,0.6); border-style: dashed; }
+    .img-card .thumb-wrap { cursor: pointer; }
+    .img-card .thumb-wrap:hover .overlay { opacity: 1; }
+    .img-card .overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    /* Layout pill */
+    .layout-pill {
+      background: #1f1f23;
+      border: 1.5px solid #2a2a2e;
+      color: #a1a1aa;
+      border-radius: 9999px;
+      padding: 7px 16px;
+      font-size: 0.8125rem;
+      font-family: 'Geist Mono', monospace;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+    .layout-pill:hover { border-color: #3a3a3e; color: #e4e4e7; }
+    .layout-pill.active {
+      background: rgba(59,130,246,0.12);
+      border-color: rgba(59,130,246,0.4);
+      color: #60a5fa;
+    }
+
+    /* Btn primary */
+    .btn-primary {
+      background: #3b82f6;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 11px 24px;
+      font-family: 'Geist Mono', monospace;
+      font-size: 0.8125rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.15s, transform 0.1s;
+    }
+    .btn-primary:hover { background: #2563eb; }
+    .btn-primary:active { transform: translateY(1px) scale(0.99); }
+    .btn-primary:disabled { background: #374151; color: #6b7280; cursor: not-allowed; transform: none; }
+
+    /* Btn ghost */
+    .btn-ghost {
+      background: transparent;
+      border: 1.5px solid #2a2a2e;
+      color: #a1a1aa;
+      border-radius: 8px;
+      padding: 9px 18px;
+      font-family: 'Geist Mono', monospace;
+      font-size: 0.75rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s;
+    }
+    .btn-ghost:hover { border-color: #3a3a3e; color: #e4e4e7; }
+
+    /* Btn danger */
+    .btn-danger {
+      background: transparent;
+      border: 1.5px solid transparent;
+      color: #71717a;
+      border-radius: 8px;
+      padding: 9px 18px;
+      font-family: 'Geist Mono', monospace;
+      font-size: 0.75rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn-danger:hover { color: #ef4444; background: rgba(239,68,68,0.07); }
+
+    /* Icon btn */
+    .icon-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      border: none;
+      background: transparent;
+      color: #52525b;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+      flex-shrink: 0;
+    }
+    .icon-btn:hover { background: #2a2a2e; color: #a1a1aa; }
+    .icon-btn.danger:hover { background: rgba(239,68,68,0.1); color: #ef4444; }
+    .icon-btn:disabled { color: #3f3f46; cursor: not-allowed; }
+    .icon-btn:disabled:hover { background: transparent; color: #3f3f46; }
+
+    /* Spinning */
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinning { animation: spin 0.9s linear infinite; }
+
+    /* Page number badge */
+    .page-badge {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      background: rgba(0,0,0,0.75);
+      backdrop-filter: blur(4px);
+      color: #e4e4e7;
+      font-family: 'Geist Mono', monospace;
+      font-size: 0.6875rem;
+      border-radius: 5px;
+      padding: 2px 7px;
+      border: 1px solid rgba(255,255,255,0.08);
+      z-index: 1;
+    }
+
+    /* Modal */
+    #preview-modal {
+      background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(12px);
+    }
+    .modal-card {
+      background: #18181b;
+      border: 1.5px solid #2a2a2e;
+      border-radius: 16px;
+    }
+
+    /* Checkerboard for transparent-look demo */
+    .checker { background: #1f1f23; }
+
+    /* Nav link */
+    .nav-link { color: #71717a; font-size: 0.8125rem; font-family: 'Geist Mono', monospace; transition: color 0.15s; text-decoration: none; }
+    .nav-link:hover { color: #e4e4e7; }
+    .nav-link.active { color: #3b82f6; border-bottom: 1.5px solid #3b82f6; padding-bottom: 2px; }
   </style>
 </head>
-<body class="bg-canvas text-on-surface font-body antialiased min-h-[100dvh] flex flex-col overflow-x-hidden">
+<body style="background:#09090b; color:#e4e4e7; font-family:'Geist',sans-serif; min-height:100dvh; display:flex; flex-direction:column;">
 
 <!-- NAV -->
-<nav class="sticky top-0 z-50 bg-surface/80 backdrop-blur-md border-b border-border-whisper">
-  <div class="max-w-container-max mx-auto px-gutter py-3 flex justify-between items-center">
-    <a href="/" class="font-display text-2xl font-black tracking-tighter text-primary">SnapTool</a>
-    <div class="hidden md:flex items-center gap-8">
-      <a href="/bg-remover" class="font-mono text-label text-on-surface-variant hover:text-accent-electric transition-colors">BG Remover</a>
-      <a href="/word-to-pdf" class="font-mono text-label text-on-surface-variant hover:text-accent-electric transition-colors">Word → PDF</a>
-      <a href="/pdf-to-word" class="font-mono text-label text-on-surface-variant hover:text-accent-electric transition-colors">PDF → Word</a>
-      <a href="/doc-tools" class="font-mono text-label text-on-surface-variant hover:text-accent-electric transition-colors">Doc Toolkit</a>
-      <a href="/img-to-pdf" class="font-mono text-label text-accent-electric border-b-2 border-accent-electric pb-0.5">Img → PDF</a>
+<nav style="border-bottom:1px solid #1f1f23; background:rgba(9,9,11,0.85); backdrop-filter:blur(12px); position:sticky; top:0; z-index:50;">
+  <div style="max-width:1200px; margin:0 auto; padding:0 clamp(1.25rem,4vw,3rem); height:56px; display:flex; align-items:center; justify-content:space-between; gap:24px;">
+    <a href="/" style="font-size:1.1rem; font-weight:800; color:#e4e4e7; text-decoration:none; letter-spacing:-0.03em;">SnapTool</a>
+    <div style="display:flex; align-items:center; gap:24px; flex-wrap:wrap;">
+      <a href="/bg-remover" class="nav-link">BG Remover</a>
+      <a href="/word-to-pdf" class="nav-link">Word → PDF</a>
+      <a href="/pdf-to-word" class="nav-link">PDF → Word</a>
+      <a href="/doc-tools" class="nav-link">Doc Toolkit</a>
+      <a href="/img-to-pdf" class="nav-link active">Img → PDF</a>
     </div>
-    <a href="/" class="bg-primary text-on-primary font-mono text-label uppercase tracking-widest px-6 py-2.5 rounded-full btn-press hover:bg-gray-800 transition-colors shadow-diffuse">
-      Back Home
-    </a>
+    <a href="/" style="background:#18181b; border:1.5px solid #2a2a2e; color:#a1a1aa; font-family:'Geist Mono',monospace; font-size:0.75rem; letter-spacing:0.06em; text-transform:uppercase; padding:7px 16px; border-radius:8px; text-decoration:none; transition:all 0.15s; white-space:nowrap;" onmouseover="this.style.color='#e4e4e7';this.style.borderColor='#3a3a3e'" onmouseout="this.style.color='#a1a1aa';this.style.borderColor='#2a2a2e'">← Home</a>
   </div>
 </nav>
 
 <!-- MAIN -->
-<main class="flex-1 max-w-container-max mx-auto px-gutter py-section-gap w-full">
+<main style="flex:1; max-width:1200px; width:100%; margin:0 auto; padding:clamp(2rem,6vw,5rem) clamp(1.25rem,4vw,3rem);">
 
   <!-- Header -->
-  <div class="mb-12">
-    <div class="inline-flex items-center gap-2 bg-accent-electric/10 text-accent-electric rounded-full px-4 py-1.5 mb-5">
-      <span class="material-symbols-outlined text-base" style="font-variation-settings:'FILL' 1">image</span>
-      <span class="font-mono text-label uppercase tracking-wider">Image to PDF</span>
+  <div style="margin-bottom:3rem;">
+    <div style="display:inline-flex; align-items:center; gap:8px; background:rgba(59,130,246,0.1); border:1px solid rgba(59,130,246,0.2); border-radius:9999px; padding:5px 14px; margin-bottom:20px;">
+      <span class="material-symbols-outlined" style="color:#3b82f6; font-size:0.9rem; font-variation-settings:'FILL' 1,'wght' 500">add_photo_alternate</span>
+      <span style="font-family:'Geist Mono',monospace; font-size:0.75rem; letter-spacing:0.08em; text-transform:uppercase; color:#60a5fa;">Image → PDF</span>
     </div>
-    <h1 class="font-display font-black text-4xl md:text-5xl text-primary mb-4 leading-tight">
-      Images into a<br/>polished PDF.
+    <h1 style="font-size:clamp(2rem,5vw,3rem); font-weight:800; letter-spacing:-0.04em; line-height:1.05; color:#f4f4f5; margin:0 0 12px;">
+      Turn images into<br/><span style="color:#3b82f6;">a clean PDF.</span>
     </h1>
-    <p class="font-body text-on-surface-variant text-lg max-w-xl">
-      Upload up to <strong>30 images</strong>, arrange the order, pick a layout, and download a clean A4 PDF — all locally in your browser.
+    <p style="font-size:1rem; color:#71717a; max-width:48ch; line-height:1.65; margin:0;">
+      Upload up to <strong style="color:#a1a1aa;">30 images</strong>, drag to reorder pages, pick a layout — done locally in seconds.
     </p>
   </div>
 
-  <!-- Card -->
-  <div class="bg-surface rounded-2xl border border-border-whisper shadow-diffuse p-8 md:p-10">
+  <!-- Two-col layout -->
+  <div style="display:grid; grid-template-columns:1fr; gap:20px;" id="main-grid">
 
-    <!-- Upload Zone -->
-    <div id="upload-zone" class="border-2 border-dashed border-outline-variant rounded-xl flex flex-col items-center justify-center gap-4 py-14 cursor-pointer mb-8 transition-colors hover:border-accent-electric hover:bg-accent-electric/5">
-      <div class="w-14 h-14 rounded-full bg-surface-container-high flex items-center justify-center">
-        <span class="material-symbols-outlined text-3xl text-on-surface-variant" style="font-variation-settings:'FILL' 0">add_photo_alternate</span>
-      </div>
-      <div class="text-center">
-        <p class="font-display font-bold text-primary text-lg">Drop images here</p>
-        <p class="font-body text-sm text-on-surface-variant mt-1">JPG, PNG, WebP, BMP, GIF — max 30 files</p>
-      </div>
-      <button id="browse-btn" class="bg-primary text-on-primary font-mono text-label uppercase tracking-widest px-7 py-3 rounded-full btn-press hover:bg-gray-800 transition-colors">
-        Browse Files
-      </button>
-      <input type="file" id="file-input" accept="image/*" multiple class="hidden"/>
-    </div>
-
-    <!-- Layout Options -->
-    <div id="options-area" class="hidden mb-8">
-      <label class="block font-mono text-label text-primary mb-3 uppercase tracking-widest text-xs">Page Layout</label>
-      <div class="flex flex-wrap gap-3">
-        <button data-layout="auto" class="layout-btn active-layout font-mono text-sm px-5 py-2 rounded-full border-2 border-accent-electric text-accent-electric transition-colors flex items-center gap-2">
-          <span class="material-symbols-outlined text-base">auto_awesome</span> Auto (follow image)
+    <!-- Upload Card -->
+    <div id="upload-card" style="border-radius:14px; overflow:hidden;">
+      <!-- Upload Zone -->
+      <div id="upload-zone" style="border-radius:14px; padding:clamp(2rem,5vw,3.5rem); cursor:pointer; text-align:center;" onclick="fileInput.click()">
+        <div style="width:52px; height:52px; border-radius:12px; background:#1f1f23; border:1.5px solid #2a2a2e; display:flex; align-items:center; justify-content:center; margin:0 auto 16px;">
+          <span class="material-symbols-outlined" style="color:#3b82f6; font-size:1.4rem; font-variation-settings:'FILL' 0,'wght' 300">add_photo_alternate</span>
+        </div>
+        <p style="font-size:1rem; font-weight:600; color:#e4e4e7; margin:0 0 6px;">Drop images here</p>
+        <p style="font-size:0.8125rem; color:#52525b; margin:0 0 20px;">JPG, PNG, WebP, BMP, GIF · max 30 files</p>
+        <button id="browse-btn" onclick="event.stopPropagation(); fileInput.click();" class="btn-primary">
+          <span class="material-symbols-outlined" style="font-size:0.95rem;">upload</span>
+          Browse Files
         </button>
-        <button data-layout="portrait" class="layout-btn font-mono text-sm px-5 py-2 rounded-full border-2 border-outline-variant text-on-surface-variant hover:border-accent-electric hover:text-accent-electric transition-colors flex items-center gap-2">
-          <span class="material-symbols-outlined text-base">crop_portrait</span> Force Portrait
-        </button>
-        <button data-layout="landscape" class="layout-btn font-mono text-sm px-5 py-2 rounded-full border-2 border-outline-variant text-on-surface-variant hover:border-accent-electric hover:text-accent-electric transition-colors flex items-center gap-2">
-          <span class="material-symbols-outlined text-base">crop_landscape</span> Force Landscape
-        </button>
-      </div>
-      <p class="font-mono text-xs text-on-surface-variant mt-2">All pages use A4 size. Images are scaled to fit without cropping.</p>
-    </div>
-
-    <!-- Image Grid -->
-    <div id="grid-area" class="hidden mb-8">
-      <div class="flex justify-between items-center mb-4">
-        <p class="font-mono text-label text-primary uppercase tracking-widest text-xs">
-          Pages — <span id="count-label">0</span> image(s)
-        </p>
-        <button id="add-more-btn" class="font-mono text-xs text-accent-electric hover:underline flex items-center gap-1">
-          <span class="material-symbols-outlined text-sm">add</span> Add more
-        </button>
-      </div>
-      <div id="img-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-        <!-- cards injected by JS -->
+        <input type="file" id="file-input" accept="image/*" multiple style="display:none;"/>
       </div>
     </div>
 
-    <!-- Preview Modal -->
-    <div id="preview-modal" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-      <div class="bg-surface rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 flex flex-col gap-4">
-        <div class="flex justify-between items-center">
-          <h3 class="font-display font-bold text-lg text-primary" id="modal-title">Preview</h3>
-          <button id="close-modal" class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center hover:bg-outline-variant transition-colors">
-            <span class="material-symbols-outlined text-base">close</span>
+    <!-- Options + Grid + Actions (revealed after upload) -->
+    <div id="work-area" style="display:none; flex-direction:column; gap:16px;">
+
+      <!-- Options bar -->
+      <div style="background:#18181b; border:1.5px solid #1f1f23; border-radius:12px; padding:16px 20px; display:flex; flex-wrap:wrap; gap:12px; align-items:center; justify-content:space-between;">
+        <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+          <span style="font-family:'Geist Mono',monospace; font-size:0.7rem; text-transform:uppercase; letter-spacing:0.08em; color:#52525b; margin-right:4px;">Layout</span>
+          <button data-layout="auto" class="layout-pill active" onclick="setLayout(this)">
+            <span class="material-symbols-outlined" style="font-size:0.9rem;">auto_awesome</span> Auto
+          </button>
+          <button data-layout="portrait" class="layout-pill" onclick="setLayout(this)">
+            <span class="material-symbols-outlined" style="font-size:0.9rem;">crop_portrait</span> Portrait
+          </button>
+          <button data-layout="landscape" class="layout-pill" onclick="setLayout(this)">
+            <span class="material-symbols-outlined" style="font-size:0.9rem;">crop_landscape</span> Landscape
           </button>
         </div>
-        <img id="modal-img" src="" alt="Preview" class="w-full rounded-lg border border-border-whisper object-contain max-h-[70vh]"/>
-        <div class="flex justify-center gap-3">
-          <button id="modal-prev" class="font-mono text-sm px-4 py-2 rounded-full border border-outline-variant hover:border-accent-electric hover:text-accent-electric transition-colors flex items-center gap-1">
-            <span class="material-symbols-outlined text-sm">arrow_back</span> Prev
-          </button>
-          <button id="modal-next" class="font-mono text-sm px-4 py-2 rounded-full border border-outline-variant hover:border-accent-electric hover:text-accent-electric transition-colors flex items-center gap-1">
-            Next <span class="material-symbols-outlined text-sm">arrow_forward</span>
-          </button>
-        </div>
+        <button id="add-more-btn" class="btn-ghost" onclick="fileInput.click()">
+          <span class="material-symbols-outlined" style="font-size:0.9rem;">add</span> Add More
+        </button>
       </div>
-    </div>
 
-    <!-- Actions -->
-    <div id="action-area" class="hidden flex justify-between items-center border-t border-border-whisper pt-6">
-      <button id="clear-btn" class="text-error font-mono text-label uppercase tracking-widest px-4 py-2 hover:bg-red-50 rounded-full transition-colors">
-        Clear All
-      </button>
-      <button id="process-btn" class="bg-accent-electric text-on-primary font-mono text-label uppercase tracking-widest px-8 py-3 rounded-full btn-press hover:bg-blue-700 transition-colors flex items-center gap-2 shadow-diffuse">
-        <span class="material-symbols-outlined text-base" style="font-variation-settings:'FILL' 1">picture_as_pdf</span>
-        Convert to PDF
-      </button>
-    </div>
+      <!-- Grid header -->
+      <div style="display:flex; align-items:center; justify-content:space-between; padding:0 2px;">
+        <span style="font-family:'Geist Mono',monospace; font-size:0.75rem; letter-spacing:0.06em; text-transform:uppercase; color:#52525b;">
+          Pages — <span id="count-label" style="color:#a1a1aa;">0</span>
+        </span>
+        <span style="font-size:0.75rem; color:#3f3f46; font-family:'Geist Mono',monospace;">drag to reorder · click to preview</span>
+      </div>
 
-    <!-- Processing State -->
-    <div id="processing-area" class="hidden flex flex-col items-center gap-4 py-10 border-t border-border-whisper mt-0">
-      <span class="material-symbols-outlined text-accent-electric text-5xl spinning">autorenew</span>
-      <p class="font-mono text-sm text-primary">Converting images to PDF…</p>
+      <!-- Image grid -->
+      <div id="img-grid" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:12px;">
+      </div>
+
+      <!-- Action bar -->
+      <div style="display:flex; justify-content:space-between; align-items:center; padding-top:8px; border-top:1px solid #1f1f23;">
+        <button class="btn-danger" onclick="clearAll()">Clear all</button>
+        <button id="process-btn" class="btn-primary" onclick="processImages()">
+          <span class="material-symbols-outlined" style="font-size:0.95rem; font-variation-settings:'FILL' 1,'wght' 400">picture_as_pdf</span>
+          Convert to PDF
+        </button>
+      </div>
     </div>
 
   </div>
+
+  <!-- Processing overlay (full-area) -->
+  <div id="processing-area" style="display:none; flex-direction:column; align-items:center; justify-content:center; gap:16px; padding:64px 0; text-align:center;">
+    <div style="width:52px; height:52px; border-radius:12px; background:rgba(59,130,246,0.1); border:1.5px solid rgba(59,130,246,0.2); display:flex; align-items:center; justify-content:center;">
+      <span class="material-symbols-outlined spinning" style="color:#3b82f6; font-size:1.5rem; font-variation-settings:'FILL' 1,'wght' 400">autorenew</span>
+    </div>
+    <div>
+      <p style="font-weight:600; color:#e4e4e7; margin:0 0 4px;">Converting images…</p>
+      <p style="font-size:0.8125rem; color:#52525b; margin:0; font-family:'Geist Mono',monospace;" id="processing-label">Building your PDF</p>
+    </div>
+  </div>
+
 </main>
 
+<!-- PREVIEW MODAL -->
+<div id="preview-modal" style="display:none; position:fixed; inset:0; z-index:100; align-items:center; justify-content:center; padding:16px;">
+  <div class="modal-card" style="max-width:640px; width:100%; max-height:90dvh; overflow:hidden; display:flex; flex-direction:column;">
+    <!-- Modal header -->
+    <div style="display:flex; align-items:center; justify-content:space-between; padding:16px 20px; border-bottom:1px solid #1f1f23;">
+      <span id="modal-title" style="font-family:'Geist Mono',monospace; font-size:0.8125rem; color:#a1a1aa;"></span>
+      <button onclick="closePreviewModal()" class="icon-btn">
+        <span class="material-symbols-outlined" style="font-size:1rem;">close</span>
+      </button>
+    </div>
+    <!-- Modal image -->
+    <div style="flex:1; overflow-y:auto; padding:20px; display:flex; align-items:center; justify-content:center; min-height:300px; background:#111113;">
+      <img id="modal-img" src="" alt="Preview" style="max-width:100%; max-height:65dvh; object-fit:contain; border-radius:6px; border:1px solid #1f1f23;"/>
+    </div>
+    <!-- Modal nav -->
+    <div style="padding:14px 20px; border-top:1px solid #1f1f23; display:flex; align-items:center; justify-content:center; gap:12px;">
+      <button id="modal-prev" onclick="navigateModal(-1)" class="btn-ghost" style="padding:7px 14px;">
+        <span class="material-symbols-outlined" style="font-size:0.9rem;">arrow_back</span> Prev
+      </button>
+      <span id="modal-counter" style="font-family:'Geist Mono',monospace; font-size:0.8rem; color:#52525b; min-width:60px; text-align:center;"></span>
+      <button id="modal-next" onclick="navigateModal(1)" class="btn-ghost" style="padding:7px 14px;">
+        Next <span class="material-symbols-outlined" style="font-size:0.9rem;">arrow_forward</span>
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- FOOTER -->
-<footer class="border-t border-border-whisper mt-auto">
-  <div class="max-w-container-max mx-auto px-gutter py-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-    <div class="font-display font-black text-xl text-primary">SnapTool</div>
-    <p class="font-mono text-label text-outline">© 2024 SnapTool. Engineered for precision.</p>
+<footer style="border-top:1px solid #111113; padding:28px clamp(1.25rem,4vw,3rem); margin-top:auto;">
+  <div style="max-width:1200px; margin:0 auto; display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;">
+    <span style="font-weight:800; font-size:1rem; letter-spacing:-0.02em; color:#3f3f46;">SnapTool</span>
+    <span style="font-family:'Geist Mono',monospace; font-size:0.75rem; color:#3f3f46;">© 2024 SnapTool</span>
   </div>
 </footer>
 
 <script>
-  /* ── ELEMENTS ─────────────────────────────── */
-  const uploadZone   = document.getElementById('upload-zone');
-  const fileInput    = document.getElementById('file-input');
-  const browseBtn    = document.getElementById('browse-btn');
-  const addMoreBtn   = document.getElementById('add-more-btn');
-  const optionsArea  = document.getElementById('options-area');
-  const gridArea     = document.getElementById('grid-area');
-  const imgGrid      = document.getElementById('img-grid');
-  const countLabel   = document.getElementById('count-label');
-  const actionArea   = document.getElementById('action-area');
-  const processBtn   = document.getElementById('process-btn');
-  const clearBtn     = document.getElementById('clear-btn');
+  const fileInput     = document.getElementById('file-input');
+  const uploadZone    = document.getElementById('upload-zone');
+  const workArea      = document.getElementById('work-area');
+  const imgGrid       = document.getElementById('img-grid');
+  const countLabel    = document.getElementById('count-label');
   const processingArea = document.getElementById('processing-area');
-  const layoutBtns   = document.querySelectorAll('.layout-btn');
+  const processingLabel = document.getElementById('processing-label');
 
-  // Modal
-  const modal        = document.getElementById('preview-modal');
-  const modalImg     = document.getElementById('modal-img');
-  const modalTitle   = document.getElementById('modal-title');
-  const closeModal   = document.getElementById('close-modal');
-  const modalPrev    = document.getElementById('modal-prev');
-  const modalNext    = document.getElementById('modal-next');
+  const previewModal  = document.getElementById('preview-modal');
+  const modalImg      = document.getElementById('modal-img');
+  const modalTitle    = document.getElementById('modal-title');
+  const modalCounter  = document.getElementById('modal-counter');
+  const modalPrev     = document.getElementById('modal-prev');
+  const modalNext     = document.getElementById('modal-next');
 
   const MAX = 30;
-  let images = []; // { file, url }
+  let images = [];
   let selectedLayout = 'auto';
   let modalIndex = 0;
   let dragSrcIdx = null;
 
-  /* ── LAYOUT SELECTOR ─────────────────────── */
-  layoutBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      selectedLayout = btn.dataset.layout;
-      layoutBtns.forEach(b => {
-        b.classList.remove('active-layout', 'border-accent-electric', 'text-accent-electric');
-        b.classList.add('border-outline-variant', 'text-on-surface-variant');
-      });
-      btn.classList.add('active-layout', 'border-accent-electric', 'text-accent-electric');
-      btn.classList.remove('border-outline-variant', 'text-on-surface-variant');
-    });
-  });
+  /* ── LAYOUT ─────────────────────────────────────── */
+  function setLayout(btn) {
+    selectedLayout = btn.dataset.layout;
+    document.querySelectorAll('.layout-pill').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
 
-  /* ── FILE INPUT ───────────────────────────── */
-  browseBtn.addEventListener('click', (e) => { e.stopPropagation(); fileInput.click(); });
-  uploadZone.addEventListener('click', () => fileInput.click());
-  addMoreBtn.addEventListener('click', () => fileInput.click());
+  /* ── FILE INPUT ──────────────────────────────────── */
   fileInput.addEventListener('change', () => addFiles(fileInput.files));
 
-  /* ── DRAG & DROP on zone ─────────────────── */
   uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
   uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
   uploadZone.addEventListener('drop', e => {
@@ -265,64 +429,54 @@
     addFiles(e.dataTransfer.files);
   });
 
-  /* ── ADD FILES ────────────────────────────── */
+  /* ── ADD FILES ───────────────────────────────────── */
   function addFiles(files) {
     const valid = [...files].filter(f => f.type.startsWith('image/'));
     if (!valid.length) return;
 
     const remaining = MAX - images.length;
-    if (remaining <= 0) {
-      alert(`Maximum ${MAX} images allowed.`);
-      return;
-    }
+    if (remaining <= 0) { alert(`Max ${MAX} images reached.`); return; }
     const toAdd = valid.slice(0, remaining);
-    if (valid.length > remaining) {
-      alert(`Only ${remaining} more image(s) can be added (max ${MAX} total). Adding the first ${remaining}.`);
-    }
+    if (valid.length > remaining) alert(`Only ${remaining} slot(s) left. Adding first ${remaining}.`);
 
-    toAdd.forEach(f => {
-      images.push({ file: f, url: URL.createObjectURL(f) });
-    });
-
+    toAdd.forEach(f => images.push({ file: f, url: URL.createObjectURL(f) }));
     fileInput.value = '';
-    renderGrid();
+    renderAll();
   }
 
-  /* ── RENDER GRID ──────────────────────────── */
-  function renderGrid() {
-    if (images.length === 0) {
-      optionsArea.classList.add('hidden');
-      gridArea.classList.add('hidden');
-      actionArea.classList.add('hidden');
+  /* ── RENDER ──────────────────────────────────────── */
+  function renderAll() {
+    if (!images.length) {
+      workArea.style.display = 'none';
+      uploadZone.style.display = '';
       return;
     }
 
-    optionsArea.classList.remove('hidden');
-    gridArea.classList.remove('hidden');
-    actionArea.classList.remove('hidden');
+    uploadZone.style.display = 'none';
+    workArea.style.display = 'flex';
     countLabel.textContent = images.length;
 
     imgGrid.innerHTML = images.map((img, idx) => `
-      <div class="img-card fade-up group" data-idx="${idx}" draggable="true">
+      <div class="img-card slide-up" data-idx="${idx}" draggable="true" style="animation-delay:${Math.min(idx*0.04,0.4)}s">
         <!-- Thumbnail -->
-        <div class="aspect-[3/4] overflow-hidden bg-surface-container-high cursor-pointer relative" onclick="openModal(${idx})">
-          <img src="${img.url}" alt="${img.file.name}" class="w-full h-full object-cover transition-transform group-hover:scale-105"/>
-          <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
-            <span class="material-symbols-outlined text-white opacity-0 group-hover:opacity-100 transition-opacity text-2xl">zoom_in</span>
+        <div class="thumb-wrap" style="aspect-ratio:3/4; position:relative; overflow:hidden; background:#111113;" onclick="openModal(${idx})">
+          <img src="${img.url}" alt="" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform 0.25s;" onmouseover="this.style.transform='scale(1.04)'" onmouseout="this.style.transform='scale(1)'"/>
+          <div class="overlay">
+            <span class="material-symbols-outlined" style="color:#fff; font-size:1.5rem; font-variation-settings:'FILL' 0,'wght' 300">zoom_in</span>
           </div>
-          <div class="absolute top-1.5 left-1.5 bg-black/60 text-white font-mono text-xs rounded px-1.5 py-0.5">${idx + 1}</div>
+          <div class="page-badge">${idx + 1}</div>
         </div>
         <!-- Controls -->
-        <div class="flex items-center gap-1 p-2 border-t border-border-whisper bg-surface">
-          <button onclick="moveImg(${idx}, -1)" class="w-7 h-7 flex items-center justify-center rounded hover:bg-surface-container-high transition-colors" title="Move up" ${idx === 0 ? 'disabled' : ''}>
-            <span class="material-symbols-outlined text-base ${idx === 0 ? 'text-outline' : 'text-on-surface-variant'}">arrow_back</span>
+        <div style="display:flex; align-items:center; gap:4px; padding:8px 10px; border-top:1px solid #2a2a2e; background:#18181b;">
+          <button class="icon-btn" onclick="moveImg(${idx},-1)" ${idx===0?'disabled':''} title="Move left">
+            <span class="material-symbols-outlined" style="font-size:0.9rem;">arrow_back</span>
           </button>
-          <button onclick="moveImg(${idx}, 1)" class="w-7 h-7 flex items-center justify-center rounded hover:bg-surface-container-high transition-colors" title="Move down" ${idx === images.length - 1 ? 'disabled' : ''}>
-            <span class="material-symbols-outlined text-base ${idx === images.length - 1 ? 'text-outline' : 'text-on-surface-variant'}">arrow_forward</span>
+          <button class="icon-btn" onclick="moveImg(${idx},1)" ${idx===images.length-1?'disabled':''} title="Move right">
+            <span class="material-symbols-outlined" style="font-size:0.9rem;">arrow_forward</span>
           </button>
-          <span class="flex-1 font-body text-xs text-on-surface-variant truncate px-1" title="${img.file.name}">${img.file.name}</span>
-          <button onclick="removeImg(${idx})" class="w-7 h-7 flex items-center justify-center rounded hover:bg-red-50 transition-colors" title="Remove">
-            <span class="material-symbols-outlined text-base text-error">close</span>
+          <span style="flex:1; font-family:'Geist Mono',monospace; font-size:0.6rem; color:#3f3f46; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; padding:0 4px;" title="${img.file.name}">${img.file.name}</span>
+          <button class="icon-btn danger" onclick="removeImg(${idx})" title="Remove">
+            <span class="material-symbols-outlined" style="font-size:0.9rem;">close</span>
           </button>
         </div>
       </div>
@@ -332,7 +486,7 @@
     imgGrid.querySelectorAll('.img-card').forEach(card => {
       card.addEventListener('dragstart', e => {
         dragSrcIdx = +card.dataset.idx;
-        card.classList.add('dragging');
+        setTimeout(() => card.classList.add('dragging'), 0);
         e.dataTransfer.effectAllowed = 'move';
       });
       card.addEventListener('dragend', () => card.classList.remove('dragging'));
@@ -345,64 +499,73 @@
         if (dragSrcIdx !== null && dragSrcIdx !== targetIdx) {
           const [moved] = images.splice(dragSrcIdx, 1);
           images.splice(targetIdx, 0, moved);
-          renderGrid();
+          renderAll();
         }
         dragSrcIdx = null;
       });
     });
   }
 
-  /* ── MOVE / REMOVE ────────────────────────── */
+  /* ── MOVE / REMOVE ───────────────────────────────── */
   function moveImg(idx, dir) {
-    const newIdx = idx + dir;
-    if (newIdx < 0 || newIdx >= images.length) return;
-    [images[idx], images[newIdx]] = [images[newIdx], images[idx]];
-    renderGrid();
+    const ni = idx + dir;
+    if (ni < 0 || ni >= images.length) return;
+    [images[idx], images[ni]] = [images[ni], images[idx]];
+    renderAll();
   }
-
   function removeImg(idx) {
     URL.revokeObjectURL(images[idx].url);
     images.splice(idx, 1);
-    renderGrid();
+    renderAll();
   }
-
-  /* ── MODAL PREVIEW ────────────────────────── */
-  function openModal(idx) {
-    modalIndex = idx;
-    showModalAt(idx);
-    modal.classList.remove('hidden');
-  }
-
-  function showModalAt(idx) {
-    const img = images[idx];
-    modalImg.src = img.url;
-    modalTitle.textContent = `Page ${idx + 1} / ${images.length} — ${img.file.name}`;
-    modalPrev.disabled = idx === 0;
-    modalNext.disabled = idx === images.length - 1;
-    modalPrev.style.opacity = idx === 0 ? '0.4' : '1';
-    modalNext.style.opacity = idx === images.length - 1 ? '0.4' : '1';
-  }
-
-  closeModal.addEventListener('click', () => modal.classList.add('hidden'));
-  modal.addEventListener('click', e => { if (e.target === modal) modal.classList.add('hidden'); });
-  modalPrev.addEventListener('click', () => { if (modalIndex > 0) showModalAt(--modalIndex); });
-  modalNext.addEventListener('click', () => { if (modalIndex < images.length - 1) showModalAt(++modalIndex); });
-
-  /* ── CLEAR ────────────────────────────────── */
-  clearBtn.addEventListener('click', () => {
+  function clearAll() {
     images.forEach(i => URL.revokeObjectURL(i.url));
     images = [];
-    renderGrid();
+    renderAll();
+    uploadZone.style.display = '';
+  }
+
+  /* ── MODAL ───────────────────────────────────────── */
+  function openModal(idx) {
+    modalIndex = idx;
+    updateModal();
+    previewModal.style.display = 'flex';
+  }
+  function updateModal() {
+    const img = images[modalIndex];
+    modalImg.src = img.url;
+    modalTitle.textContent = img.file.name;
+    modalCounter.textContent = `${modalIndex + 1} / ${images.length}`;
+    modalPrev.disabled = modalIndex === 0;
+    modalNext.disabled = modalIndex === images.length - 1;
+    modalPrev.style.opacity = modalIndex === 0 ? '0.35' : '1';
+    modalNext.style.opacity = modalIndex === images.length - 1 ? '0.35' : '1';
+  }
+  function navigateModal(dir) {
+    const ni = modalIndex + dir;
+    if (ni < 0 || ni >= images.length) return;
+    modalIndex = ni;
+    updateModal();
+  }
+  function closePreviewModal() { previewModal.style.display = 'none'; }
+  previewModal.addEventListener('click', e => { if (e.target === previewModal) closePreviewModal(); });
+  document.addEventListener('keydown', e => {
+    if (previewModal.style.display === 'none') return;
+    if (e.key === 'Escape') closePreviewModal();
+    if (e.key === 'ArrowLeft') navigateModal(-1);
+    if (e.key === 'ArrowRight') navigateModal(1);
   });
 
-  /* ── PROCESS ──────────────────────────────── */
-  processBtn.addEventListener('click', async () => {
+  /* ── PROCESS ─────────────────────────────────────── */
+  async function processImages() {
     if (!images.length) return;
 
-    actionArea.classList.add('hidden');
-    optionsArea.classList.add('hidden');
-    gridArea.classList.add('hidden');
-    processingArea.classList.remove('hidden');
+    workArea.style.display = 'none';
+    processingArea.style.display = 'flex';
+
+    const steps = ['Building your PDF', 'Composing pages', 'Finalizing layout…'];
+    let si = 0;
+    const stepInterval = setInterval(() => { processingLabel.textContent = steps[si++ % steps.length]; }, 900);
 
     try {
       const fd = new FormData();
@@ -424,12 +587,11 @@
     } catch (e) {
       alert('Error: ' + e.message);
     } finally {
-      processingArea.classList.add('hidden');
-      optionsArea.classList.remove('hidden');
-      gridArea.classList.remove('hidden');
-      actionArea.classList.remove('hidden');
+      clearInterval(stepInterval);
+      processingArea.style.display = 'none';
+      workArea.style.display = 'flex';
     }
-  });
+  }
 </script>
 </body>
 </html>
