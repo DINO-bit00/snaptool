@@ -395,6 +395,100 @@ async def split_word(file: UploadFile = File(...), ranges: str = Form(...)):
 
 
 # ─────────────────────────────────────────────
+#  API: Image to PDF
+# ─────────────────────────────────────────────
+MAX_IMG_PDF = 30  # optimal: enough files without overloading browser RAM
+ALLOWED_IMG = {"image/jpeg", "image/png", "image/webp", "image/bmp", "image/tiff", "image/gif"}
+
+# A4 dimensions in pixels at 96 DPI
+A4_W_PT = 595
+A4_H_PT = 842
+
+@app.post("/api/img-to-pdf")
+async def img_to_pdf(
+    files: List[UploadFile] = File(...),
+    layout: str = Form("auto"),  # 'auto' | 'portrait' | 'landscape'
+):
+    if not files:
+        raise HTTPException(400, "No images provided.")
+    if len(files) > MAX_IMG_PDF:
+        raise HTTPException(400, f"Maximum {MAX_IMG_PDF} images allowed per conversion.")
+
+    input_paths = []
+    output_path = get_temp_path(".pdf")
+
+    try:
+        from PIL import Image as PILImage
+
+        pil_images = []
+        for f in files:
+            if f.content_type not in ALLOWED_IMG:
+                raise HTTPException(400, f"Unsupported file type: {f.content_type}. Use JPG, PNG, WebP, BMP, TIFF, or GIF.")
+            tmp = get_temp_path(".img")
+            input_paths.append(tmp)
+            with open(tmp, "wb") as out:
+                shutil.copyfileobj(f.file, out)
+
+            img = PILImage.open(tmp).convert("RGB")
+
+            # Determine orientation
+            if layout == "portrait":
+                use_landscape = False
+            elif layout == "landscape":
+                use_landscape = True
+            else:  # auto: follow the image's own orientation
+                use_landscape = img.width > img.height
+
+            if use_landscape:
+                page_w, page_h = A4_H_PT, A4_W_PT  # swap for landscape
+            else:
+                page_w, page_h = A4_W_PT, A4_H_PT
+
+            # Scale image to fit A4, preserving aspect ratio
+            img_ratio = img.width / img.height
+            page_ratio = page_w / page_h
+            if img_ratio > page_ratio:
+                new_w = page_w
+                new_h = int(page_w / img_ratio)
+            else:
+                new_h = page_h
+                new_w = int(page_h * img_ratio)
+
+            resized = img.resize((new_w, new_h), PILImage.LANCZOS)
+
+            # Paste centered on white A4 canvas
+            canvas = PILImage.new("RGB", (page_w, page_h), (255, 255, 255))
+            offset_x = (page_w - new_w) // 2
+            offset_y = (page_h - new_h) // 2
+            canvas.paste(resized, (offset_x, offset_y))
+            pil_images.append(canvas)
+
+        if not pil_images:
+            raise HTTPException(400, "No valid images could be processed.")
+
+        def _save():
+            pil_images[0].save(
+                output_path,
+                format="PDF",
+                save_all=True,
+                append_images=pil_images[1:],
+                resolution=96,
+            )
+
+        await asyncio.get_event_loop().run_in_executor(None, _save)
+        return FileResponse(output_path, media_type="application/pdf", filename="images_converted.pdf")
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        cleanup(output_path)
+        raise HTTPException(500, f"Failed to convert images to PDF: {str(e)}")
+    finally:
+        for p in input_paths:
+            cleanup(p)
+
+
+# ─────────────────────────────────────────────
 #  Serve static HTML pages
 # ─────────────────────────────────────────────
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -418,6 +512,10 @@ async def pdf_to_word_page():
 @app.get("/doc-tools", response_class=HTMLResponse)
 async def doc_tools_page():
     return FileResponse("static/doc-tools.html")
+
+@app.get("/img-to-pdf", response_class=HTMLResponse)
+async def img_to_pdf_page():
+    return FileResponse("static/img-to-pdf.html")
 
 
 if __name__ == "__main__":
