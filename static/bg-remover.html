@@ -85,6 +85,32 @@
     
     #empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 40px; text-align: center; flex: 1; color: var(--text-muted); }
     
+    /* PREVIEW OVERLAY */
+    #hover-preview {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.95);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      box-shadow: 0 24px 64px rgba(0,0,0,0.1);
+      border-radius: 12px;
+      padding: 12px;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.2s cubic-bezier(0.16,1,0.3,1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: clamp(280px, 50vw, 500px);
+      height: clamp(280px, 50vw, 500px);
+    }
+    #hover-preview.show {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+    
     /* ANIMATIONS */
     .anim { opacity: 0; transform: translateY(12px); transition: opacity 0.5s ease-out, transform 0.5s ease-out; }
     .anim.visible { opacity: 1; transform: translateY(0); }
@@ -145,6 +171,11 @@
     </div>
   </main>
 
+  <!-- Large Hover Preview -->
+  <div id="hover-preview" class="checker-bg">
+    <img id="hover-preview-img" src="" style="max-width:100%;max-height:100%;object-fit:contain;" alt="Large Preview"/>
+  </div>
+
 <script>
   const uploadZone     = document.getElementById('upload-zone');
   const fileInput      = document.getElementById('file-input');
@@ -185,7 +216,7 @@
       let action = '';
       
       if (item.status === 'done' && item.previewUrl) {
-        thumb = `<div class="checker-bg" style="width:48px;height:48px;border-radius:4px;flex-shrink:0;">
+        thumb = `<div class="checker-bg" style="width:48px;height:48px;border-radius:4px;flex-shrink:0;cursor:pointer;" onmouseenter="showPreview('${item.previewUrl}')" onmouseleave="hidePreview()" onpointerdown="showPreview('${item.previewUrl}')" onpointerup="hidePreview()">
                    <img src="${item.previewUrl}" style="width:100%;height:100%;object-fit:contain;" alt="preview"/>
                  </div>`;
         action = `<button onclick="downloadItem(${idx})" class="btn" style="padding: 6px 12px; font-size: 0.75rem;">Save</button>`;
@@ -223,6 +254,18 @@
     renderQueue();
     processNext();
   }
+
+  const hoverPreview = document.getElementById('hover-preview');
+  const hoverPreviewImg = document.getElementById('hover-preview-img');
+
+  window.showPreview = function(url) {
+    hoverPreviewImg.src = url;
+    hoverPreview.classList.add('show');
+  };
+
+  window.hidePreview = function() {
+    hoverPreview.classList.remove('show');
+  };
 
   async function processNext() {
     if (isProcessing) return;

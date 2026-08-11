@@ -20,65 +20,14 @@
       flex-direction: column;
     }
     
-    nav {
-      background: #FFFFFF;
-      border-bottom: 1px solid #EAEAEA;
-      padding: 16px 24px;
-      display: flex;
-      align-items: center;
-      gap: 24px;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      overflow-x: auto;
-    }
-    nav a {
-      color: #787774;
-      text-decoration: none;
-      font-size: 0.9rem;
-      white-space: nowrap;
-      transition: color 0.2s;
-    }
-    nav a:hover {
-      color: #111111;
-    }
-    nav a.brand {
-      font-weight: 600;
-      color: #111111;
-      font-size: 1rem;
-      margin-right: 8px;
-    }
-    nav a.active {
-      color: #111111;
-      font-weight: 500;
-    }
     
-    main {
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 60px 24px;
-      width: 100%;
-      flex: 1;
-    }
-
-    h1 {
-      font-family: 'Newsreader', serif;
-      font-size: clamp(2.5rem, 5vw, 3.5rem);
-      font-weight: 500;
-      letter-spacing: -0.02em;
-      color: #111111;
-      margin: 0 0 16px 0;
-    }
-    
-    .desc {
-      color: #787774;
-      font-size: 1.1rem;
-      margin: 0 0 40px 0;
-      line-height: 1.6;
-      max-width: 600px;
-    }
-
-    /* Tabs */
+    /* NAV */
+    nav { position: sticky; top: 0; z-index: 100; background: rgba(251, 251, 250, 0.9); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 0 clamp(1.5rem, 5vw, 3rem); height: 64px; display: flex; align-items: center; justify-content: space-between; }
+    .logo { font-weight: 600; color: var(--black); text-decoration: none; font-size: 1.05rem; }
+    .nav-links { display: flex; gap: 24px; }
+    .nav-link { font-size: 0.875rem; color: var(--text-muted); text-decoration: none; transition: color 0.15s; }
+    .nav-link:hover, .nav-link.active { color: var(--black); }
+        /* Tabs */
     .tab-group {
       display: flex;
       gap: 24px;
@@ -272,13 +221,15 @@
 </head>
 <body>
 
-  <nav id="navbar">
-    <a href="/" class="brand">SnapTool</a>
-    <a href="/bg-remover">BG Remover</a>
-    <a href="/word-to-pdf">Word → PDF</a>
-    <a href="/pdf-to-word">PDF → Word</a>
-    <a href="/doc-tools" class="active">Doc Toolkit</a>
-    <a href="/img-to-pdf">Img → PDF</a>
+  <nav>
+    <a href="/" class="logo">SnapTool.</a>
+    <div class="nav-links">
+      <a href="/bg-remover" class="nav-link">BG Remover</a>
+      <a href="/word-to-pdf" class="nav-link">Word ? PDF</a>
+      <a href="/pdf-to-word" class="nav-link">PDF ? Word</a>
+      <a href="/doc-tools" class="nav-link active">Doc Toolkit</a>
+      <a href="/img-to-pdf" class="nav-link">Img ? PDF</a>
+    </div>
   </nav>
 
   <main>
@@ -650,3 +601,4 @@
   </script>
 </body>
 </html>
+

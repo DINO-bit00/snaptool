@@ -30,158 +30,26 @@
       overflow-x: hidden;
     }
 
-    nav {
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      padding: 0 40px;
-      height: 64px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .nav-left { font-weight: 600; font-size: 1rem; color: var(--heading); text-decoration: none; }
-    .nav-center { display: flex; gap: 24px; }
-    .nav-link { 
-      font-size: 0.875rem; 
-      color: var(--text-muted); 
-      text-decoration: none; 
-      transition: color 0.2s; 
-    }
-    .nav-link:hover { color: var(--heading); }
-    .nav-link.active { color: var(--heading); font-weight: 500; }
-    .nav-right {
-      font-size: 0.875rem; color: var(--text-muted); text-decoration: none;
-    }
-
-    .container {
-      max-width: 1100px;
-      margin: 0 auto;
-      width: 100%;
-      padding: 100px 40px;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 60px;
-    }
     
-    .header { text-align: left; }
-    .header h1 {
-      font-family: 'Newsreader', serif;
-      font-weight: 500;
-      font-size: clamp(2.5rem, 6vw, 4rem);
-      letter-spacing: -0.02em;
-      color: var(--heading);
-      margin-bottom: 16px;
-    }
-    .header p { color: var(--text-muted); font-size: 1.125rem; max-width: 600px; line-height: 1.6; }
-
-    .upload-zone {
-      background: var(--surface);
-      padding: 80px 40px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      border: 1px dashed var(--border);
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-    .upload-zone.drag-active { border-color: var(--heading); background: #fafafa; }
-    
-    .upload-icon { font-size: 32px; color: var(--text-muted); margin-bottom: 24px; }
-    .upload-title { font-size: 1.125rem; font-weight: 500; color: var(--heading); margin-bottom: 8px; }
-    .upload-desc { color: var(--text-muted); margin-bottom: 32px; font-size: 0.95rem; }
-    
-    .btn {
-      font-family: 'Geist Mono', monospace;
-      font-size: 0.8rem;
-      padding: 10px 24px;
-      border: none;
-      cursor: pointer;
-      transition: all 0.2s;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      text-decoration: none;
-    }
-    .btn-accent { background: var(--accent); color: var(--accent-text); }
-    .btn-accent:hover { background: #333333; }
-    .btn-ghost { background: transparent; color: var(--heading); border: 1px solid var(--border); }
-    .btn-ghost:hover { background: #f9f9f9; }
-    
-    .queue-zone { display: none; margin-top: 20px; }
-    .queue-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 24px;
-      padding-bottom: 16px;
-      border-bottom: 1px solid var(--border);
-    }
-    .queue-header-left { display: flex; align-items: center; gap: 16px; }
-    .queue-header-right { display: flex; align-items: center; gap: 12px; }
-    #queue-title { font-size: 1.125rem; font-weight: 500; color: var(--heading); }
-    #queue-counter { 
-      background: #f0f0f0; 
-      color: var(--text-muted); 
-      padding: 4px 8px; 
-      font-family: 'Geist Mono', monospace; 
-      font-size: 0.75rem; 
-    }
-    
-    .file-list { list-style: none; display: flex; flex-direction: column; }
-    .file-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 20px 0;
-      background: var(--bg);
-      border-bottom: 1px solid var(--border);
-    }
-    .file-info { display: flex; align-items: center; gap: 16px; flex: 1; min-width: 0; }
-    .file-icon { color: var(--text-muted); font-size: 24px; }
-    .file-details { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
-    .file-name { font-weight: 500; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 400px; color: var(--heading); }
-    .file-status-text { font-family: 'Geist Mono', monospace; font-size: 0.75rem; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
-    .file-actions { display: flex; align-items: center; gap: 12px; }
-    
-    .status-icon { font-size: 16px; }
-    .status-pending { color: var(--text-muted); }
-    .status-processing { color: #555; animation: spin 1s linear infinite; }
-    .status-done { color: #111; }
-    .status-error { color: #e00; }
-    
-    @keyframes spin { 100% { transform: rotate(360deg); } }
-
-    footer {
-      border-top: 1px solid var(--border);
-      padding: 32px 40px;
-      margin-top: auto;
-      background: var(--surface);
-    }
-    .footer-inner {
-      max-width: 1100px;
-      margin: 0 auto;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .footer-logo { font-weight: 500; font-size: 0.9rem; color: var(--heading); }
-    .footer-text { font-family: 'Geist Mono', monospace; font-size: 0.75rem; color: var(--text-muted); }
-  </style>
+    /* NAV */
+    nav { position: sticky; top: 0; z-index: 100; background: rgba(251, 251, 250, 0.9); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 0 clamp(1.5rem, 5vw, 3rem); height: 64px; display: flex; align-items: center; justify-content: space-between; }
+    .logo { font-weight: 600; color: var(--black); text-decoration: none; font-size: 1.05rem; }
+    .nav-links { display: flex; gap: 24px; }
+    .nav-link { font-size: 0.875rem; color: var(--text-muted); text-decoration: none; transition: color 0.15s; }
+    .nav-link:hover, .nav-link.active { color: var(--black); }
+        </style>
 </head>
 <body>
 
   <nav>
-    <a href="/" class="nav-left">SnapTool</a>
-    <div class="nav-center">
+    <a href="/" class="logo">SnapTool.</a>
+    <div class="nav-links">
       <a href="/bg-remover" class="nav-link">BG Remover</a>
-      <a href="/word-to-pdf" class="nav-link active">Word → PDF</a>
-      <a href="/pdf-to-word" class="nav-link">PDF → Word</a>
+      <a href="/word-to-pdf" class="nav-link active">Word ? PDF</a>
+      <a href="/pdf-to-word" class="nav-link">PDF ? Word</a>
       <a href="/doc-tools" class="nav-link">Doc Toolkit</a>
-      <a href="/img-to-pdf" class="nav-link">Img → PDF</a>
+      <a href="/img-to-pdf" class="nav-link">Img ? PDF</a>
     </div>
-    <a href="/" class="nav-right">← Home</a>
   </nav>
 
   <div class="container">
@@ -394,3 +262,4 @@
   </script>
 </body>
 </html>
+
