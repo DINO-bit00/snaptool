@@ -6,185 +6,211 @@
   <title>SnapTool — Document Toolkit</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600&family=Geist:wght@400;500;600;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600&family=Geist:wght@400;500;600;800&family=Newsreader:wght@400;500;600&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,300,0,0" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; }
     body {
       margin: 0;
-      background: #050508;
-      color: #f0f0f4;
+      background: #FBFBFA;
+      color: #2F3437;
       font-family: 'Geist', sans-serif;
       min-height: 100dvh;
       display: flex;
       flex-direction: column;
-      padding-top: 90px;
-      overflow-x: hidden;
     }
-    .nav-pill { color: #9090a0; font-family: 'Geist Mono',monospace; font-size: 0.72rem; letter-spacing: 0.04em; padding: 6px 12px; border-radius: 9999px; text-decoration: none; transition: color 0.15s, background 0.15s; white-space: nowrap; }
-    .nav-pill:hover { color: #f0f0f4; background: rgba(255,255,255,0.06); }
-    .nav-pill.active { color: #60a5fa; background: rgba(59,130,246,0.12); }
     
-    @keyframes fadeUp { from { opacity:0; transform:translateY(18px); filter:blur(4px); } to { opacity:1; transform:translateY(0); filter:blur(0); } }
-    .anim { opacity:0; } 
-    .anim.visible { animation: fadeUp 0.7s cubic-bezier(0.16,1,0.3,1) forwards; }
-    
-    .bg-orb {
-      position: fixed;
-      border-radius: 50%;
-      filter: blur(120px);
-      z-index: -1;
-      opacity: 0.4;
-      pointer-events: none;
+    nav {
+      background: #FFFFFF;
+      border-bottom: 1px solid #EAEAEA;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      overflow-x: auto;
     }
-    .orb-1 { width: 600px; height: 600px; background: rgba(59, 130, 246, 0.15); top: -200px; left: -100px; }
-    .orb-2 { width: 500px; height: 500px; background: rgba(34, 197, 94, 0.08); bottom: -100px; right: -100px; }
+    nav a {
+      color: #787774;
+      text-decoration: none;
+      font-size: 0.9rem;
+      white-space: nowrap;
+      transition: color 0.2s;
+    }
+    nav a:hover {
+      color: #111111;
+    }
+    nav a.brand {
+      font-weight: 600;
+      color: #111111;
+      font-size: 1rem;
+      margin-right: 8px;
+    }
+    nav a.active {
+      color: #111111;
+      font-weight: 500;
+    }
+    
+    main {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 60px 24px;
+      width: 100%;
+      flex: 1;
+    }
 
-    .double-bezel {
-      background: linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%);
-      padding: 1px;
-      border-radius: 24px;
-      box-shadow: 0 40px 80px -20px rgba(0,0,0,0.5);
+    h1 {
+      font-family: 'Newsreader', serif;
+      font-size: clamp(2.5rem, 5vw, 3.5rem);
+      font-weight: 500;
+      letter-spacing: -0.02em;
+      color: #111111;
+      margin: 0 0 16px 0;
     }
-    .double-bezel-inner {
-      background: #0e0e12;
-      border-radius: 23px;
-      padding: 40px;
+    
+    .desc {
+      color: #787774;
+      font-size: 1.1rem;
+      margin: 0 0 40px 0;
+      line-height: 1.6;
+      max-width: 600px;
+    }
+
+    /* Tabs */
+    .tab-group {
+      display: flex;
+      gap: 24px;
+      margin-bottom: 32px;
+      border-bottom: 1px solid #EAEAEA;
+    }
+    .tab-btn {
+      background: none;
+      border: none;
+      color: #787774;
+      font-family: 'Geist', sans-serif;
+      font-size: 1rem;
+      padding: 12px 0;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+      margin-bottom: -1px;
+    }
+    .tab-btn:hover {
+      color: #111111;
+    }
+    .tab-btn.active {
+      color: #111111;
+      border-bottom: 2px solid #111111;
+      font-weight: 500;
+    }
+
+    /* Container */
+    .tool-container {
+      background: #FFFFFF;
+      border: 1px solid #EAEAEA;
+      padding: 32px;
+      border-radius: 12px;
     }
     
     /* Upload Zone */
     .drop-zone {
-      background: #16161c;
-      border: 1px dashed rgba(255,255,255,0.12);
-      border-radius: 16px;
+      background: #FFFFFF;
+      border: 1px dashed #EAEAEA;
+      border-radius: 8px;
       padding: 48px 32px;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      transition: all 0.3s ease;
+      transition: all 0.2s ease;
       position: relative;
     }
     .drop-zone:hover, .drop-zone.drag-over {
-      border-color: #3b82f6;
-      background: rgba(59,130,246,0.05);
+      border-color: #111111;
+      background: #FBFBFA;
     }
     
     .btn {
-      font-family: 'Geist Mono', monospace;
-      font-size: 0.8rem;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-      padding: 12px 24px;
-      border-radius: 9999px;
-      border: none;
+      font-family: 'Geist', sans-serif;
+      font-size: 0.9rem;
+      padding: 10px 20px;
+      border-radius: 6px;
+      border: 1px solid #EAEAEA;
       cursor: pointer;
-      font-weight: 600;
+      font-weight: 500;
       transition: all 0.2s;
       display: inline-flex;
       align-items: center;
+      justify-content: center;
       gap: 8px;
     }
     .btn-primary {
-      background: #3b82f6;
-      color: #050508;
-      box-shadow: 0 0 20px rgba(59,130,246,0.2);
+      background: #111111;
+      color: #FFFFFF;
+      border-color: #111111;
     }
     .btn-primary:hover {
-      background: #60a5fa;
-      box-shadow: 0 0 30px rgba(59,130,246,0.4);
+      background: #2F3437;
+      border-color: #2F3437;
     }
     .btn-primary:disabled {
       opacity: 0.5;
       cursor: not-allowed;
     }
     .btn-secondary {
-      background: rgba(255,255,255,0.06);
-      color: #f0f0f4;
+      background: #FFFFFF;
+      color: #111111;
     }
     .btn-secondary:hover {
-      background: rgba(255,255,255,0.12);
+      background: #FBFBFA;
     }
     
-    /* Tab Group */
-    .tab-group {
-      display: inline-flex;
-      background: #16161c;
-      padding: 6px;
-      border-radius: 9999px;
-      border: 1px solid rgba(255,255,255,0.06);
-      gap: 4px;
-      margin-bottom: 40px;
-    }
-    .tab-btn {
-      background: transparent;
-      border: none;
-      color: #9090a0;
-      font-family: 'Geist Mono', monospace;
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      padding: 10px 20px;
-      border-radius: 9999px;
-      cursor: pointer;
-      transition: all 0.2s;
-      white-space: nowrap;
-    }
-    .tab-btn:hover:not(.active) {
-      color: #f0f0f4;
-      background: rgba(255,255,255,0.03);
-    }
-    .tab-btn.active {
-      color: #60a5fa;
-      background: rgba(59,130,246,0.15);
-    }
-
     /* File List */
     .file-item {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background: #1c1c24;
-      border: 1px solid rgba(255,255,255,0.06);
+      background: #FFFFFF;
+      border: 1px solid #EAEAEA;
       padding: 12px 16px;
-      border-radius: 12px;
+      border-radius: 6px;
       margin-bottom: 8px;
     }
     .icon-btn {
       background: transparent;
       border: none;
-      color: #9090a0;
+      color: #787774;
       cursor: pointer;
       padding: 4px;
-      border-radius: 50%;
+      border-radius: 4px;
       display: inline-flex;
       transition: all 0.2s;
     }
     .icon-btn:hover {
-      color: #f0f0f4;
-      background: rgba(255,255,255,0.1);
+      color: #111111;
+      background: #FBFBFA;
     }
-    .icon-btn.remove { color: #ef4444; }
-    .icon-btn.remove:hover { background: rgba(239,68,68,0.1); }
 
     /* Inputs */
     .input-group { margin-bottom: 24px; }
-    .input-label { display: block; font-family: 'Geist Mono', monospace; font-size: 0.8rem; color: #9090a0; margin-bottom: 8px; }
+    .input-label { display: block; font-family: 'Geist', sans-serif; font-size: 0.9rem; color: #2F3437; margin-bottom: 8px; font-weight: 500; }
     .text-input {
       width: 100%;
-      background: #050508;
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 8px;
-      padding: 12px 16px;
-      color: #f0f0f4;
-      font-family: 'Geist', sans-serif;
-      font-size: 1rem;
+      background: #FFFFFF;
+      border: 1px solid #EAEAEA;
+      border-radius: 6px;
+      padding: 10px 12px;
+      color: #111111;
+      font-family: 'Geist Mono', monospace;
+      font-size: 0.9rem;
       transition: border-color 0.2s;
     }
     .text-input:focus {
       outline: none;
-      border-color: #3b82f6;
+      border-color: #111111;
     }
 
     /* Helpers */
@@ -192,11 +218,11 @@
     .flex-between { display: flex; justify-content: space-between; align-items: center; }
     
     .warning-box {
-      background: rgba(239, 137, 68, 0.08);
-      border: 1px solid rgba(239, 137, 68, 0.2);
-      border-radius: 12px;
+      background: #FBF3DB;
+      border: 1px solid #FBF3DB;
+      border-radius: 6px;
       padding: 16px;
-      color: #ffb470;
+      color: #956400;
       display: flex;
       gap: 12px;
       align-items: flex-start;
@@ -204,19 +230,19 @@
     }
 
     .preview-container {
-      border: 1px solid rgba(255,255,255,0.06);
-      border-radius: 12px;
+      border: 1px solid #EAEAEA;
+      border-radius: 8px;
       overflow: hidden;
       height: 500px;
       position: relative;
       margin-bottom: 24px;
-      background: #16161c;
+      background: #FBFBFA;
     }
 
     .loader {
       position: absolute;
       inset: 0;
-      background: rgba(14,14,18,0.8);
+      background: rgba(255,255,255,0.8);
       backdrop-filter: blur(4px);
       display: flex;
       flex-direction: column;
@@ -226,43 +252,38 @@
     }
     @keyframes spin { 100% { transform: rotate(360deg); } }
     .spinner { animation: spin 1s linear infinite; }
-
-    /* Responsive tab group */
-    @media (max-width: 640px) {
-      .tab-group {
-        overflow-x: auto;
-        max-width: 100%;
-        justify-content: flex-start;
-        -webkit-overflow-scrolling: touch;
-      }
+    
+    footer {
+      border-top: 1px solid #EAEAEA;
+      padding: 32px 24px;
+      margin-top: auto;
+      background: #FFFFFF;
+    }
+    .footer-content {
+      max-width: 900px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
     }
   </style>
 </head>
 <body>
 
-  <div class="bg-orb orb-1"></div>
-  <div class="bg-orb orb-2"></div>
-
-  <nav id="navbar" style="position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:100;transition:all 0.4s cubic-bezier(0.16,1,0.3,1);">
-    <div style="display:flex;align-items:center;gap:6px;background:rgba(14,14,18,0.85);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,0.08);border-radius:9999px;padding:6px 6px 6px 20px;box-shadow:0 0 0 1px rgba(0,0,0,0.5),0 20px 40px rgba(0,0,0,0.4);">
-      <a href="/" style="font-weight:800;font-size:0.9rem;color:#f0f0f4;text-decoration:none;letter-spacing:-0.03em;margin-right:8px;">SnapTool</a>
-      <div style="width:1px;height:16px;background:rgba(255,255,255,0.08);margin:0 8px;"></div>
-      <a href="/bg-remover" class="nav-pill">BG Remover</a>
-      <a href="/word-to-pdf" class="nav-pill">Word → PDF</a>
-      <a href="/pdf-to-word" class="nav-pill">PDF → Word</a>
-      <a href="/doc-tools" class="nav-pill active">Doc Toolkit</a>
-      <a href="/img-to-pdf" class="nav-pill">Img → PDF</a>
-      <div style="width:1px;height:16px;background:rgba(255,255,255,0.08);margin:0 6px;"></div>
-      <a href="/" style="background:#f0f0f4;color:#050508;font-family:'Geist Mono',monospace;font-size:0.7rem;letter-spacing:0.06em;text-transform:uppercase;padding:7px 14px;border-radius:9999px;text-decoration:none;font-weight:600;white-space:nowrap;">← Home</a>
-    </div>
+  <nav id="navbar">
+    <a href="/" class="brand">SnapTool</a>
+    <a href="/bg-remover">BG Remover</a>
+    <a href="/word-to-pdf">Word → PDF</a>
+    <a href="/pdf-to-word">PDF → Word</a>
+    <a href="/doc-tools" class="active">Doc Toolkit</a>
+    <a href="/img-to-pdf">Img → PDF</a>
   </nav>
 
-  <main style="max-width:900px; margin: 0 auto; padding: 80px 24px; width: 100%; display: flex; flex-direction: column; align-items: center;" class="anim">
-    
-    <div style="text-align:center; margin-bottom: 40px;">
-      <h1 style="font-size:clamp(2rem, 4vw, 3rem); font-weight:800; letter-spacing:-0.03em; margin:0 0 16px 0;">Document Toolkit</h1>
-      <p style="color:#9090a0; font-size:1.1rem; margin:0; max-width:600px; line-height:1.6;">Merge multiple chapters into one file, or split massive reports into manageable sections. Local, fast, secure.</p>
-    </div>
+  <main>
+    <h1>Doc Toolkit</h1>
+    <p class="desc">Merge multiple chapters into one file, or split massive reports into manageable sections. Local, fast, secure.</p>
 
     <!-- Tabs -->
     <div class="tab-group">
@@ -272,75 +293,66 @@
       <button onclick="switchTab('split-word')" id="tab-split-word" class="tab-btn">Split Word</button>
     </div>
 
-    <div style="width: 100%;">
-      <div class="double-bezel">
-        <div class="double-bezel-inner">
-          
-          <!-- Upload Zone -->
-          <div id="upload-zone" class="drop-zone" style="margin-bottom: 32px;">
-            <div style="width: 64px; height: 64px; border-radius: 50%; background: rgba(255,255,255,0.03); display: flex; align-items: center; justify-content: center; margin-bottom: 16px; border: 1px solid rgba(255,255,255,0.06);">
-              <span class="material-symbols-outlined" style="color: #60a5fa; font-size: 32px;">upload_file</span>
-            </div>
-            <h3 id="upload-title" style="margin: 0 0 8px 0; font-size: 1.25rem; font-weight: 600;">Select PDFs to merge</h3>
-            <p id="upload-desc" style="color: #9090a0; margin: 0 0 24px 0; font-size: 0.9rem;">Select multiple .pdf files</p>
-            <button id="browse-btn" class="btn btn-secondary">Browse Files</button>
-            <input id="file-input" type="file" multiple accept=".pdf" class="hidden" aria-hidden="true"/>
-          </div>
+    <div class="tool-container">
+      
+      <!-- Upload Zone -->
+      <div id="upload-zone" class="drop-zone" style="margin-bottom: 32px;">
+        <span class="material-symbols-outlined" style="color: #111111; font-size: 32px; margin-bottom: 12px;">upload_file</span>
+        <h3 id="upload-title" style="margin: 0 0 8px 0; font-size: 1.1rem; font-weight: 500; color: #111111;">Select PDFs to merge</h3>
+        <p id="upload-desc" style="color: #787774; margin: 0 0 24px 0; font-size: 0.9rem;">Select multiple .pdf files</p>
+        <button id="browse-btn" class="btn btn-secondary">Browse Files</button>
+        <input id="file-input" type="file" multiple accept=".pdf" class="hidden" aria-hidden="true"/>
+      </div>
 
-          <!-- Split Options -->
-          <div id="split-options" class="hidden input-group">
-            <label class="input-label">Page Ranges</label>
-            <input type="text" id="ranges-input" placeholder="e.g. 1-5, 6-10, 11-15" class="text-input"/>
-            <p style="color: #50505e; font-size: 0.8rem; margin: 8px 0 0 0;">Separate chunks with commas. Each chunk becomes a separate file.</p>
-          </div>
+      <!-- Split Options -->
+      <div id="split-options" class="hidden input-group">
+        <label class="input-label">Page Ranges</label>
+        <input type="text" id="ranges-input" placeholder="e.g. 1-5, 6-10, 11-15" class="text-input"/>
+        <p style="color: #787774; font-size: 0.85rem; margin: 8px 0 0 0;">Separate chunks with commas. Each chunk becomes a separate file.</p>
+      </div>
 
-          <!-- Word Merge Warning -->
-          <div id="merge-word-warning" class="hidden warning-box">
-            <span class="material-symbols-outlined" style="font-size: 20px;">warning</span>
-            <div style="font-size: 0.9rem; line-height: 1.5;">
-              <strong style="color: #fff;">Note on Word Merging:</strong> Merging complex Word documents (.docx) may slightly alter formatting (e.g. headers, margins). For perfect visual results, we recommend converting to PDF first and using <strong>Merge PDF</strong>.
-            </div>
-          </div>
-
-          <!-- File List -->
-          <div id="file-list" class="hidden" style="margin-bottom: 32px;">
-            <!-- JS will populate this -->
-          </div>
-
-          <!-- Preview Area -->
-          <div id="preview-area" class="hidden preview-container">
-            <div id="preview-loader" class="hidden loader">
-              <span class="material-symbols-outlined spinner" style="color: #3b82f6; font-size: 40px; margin-bottom: 12px;">autorenew</span>
-              <span style="font-family: 'Geist Mono', monospace; font-size: 0.9rem; color: #9090a0;">Generating preview...</span>
-            </div>
-            <iframe id="pdf-preview" style="width: 100%; height: 100%; border: none;" src=""></iframe>
-          </div>
-
-          <!-- Actions -->
-          <div id="action-area" class="hidden flex-between" style="border-top: 1px solid rgba(255,255,255,0.06); padding-top: 24px; margin-top: 24px;">
-            <button id="clear-btn" style="background:transparent; border:none; color:#ef4444; font-family:'Geist Mono',monospace; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.05em; cursor:pointer; padding:8px 16px; border-radius:9999px; transition:background 0.2s;">Clear</button>
-            <button id="process-btn" class="btn btn-primary">
-              <span>Process</span>
-              <span class="material-symbols-outlined spinner hidden" id="spinner" style="font-size: 18px;">autorenew</span>
-            </button>
-          </div>
-
+      <!-- Word Merge Warning -->
+      <div id="merge-word-warning" class="hidden warning-box">
+        <span class="material-symbols-outlined" style="font-size: 20px;">warning</span>
+        <div style="font-size: 0.9rem; line-height: 1.5;">
+          <strong style="color: #956400;">Note on Word Merging:</strong> Merging complex Word documents (.docx) may slightly alter formatting (e.g. headers, margins). For perfect visual results, we recommend converting to PDF first and using <strong>Merge PDF</strong>.
         </div>
       </div>
+
+      <!-- File List -->
+      <div id="file-list" class="hidden" style="margin-bottom: 32px;">
+        <!-- JS will populate this -->
+      </div>
+
+      <!-- Preview Area -->
+      <div id="preview-area" class="hidden preview-container">
+        <div id="preview-loader" class="hidden loader">
+          <span class="material-symbols-outlined spinner" style="color: #111111; font-size: 40px; margin-bottom: 12px;">autorenew</span>
+          <span style="font-family: 'Geist Mono', monospace; font-size: 0.9rem; color: #787774;">Generating preview...</span>
+        </div>
+        <iframe id="pdf-preview" style="width: 100%; height: 100%; border: none;" src=""></iframe>
+      </div>
+
+      <!-- Actions -->
+      <div id="action-area" class="hidden flex-between" style="border-top: 1px solid #EAEAEA; padding-top: 24px; margin-top: 24px;">
+        <button id="clear-btn" style="background:transparent; border:none; color:#2F3437; font-family:'Geist',sans-serif; font-size:0.9rem; cursor:pointer; padding:8px 16px; transition:color 0.2s;">Clear</button>
+        <button id="process-btn" class="btn btn-primary">
+          <span>Process</span>
+          <span class="material-symbols-outlined spinner hidden" id="spinner" style="font-size: 18px;">autorenew</span>
+        </button>
+      </div>
+
     </div>
   </main>
 
-  <footer style="border-top:1px solid rgba(255,255,255,0.04);padding:32px clamp(1.25rem,5vw,4rem);margin-top:auto;">
-    <div style="max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
-      <span style="font-weight:800;font-size:0.9rem;letter-spacing:-0.02em;color:#3f3f50;">SnapTool</span>
-      <span style="font-family:'Geist Mono',monospace;font-size:0.7rem;color:#3f3f50;">© 2024 SnapTool · All processing is local.</span>
+  <footer>
+    <div class="footer-content">
+      <span style="font-weight:600;font-size:0.9rem;color:#111111;">SnapTool</span>
+      <span style="font-size:0.85rem;color:#787774;">© 2024 SnapTool · All processing is local.</span>
     </div>
   </footer>
 
   <script>
-    const obs = new IntersectionObserver(entries => entries.forEach(e => { if(e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } }), { threshold: 0.1 });
-    document.querySelectorAll('.anim').forEach(el => obs.observe(el));
-
     let currentMode = 'merge-pdf'; // 'merge-pdf', 'split-pdf', 'merge-word', 'split-word'
     let selectedFiles = [];
 
@@ -424,13 +436,13 @@
         
         const icon = document.createElement('span');
         icon.className = 'material-symbols-outlined';
-        icon.style.color = '#3b82f6';
+        icon.style.color = '#111111';
         icon.textContent = currentMode.includes('word') ? 'description' : 'picture_as_pdf';
         
         const name = document.createElement('span');
         name.style.fontFamily = "'Geist Mono', monospace";
         name.style.fontSize = '0.85rem';
-        name.style.color = '#f0f0f4';
+        name.style.color = '#111111';
         name.style.whiteSpace = 'nowrap';
         name.style.overflow = 'hidden';
         name.style.textOverflow = 'ellipsis';

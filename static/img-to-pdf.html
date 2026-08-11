@@ -4,582 +4,368 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Image to PDF — SnapTool</title>
-  <meta name="description" content="Convert multiple images into a single PDF. Drag to reorder, choose layout, preview before downloading."/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800;900&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet"/>
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            "ink": "#09090b",
-            "ink-2": "#111113",
-            "surface": "#18181b",
-            "surface-2": "#1f1f23",
-            "border": "#2a2a2e",
-            "border-2": "#3a3a3e",
-            "muted": "#71717a",
-            "text": "#e4e4e7",
-            "text-2": "#a1a1aa",
-            "accent": "#3b82f6",
-            "accent-2": "#60a5fa",
-            "accent-dim": "rgba(59,130,246,0.12)",
-            "accent-border": "rgba(59,130,246,0.3)",
-            "green": "#22c55e",
-            "red": "#ef4444",
-          },
-          fontFamily: {
-            "sans": ["Geist", "sans-serif"],
-            "mono": ["Geist Mono", "monospace"],
-          },
-        }
-      }
-    }
-  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,300,0,0" rel="stylesheet"/>
   <style>
-    * { box-sizing: border-box; }
-    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24; font-size: 1.1rem; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #FBFBFA; --surface: #FFFFFF; --border: #EAEAEA;
+      --text: #2F3437; --text-muted: #787774; --black: #111111;
+      --pastel-blue-bg: #E1F3FE; --pastel-blue-txt: #1F6C9F;
+      --pastel-green-bg: #EDF3EC; --pastel-green-txt: #346538;
+      --pastel-red-bg: #FDEBEC; --pastel-red-txt: #9F2F2D;
+    }
+    body { background: var(--bg); color: var(--text); font-family: 'Geist', sans-serif; min-height: 100dvh; display: flex; flex-direction: column; line-height: 1.6; }
+    .serif { font-family: 'Newsreader', serif; letter-spacing: -0.02em; }
+    .mono { font-family: 'Geist Mono', monospace; }
 
-    /* Scrollbar */
-    ::-webkit-scrollbar { width: 4px; }
-    ::-webkit-scrollbar-track { background: #18181b; }
-    ::-webkit-scrollbar-thumb { background: #3a3a3e; border-radius: 2px; }
+    /* NAV */
+    nav { position: sticky; top: 0; z-index: 100; background: rgba(251, 251, 250, 0.9); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 0 clamp(1.5rem, 5vw, 3rem); height: 64px; display: flex; align-items: center; justify-content: space-between; }
+    .logo { font-weight: 600; color: var(--black); text-decoration: none; font-size: 1.05rem; }
+    .nav-links { display: flex; gap: 24px; }
+    .nav-link { font-size: 0.875rem; color: var(--text-muted); text-decoration: none; transition: color 0.15s; }
+    .nav-link:hover, .nav-link.active { color: var(--black); }
 
-    /* Transitions */
-    .fade-in { animation: fadeIn 0.4s cubic-bezier(0.16,1,0.3,1) both; }
-    .slide-up { animation: slideUp 0.4s cubic-bezier(0.16,1,0.3,1) both; }
-    @keyframes fadeIn { from { opacity:0 } to { opacity:1 } }
-    @keyframes slideUp { from { opacity:0; transform:translateY(10px) } to { opacity:1; transform:translateY(0) } }
+    /* LAYOUT */
+    main { flex: 1; width: 100%; max-width: 1100px; margin: 0 auto; padding: 60px clamp(1.5rem, 5vw, 3rem); }
+    .page-header { margin-bottom: 40px; }
+    .page-header h1 { font-size: clamp(2.5rem, 4vw, 3.5rem); color: var(--black); margin-bottom: 16px; font-weight: 500; line-height: 1.1; }
+    .page-header p { font-size: 1.125rem; color: var(--text-muted); max-width: 52ch; }
 
-    /* Upload zone */
-    #upload-zone {
-      background: linear-gradient(135deg, #1f1f23 0%, #18181b 100%);
-      border: 1.5px dashed #2a2a2e;
-      transition: border-color 0.2s, background 0.2s;
-      position: relative;
-      overflow: hidden;
-    }
-    #upload-zone::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(ellipse at 50% 0%, rgba(59,130,246,0.06) 0%, transparent 70%);
-      pointer-events: none;
-    }
-    #upload-zone:hover, #upload-zone.drag-over {
-      border-color: rgba(59,130,246,0.5);
-      background: linear-gradient(135deg, #1f1f23 0%, rgba(59,130,246,0.04) 100%);
-    }
-    #upload-zone.drag-over::before {
-      background: radial-gradient(ellipse at 50% 0%, rgba(59,130,246,0.15) 0%, transparent 70%);
-    }
+    .two-col { display: grid; grid-template-columns: 1fr; gap: 40px; }
+    @media (min-width: 900px) { .two-col { grid-template-columns: 320px 1fr; } }
 
-    /* Image cards */
-    .img-card {
-      background: #1f1f23;
-      border: 1.5px solid #2a2a2e;
-      border-radius: 10px;
-      overflow: hidden;
-      transition: border-color 0.2s, transform 0.2s;
-      position: relative;
-    }
-    .img-card:hover { border-color: #3a3a3e; transform: translateY(-2px); }
-    .img-card.dragging { opacity: 0.35; cursor: grabbing; }
-    .img-card.drag-target { border-color: rgba(59,130,246,0.6); border-style: dashed; }
-    .img-card .thumb-wrap { cursor: pointer; }
-    .img-card .thumb-wrap:hover .overlay { opacity: 1; }
-    .img-card .overlay {
-      position: absolute;
-      inset: 0;
-      background: rgba(0,0,0,0.45);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      opacity: 0;
-      transition: opacity 0.2s;
-    }
+    /* BUTTONS */
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: var(--black); color: #fff; padding: 10px 20px; border-radius: 6px; font-size: 0.875rem; font-weight: 500; border: none; cursor: pointer; transition: background 0.15s, transform 0.1s; }
+    .btn:hover { background: #333333; }
+    .btn:active { transform: scale(0.98); }
+    .btn:disabled { background: var(--border); color: var(--text-muted); cursor: not-allowed; transform: none; }
+    .btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--text); }
+    .btn-ghost:hover { background: var(--surface); }
 
-    /* Layout pill */
-    .layout-pill {
-      background: #1f1f23;
-      border: 1.5px solid #2a2a2e;
-      color: #a1a1aa;
-      border-radius: 9999px;
-      padding: 7px 16px;
-      font-size: 0.8125rem;
-      font-family: 'Geist Mono', monospace;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      transition: all 0.15s;
-      white-space: nowrap;
-    }
-    .layout-pill:hover { border-color: #3a3a3e; color: #e4e4e7; }
-    .layout-pill.active {
-      background: rgba(59,130,246,0.12);
-      border-color: rgba(59,130,246,0.4);
-      color: #60a5fa;
-    }
+    /* LEFT COL - OPTIONS */
+    .options-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 24px; position: sticky; top: 100px; }
+    .options-card h3 { font-size: 1rem; color: var(--black); font-weight: 500; margin-bottom: 24px; }
+    .option-group { margin-bottom: 24px; }
+    .option-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; font-family: 'Geist Mono', monospace; margin-bottom: 12px; display: block; }
 
-    /* Btn primary */
-    .btn-primary {
-      background: #3b82f6;
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      padding: 11px 24px;
-      font-family: 'Geist Mono', monospace;
-      font-size: 0.8125rem;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      transition: background 0.15s, transform 0.1s;
-    }
-    .btn-primary:hover { background: #2563eb; }
-    .btn-primary:active { transform: translateY(1px) scale(0.99); }
-    .btn-primary:disabled { background: #374151; color: #6b7280; cursor: not-allowed; transform: none; }
+    .select-pill-group { display: flex; gap: 8px; flex-wrap: wrap; }
+    .select-pill { padding: 8px 16px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg); color: var(--text-muted); font-size: 0.875rem; cursor: pointer; transition: all 0.15s; flex: 1; text-align: center; }
+    .select-pill:hover { border-color: #D0D0D0; color: var(--black); }
+    .select-pill.active { border-color: var(--black); background: var(--black); color: #fff; }
 
-    /* Btn ghost */
-    .btn-ghost {
-      background: transparent;
-      border: 1.5px solid #2a2a2e;
-      color: #a1a1aa;
-      border-radius: 8px;
-      padding: 9px 18px;
-      font-family: 'Geist Mono', monospace;
-      font-size: 0.75rem;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      transition: all 0.15s;
-    }
-    .btn-ghost:hover { border-color: #3a3a3e; color: #e4e4e7; }
+    /* RIGHT COL - UPLOAD & GRID */
+    #upload-zone { background: var(--surface); border: 1px dashed #D0D0D0; border-radius: 8px; padding: 60px 40px; text-align: center; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; margin-bottom: 24px; }
+    #upload-zone:hover, #upload-zone.drag-over { background: #F9F9F8; border-color: #A0A0A0; }
 
-    /* Btn danger */
-    .btn-danger {
-      background: transparent;
-      border: 1.5px solid transparent;
-      color: #71717a;
-      border-radius: 8px;
-      padding: 9px 18px;
-      font-family: 'Geist Mono', monospace;
-      font-size: 0.75rem;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-      cursor: pointer;
-      transition: all 0.15s;
-    }
-    .btn-danger:hover { color: #ef4444; background: rgba(239,68,68,0.07); }
+    #grid-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; display: none; }
+    #grid-header h4 { font-weight: 500; color: var(--black); font-size: 1rem; }
+    #clear-all-btn { font-size: 0.75rem; color: var(--pastel-red-txt); background: transparent; border: none; cursor: pointer; }
+    #clear-all-btn:hover { text-decoration: underline; }
 
-    /* Icon btn */
-    .icon-btn {
-      width: 28px;
-      height: 28px;
-      border-radius: 6px;
-      border: none;
-      background: transparent;
-      color: #52525b;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: background 0.15s, color 0.15s;
-      flex-shrink: 0;
-    }
-    .icon-btn:hover { background: #2a2a2e; color: #a1a1aa; }
-    .icon-btn.danger:hover { background: rgba(239,68,68,0.1); color: #ef4444; }
-    .icon-btn:disabled { color: #3f3f46; cursor: not-allowed; }
-    .icon-btn:disabled:hover { background: transparent; color: #3f3f46; }
+    #images-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; }
 
-    /* Spinning */
+    /* IMAGE CARD */
+    .img-card { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; position: relative; user-select: none; transition: transform 0.2s, box-shadow 0.2s; }
+    .img-card.dragging { opacity: 0.5; box-shadow: 0 12px 32px rgba(0,0,0,0.05); }
+    .img-card.drag-target { border: 2px dashed var(--black); }
+
+    .thumb-wrap { width: 100%; aspect-ratio: 1/1.414; background: #F0F0F0; background-image: linear-gradient(45deg, #FFF 25%, transparent 25%, transparent 75%, #FFF 75%), linear-gradient(45deg, #FFF 25%, transparent 25%, transparent 75%, #FFF 75%); background-size: 10px 10px; background-position: 0 0, 5px 5px; position: relative; cursor: grab; }
+    .thumb-wrap img { width: 100%; height: 100%; object-fit: contain; }
+    
+    .remove-btn { position: absolute; top: 8px; right: 8px; width: 24px; height: 24px; border-radius: 4px; background: rgba(255,255,255,0.9); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-muted); opacity: 0; transition: opacity 0.2s; }
+    .img-card:hover .remove-btn { opacity: 1; }
+    .remove-btn:hover { color: var(--pastel-red-txt); }
+
+    .card-meta { padding: 12px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+    .card-idx { font-family: 'Geist Mono', monospace; font-size: 0.6875rem; color: var(--text-muted); }
+    .orientation-btn { width: 24px; height: 24px; border: 1px solid var(--border); border-radius: 4px; background: var(--bg); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-muted); }
+    .orientation-btn:hover { border-color: #D0D0D0; color: var(--black); }
+
+    /* LOADER */
+    #loader-overlay { position: fixed; inset: 0; background: rgba(251,251,250,0.8); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 200; }
+    .spinner { border: 2px solid var(--border); border-top-color: var(--black); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
-    .spinning { animation: spin 0.9s linear infinite; }
-
-    /* Page number badge */
-    .page-badge {
-      position: absolute;
-      top: 8px;
-      left: 8px;
-      background: rgba(0,0,0,0.75);
-      backdrop-filter: blur(4px);
-      color: #e4e4e7;
-      font-family: 'Geist Mono', monospace;
-      font-size: 0.6875rem;
-      border-radius: 5px;
-      padding: 2px 7px;
-      border: 1px solid rgba(255,255,255,0.08);
-      z-index: 1;
-    }
-
-    /* Modal */
-    #preview-modal {
-      background: rgba(0,0,0,0.85);
-      backdrop-filter: blur(12px);
-    }
-    .modal-card {
-      background: #18181b;
-      border: 1.5px solid #2a2a2e;
-      border-radius: 16px;
-    }
-
-    /* Checkerboard for transparent-look demo */
-    .checker { background: #1f1f23; }
-
-    /* Nav link */
-    .nav-link { color: #71717a; font-size: 0.8125rem; font-family: 'Geist Mono', monospace; transition: color 0.15s; text-decoration: none; }
-    .nav-link:hover { color: #e4e4e7; }
-    .nav-link.active { color: #3b82f6; border-bottom: 1.5px solid #3b82f6; padding-bottom: 2px; }
-    .nav-pill { color: #9090a0; font-family: 'Geist Mono',monospace; font-size: 0.72rem; letter-spacing: 0.04em; padding: 6px 12px; border-radius: 9999px; text-decoration: none; transition: color 0.15s, background 0.15s; }
-    .nav-pill:hover { color: #f0f0f4; background: rgba(255,255,255,0.06); }
-    @keyframes o1 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(50px,70px)} }
-    @keyframes o2 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-60px,-50px)} }
   </style>
 </head>
-<body style="background:#050508; color:#f0f0f4; font-family:'Geist',sans-serif; min-height:100dvh; display:flex; flex-direction:column;">
-
-<!-- ORBs -->
-<div style="position:fixed;border-radius:9999px;filter:blur(120px);pointer-events:none;z-index:0;width:500px;height:500px;background:radial-gradient(circle,rgba(59,130,246,0.1) 0%,transparent 70%);top:-150px;right:-100px;animation:o2 28s ease-in-out infinite;"></div>
-<div style="position:fixed;border-radius:9999px;filter:blur(120px);pointer-events:none;z-index:0;width:400px;height:400px;background:radial-gradient(circle,rgba(59,130,246,0.06) 0%,transparent 70%);bottom:5%;left:-80px;animation:o1 22s ease-in-out infinite;"></div>
-
-<nav id="navbar" style="position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:100;">
-  <div style="display:flex;align-items:center;gap:4px;background:rgba(14,14,18,0.9);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,0.08);border-radius:9999px;padding:6px 6px 6px 20px;box-shadow:0 0 0 1px rgba(0,0,0,0.6),0 20px 48px rgba(0,0,0,0.5);white-space:nowrap;">
-    <a href="/" style="font-weight:800;font-size:0.9rem;color:#f0f0f4;text-decoration:none;letter-spacing:-0.03em;margin-right:6px;">SnapTool</a>
-    <div style="width:1px;height:16px;background:rgba(255,255,255,0.08);margin:0 8px;flex-shrink:0;"></div>
-    <a href="/bg-remover" class="nav-pill">BG Remover</a>
-    <a href="/word-to-pdf" class="nav-pill">Word → PDF</a>
-    <a href="/pdf-to-word" class="nav-pill">PDF → Word</a>
-    <a href="/doc-tools" class="nav-pill">Doc Toolkit</a>
-    <a href="/img-to-pdf" class="nav-pill" style="color:#60a5fa;background:rgba(59,130,246,0.12);">Img → PDF</a>
-    <div style="width:1px;height:16px;background:rgba(255,255,255,0.08);margin:0 8px;flex-shrink:0;"></div>
-    <a href="/" style="background:#f0f0f4;color:#050508;font-family:'Geist Mono',monospace;font-size:0.7rem;letter-spacing:0.06em;text-transform:uppercase;padding:7px 16px;border-radius:9999px;text-decoration:none;font-weight:600;">← Home</a>
-  </div>
-</nav>
-
-<!-- MAIN -->
-<main style="position:relative;z-index:1;flex:1; max-width:1200px; width:100%; margin:0 auto; padding:100px clamp(1.25rem,4vw,3rem) 80px;">
-
-  <!-- Header -->
-  <div style="margin-bottom:3rem;">
-    <div style="display:inline-flex; align-items:center; gap:8px; background:rgba(59,130,246,0.1); border:1px solid rgba(59,130,246,0.2); border-radius:9999px; padding:5px 14px; margin-bottom:20px;">
-      <span class="material-symbols-outlined" style="color:#3b82f6; font-size:0.9rem; font-variation-settings:'FILL' 1,'wght' 500">add_photo_alternate</span>
-      <span style="font-family:'Geist Mono',monospace; font-size:0.75rem; letter-spacing:0.08em; text-transform:uppercase; color:#60a5fa;">Image → PDF</span>
+<body>
+  <nav>
+    <a href="/" class="logo">SnapTool.</a>
+    <div class="nav-links">
+      <a href="/bg-remover" class="nav-link">BG Remover</a>
+      <a href="/word-to-pdf" class="nav-link">Word → PDF</a>
+      <a href="/pdf-to-word" class="nav-link">PDF → Word</a>
+      <a href="/doc-tools" class="nav-link">Doc Toolkit</a>
+      <a href="/img-to-pdf" class="nav-link active">Img → PDF</a>
     </div>
-    <h1 style="font-size:clamp(2rem,5vw,3rem); font-weight:800; letter-spacing:-0.04em; line-height:1.05; color:#f4f4f5; margin:0 0 12px;">
-      Turn images into<br/><span style="color:#3b82f6;">a clean PDF.</span>
-    </h1>
-    <p style="font-size:1rem; color:#71717a; max-width:48ch; line-height:1.65; margin:0;">
-      Upload up to <strong style="color:#a1a1aa;">30 images</strong>, drag to reorder pages, pick a layout — done locally in seconds.
-    </p>
-  </div>
+  </nav>
 
-  <!-- Two-col layout -->
-  <div style="display:grid; grid-template-columns:1fr; gap:20px;" id="main-grid">
+  <main>
+    <div class="page-header">
+      <h1 class="serif">Image to PDF.</h1>
+      <p>Compile multiple images into a clean A4 PDF document. Drag to reorder, choose layout per image, and convert locally.</p>
+    </div>
 
-    <!-- Upload Card -->
-    <div id="upload-card" style="border-radius:14px; overflow:hidden;">
-      <!-- Upload Zone -->
-      <div id="upload-zone" style="border-radius:14px; padding:clamp(2rem,5vw,3.5rem); cursor:pointer; text-align:center;" onclick="fileInput.click()">
-        <div style="width:52px; height:52px; border-radius:12px; background:#1f1f23; border:1.5px solid #2a2a2e; display:flex; align-items:center; justify-content:center; margin:0 auto 16px;">
-          <span class="material-symbols-outlined" style="color:#3b82f6; font-size:1.4rem; font-variation-settings:'FILL' 0,'wght' 300">add_photo_alternate</span>
+    <div class="two-col">
+      <!-- Options Sidebar -->
+      <div>
+        <div class="options-card">
+          <h3>Document Options</h3>
+          
+          <div class="option-group">
+            <span class="option-label">Margins</span>
+            <div class="select-pill-group">
+              <div class="select-pill active" onclick="setMargin('small')">Small</div>
+              <div class="select-pill" onclick="setMargin('none')">None</div>
+              <div class="select-pill" onclick="setMargin('big')">Big</div>
+            </div>
+          </div>
+
+          <button id="convert-btn" class="btn" style="width:100%; margin-top:24px;" disabled>Create PDF</button>
+          
+          <div id="error-msg" style="color:var(--pastel-red-txt); font-size:0.75rem; margin-top:12px; display:none;"></div>
         </div>
-        <p style="font-size:1rem; font-weight:600; color:#e4e4e7; margin:0 0 6px;">Drop images here</p>
-        <p style="font-size:0.8125rem; color:#52525b; margin:0 0 20px;">JPG, PNG, WebP, BMP, GIF · max 30 files</p>
-        <button id="browse-btn" onclick="event.stopPropagation(); fileInput.click();" class="btn-primary">
-          <span class="material-symbols-outlined" style="font-size:0.95rem;">upload</span>
-          Browse Files
-        </button>
-        <input type="file" id="file-input" accept="image/*" multiple style="display:none;"/>
       </div>
-    </div>
 
-    <!-- Options + Grid + Actions (revealed after upload) -->
-    <div id="work-area" style="display:none; flex-direction:column; gap:16px;">
-
-      <!-- Options bar -->
-      <div style="background:#18181b; border:1.5px solid #1f1f23; border-radius:12px; padding:16px 20px; display:flex; flex-wrap:wrap; gap:12px; align-items:center; justify-content:space-between;">
-        <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
-          <span style="font-family:'Geist Mono',monospace; font-size:0.7rem; text-transform:uppercase; letter-spacing:0.08em; color:#52525b; margin-right:4px;">Layout</span>
-          <button data-layout="auto" class="layout-pill active" onclick="setLayout(this)">
-            <span class="material-symbols-outlined" style="font-size:0.9rem;">auto_awesome</span> Auto
-          </button>
-          <button data-layout="portrait" class="layout-pill" onclick="setLayout(this)">
-            <span class="material-symbols-outlined" style="font-size:0.9rem;">crop_portrait</span> Portrait
-          </button>
-          <button data-layout="landscape" class="layout-pill" onclick="setLayout(this)">
-            <span class="material-symbols-outlined" style="font-size:0.9rem;">crop_landscape</span> Landscape
-          </button>
+      <!-- Main Area -->
+      <div>
+        <div id="upload-zone">
+          <span class="material-symbols-outlined" style="font-size: 32px; color: var(--black); margin-bottom: 16px;">collections</span>
+          <h4 style="font-weight: 500; margin-bottom: 8px;">Upload Images</h4>
+          <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 24px;">Drag and drop up to 30 images (JPG, PNG, WebP)</p>
+          <button id="browse-btn" class="btn btn-ghost" style="padding: 8px 16px;">Select Files</button>
+          <input type="file" id="file-input" accept="image/png, image/jpeg, image/webp, image/bmp, image/gif" multiple style="display:none;"/>
         </div>
-        <button id="add-more-btn" class="btn-ghost" onclick="fileInput.click()">
-          <span class="material-symbols-outlined" style="font-size:0.9rem;">add</span> Add More
-        </button>
-      </div>
 
-      <!-- Grid header -->
-      <div style="display:flex; align-items:center; justify-content:space-between; padding:0 2px;">
-        <span style="font-family:'Geist Mono',monospace; font-size:0.75rem; letter-spacing:0.06em; text-transform:uppercase; color:#52525b;">
-          Pages — <span id="count-label" style="color:#a1a1aa;">0</span>
-        </span>
-        <span style="font-size:0.75rem; color:#3f3f46; font-family:'Geist Mono',monospace;">drag to reorder · click to preview</span>
-      </div>
-
-      <!-- Image grid -->
-      <div id="img-grid" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:12px;">
-      </div>
-
-      <!-- Action bar -->
-      <div style="display:flex; justify-content:space-between; align-items:center; padding-top:8px; border-top:1px solid #1f1f23;">
-        <button class="btn-danger" onclick="clearAll()">Clear all</button>
-        <button id="process-btn" class="btn-primary" onclick="processImages()">
-          <span class="material-symbols-outlined" style="font-size:0.95rem; font-variation-settings:'FILL' 1,'wght' 400">picture_as_pdf</span>
-          Convert to PDF
-        </button>
+        <div id="grid-header">
+          <h4 id="grid-count">0 images</h4>
+          <button id="clear-all-btn">Clear all</button>
+        </div>
+        
+        <div id="images-grid"></div>
       </div>
     </div>
+  </main>
 
-  </div>
-
-  <!-- Processing overlay (full-area) -->
-  <div id="processing-area" style="display:none; flex-direction:column; align-items:center; justify-content:center; gap:16px; padding:64px 0; text-align:center;">
-    <div style="width:52px; height:52px; border-radius:12px; background:rgba(59,130,246,0.1); border:1.5px solid rgba(59,130,246,0.2); display:flex; align-items:center; justify-content:center;">
-      <span class="material-symbols-outlined spinning" style="color:#3b82f6; font-size:1.5rem; font-variation-settings:'FILL' 1,'wght' 400">autorenew</span>
-    </div>
-    <div>
-      <p style="font-weight:600; color:#e4e4e7; margin:0 0 4px;">Converting images…</p>
-      <p style="font-size:0.8125rem; color:#52525b; margin:0; font-family:'Geist Mono',monospace;" id="processing-label">Building your PDF</p>
+  <div id="loader-overlay">
+    <div style="display:flex; flex-direction:column; align-items:center; gap:16px;">
+      <div class="spinner"></div>
+      <div style="font-size:0.875rem; font-weight:500;">Generating PDF...</div>
     </div>
   </div>
-
-</main>
-
-<!-- PREVIEW MODAL -->
-<div id="preview-modal" style="display:none; position:fixed; inset:0; z-index:100; align-items:center; justify-content:center; padding:16px;">
-  <div class="modal-card" style="max-width:640px; width:100%; max-height:90dvh; overflow:hidden; display:flex; flex-direction:column;">
-    <!-- Modal header -->
-    <div style="display:flex; align-items:center; justify-content:space-between; padding:16px 20px; border-bottom:1px solid #1f1f23;">
-      <span id="modal-title" style="font-family:'Geist Mono',monospace; font-size:0.8125rem; color:#a1a1aa;"></span>
-      <button onclick="closePreviewModal()" class="icon-btn">
-        <span class="material-symbols-outlined" style="font-size:1rem;">close</span>
-      </button>
-    </div>
-    <!-- Modal image -->
-    <div style="flex:1; overflow-y:auto; padding:20px; display:flex; align-items:center; justify-content:center; min-height:300px; background:#111113;">
-      <img id="modal-img" src="" alt="Preview" style="max-width:100%; max-height:65dvh; object-fit:contain; border-radius:6px; border:1px solid #1f1f23;"/>
-    </div>
-    <!-- Modal nav -->
-    <div style="padding:14px 20px; border-top:1px solid #1f1f23; display:flex; align-items:center; justify-content:center; gap:12px;">
-      <button id="modal-prev" onclick="navigateModal(-1)" class="btn-ghost" style="padding:7px 14px;">
-        <span class="material-symbols-outlined" style="font-size:0.9rem;">arrow_back</span> Prev
-      </button>
-      <span id="modal-counter" style="font-family:'Geist Mono',monospace; font-size:0.8rem; color:#52525b; min-width:60px; text-align:center;"></span>
-      <button id="modal-next" onclick="navigateModal(1)" class="btn-ghost" style="padding:7px 14px;">
-        Next <span class="material-symbols-outlined" style="font-size:0.9rem;">arrow_forward</span>
-      </button>
-    </div>
-  </div>
-</div>
-
-<!-- FOOTER -->
-<footer style="border-top:1px solid #111113; padding:28px clamp(1.25rem,4vw,3rem); margin-top:auto;">
-  <div style="max-width:1200px; margin:0 auto; display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;">
-    <span style="font-weight:800; font-size:1rem; letter-spacing:-0.02em; color:#3f3f46;">SnapTool</span>
-    <span style="font-family:'Geist Mono',monospace; font-size:0.75rem; color:#3f3f46;">© 2024 SnapTool</span>
-  </div>
-</footer>
 
 <script>
-  const fileInput     = document.getElementById('file-input');
-  const uploadZone    = document.getElementById('upload-zone');
-  const workArea      = document.getElementById('work-area');
-  const imgGrid       = document.getElementById('img-grid');
-  const countLabel    = document.getElementById('count-label');
-  const processingArea = document.getElementById('processing-area');
-  const processingLabel = document.getElementById('processing-label');
+  let items = [];
+  let currentMargin = 'small';
+  const MAX_FILES = 30;
 
-  const previewModal  = document.getElementById('preview-modal');
-  const modalImg      = document.getElementById('modal-img');
-  const modalTitle    = document.getElementById('modal-title');
-  const modalCounter  = document.getElementById('modal-counter');
-  const modalPrev     = document.getElementById('modal-prev');
-  const modalNext     = document.getElementById('modal-next');
+  // DOM
+  const uploadZone = document.getElementById('upload-zone');
+  const fileInput = document.getElementById('file-input');
+  const browseBtn = document.getElementById('browse-btn');
+  const imagesGrid = document.getElementById('images-grid');
+  const gridHeader = document.getElementById('grid-header');
+  const gridCount = document.getElementById('grid-count');
+  const clearAllBtn = document.getElementById('clear-all-btn');
+  const convertBtn = document.getElementById('convert-btn');
+  const errorMsg = document.getElementById('error-msg');
+  const loaderOverlay = document.getElementById('loader-overlay');
 
-  const MAX = 30;
-  let images = [];
-  let selectedLayout = 'auto';
-  let modalIndex = 0;
-  let dragSrcIdx = null;
+  window.setMargin = function(val) {
+    currentMargin = val;
+    document.querySelectorAll('.select-pill').forEach(el => {
+      el.classList.toggle('active', el.textContent.toLowerCase() === val);
+    });
+  };
 
-  /* ── LAYOUT ─────────────────────────────────────── */
-  function setLayout(btn) {
-    selectedLayout = btn.dataset.layout;
-    document.querySelectorAll('.layout-pill').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
+  function addFiles(files) {
+    errorMsg.style.display = 'none';
+    const valid = [...files].filter(f => f.type.startsWith('image/'));
+    
+    if (items.length + valid.length > MAX_FILES) {
+      showError(`Maximum ${MAX_FILES} images allowed. Selected ${items.length + valid.length}.`);
+      return;
+    }
+
+    valid.forEach(f => {
+      items.push({
+        id: Math.random().toString(36).substr(2, 9),
+        file: f,
+        url: URL.createObjectURL(f),
+        orientation: 'portrait' // default A4 portrait
+      });
+    });
+
+    renderGrid();
   }
 
-  /* ── FILE INPUT ──────────────────────────────────── */
-  fileInput.addEventListener('change', () => addFiles(fileInput.files));
+  function removeFile(id) {
+    const idx = items.findIndex(i => i.id === id);
+    if (idx > -1) {
+      URL.revokeObjectURL(items[idx].url);
+      items.splice(idx, 1);
+      renderGrid();
+    }
+  }
 
+  function toggleOrientation(id) {
+    const item = items.find(i => i.id === id);
+    if (item) {
+      item.orientation = item.orientation === 'portrait' ? 'landscape' : 'portrait';
+      renderGrid();
+    }
+  }
+
+  function showError(msg) {
+    errorMsg.textContent = msg;
+    errorMsg.style.display = 'block';
+  }
+
+  function renderGrid() {
+    imagesGrid.innerHTML = '';
+    
+    if (items.length === 0) {
+      gridHeader.style.display = 'none';
+      convertBtn.disabled = true;
+      return;
+    }
+
+    gridHeader.style.display = 'flex';
+    gridCount.textContent = `${items.length} image${items.length > 1 ? 's' : ''}`;
+    convertBtn.disabled = false;
+
+    items.forEach((item, index) => {
+      const card = document.createElement('div');
+      card.className = 'img-card';
+      card.draggable = true;
+      card.dataset.id = item.id;
+
+      // Adjust thumbnail aspect ratio based on chosen orientation
+      const aspect = item.orientation === 'portrait' ? '1/1.414' : '1.414/1';
+
+      card.innerHTML = `
+        <div class="thumb-wrap" style="aspect-ratio: ${aspect};" title="Drag to reorder">
+          <img src="${item.url}" alt="${item.file.name}" draggable="false" />
+          <button class="remove-btn" onclick="removeFile('${item.id}')" title="Remove image">
+            <span class="material-symbols-outlined" style="font-size:16px;">close</span>
+          </button>
+        </div>
+        <div class="card-meta">
+          <span class="card-idx">${index + 1}</span>
+          <button class="orientation-btn" onclick="toggleOrientation('${item.id}')" title="Switch to ${item.orientation === 'portrait' ? 'Landscape' : 'Portrait'}">
+            <span class="material-symbols-outlined" style="font-size:16px; transform: ${item.orientation === 'landscape' ? 'rotate(90deg)' : 'none'}">crop_portrait</span>
+          </button>
+        </div>
+      `;
+
+      // Drag and Drop Events for reordering
+      card.addEventListener('dragstart', handleDragStart);
+      card.addEventListener('dragover', handleDragOver);
+      card.addEventListener('dragleave', handleDragLeave);
+      card.addEventListener('drop', handleDrop);
+      card.addEventListener('dragend', handleDragEnd);
+
+      imagesGrid.appendChild(card);
+    });
+  }
+
+  // HTML5 Drag and Drop logic for reordering
+  let draggedId = null;
+  let dragEl = null;
+
+  function handleDragStart(e) {
+    draggedId = this.dataset.id;
+    dragEl = this;
+    e.dataTransfer.effectAllowed = 'move';
+    // Firefox needs setData
+    e.dataTransfer.setData('text/plain', draggedId);
+    setTimeout(() => this.classList.add('dragging'), 0);
+  }
+
+  function handleDragOver(e) {
+    if (e.preventDefault) e.preventDefault(); // allow drop
+    e.dataTransfer.dropEffect = 'move';
+    if (this !== dragEl) this.classList.add('drag-target');
+    return false;
+  }
+
+  function handleDragLeave(e) {
+    this.classList.remove('drag-target');
+  }
+
+  function handleDrop(e) {
+    if (e.stopPropagation) e.stopPropagation();
+    this.classList.remove('drag-target');
+    
+    if (draggedId && draggedId !== this.dataset.id) {
+      const fromIdx = items.findIndex(i => i.id === draggedId);
+      const toIdx = items.findIndex(i => i.id === this.dataset.id);
+      
+      if (fromIdx > -1 && toIdx > -1) {
+        // Swap or move
+        const movedItem = items.splice(fromIdx, 1)[0];
+        items.splice(toIdx, 0, movedItem);
+        renderGrid();
+      }
+    }
+    return false;
+  }
+
+  function handleDragEnd(e) {
+    this.classList.remove('dragging');
+    document.querySelectorAll('.img-card').forEach(el => el.classList.remove('drag-target'));
+  }
+
+  // File Selection Events
+  browseBtn.addEventListener('click', (e) => { e.stopPropagation(); fileInput.click(); });
+  uploadZone.addEventListener('click', (e) => { if (!e.target.closest('button')) fileInput.click(); });
+  fileInput.addEventListener('change', (e) => {
+    if (e.target.files.length) {
+      addFiles(e.target.files);
+      fileInput.value = ''; // reset
+    }
+  });
+
+  // Drag and Drop files into zone
+  uploadZone.addEventListener('dragenter', e => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
   uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
   uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
   uploadZone.addEventListener('drop', e => {
     e.preventDefault();
     uploadZone.classList.remove('drag-over');
-    addFiles(e.dataTransfer.files);
+    if (e.dataTransfer.files.length) addFiles(e.dataTransfer.files);
   });
 
-  /* ── ADD FILES ───────────────────────────────────── */
-  function addFiles(files) {
-    const valid = [...files].filter(f => f.type.startsWith('image/'));
-    if (!valid.length) return;
+  clearAllBtn.addEventListener('click', () => {
+    items.forEach(i => URL.revokeObjectURL(i.url));
+    items = [];
+    renderGrid();
+  });
 
-    const remaining = MAX - images.length;
-    if (remaining <= 0) { alert(`Max ${MAX} images reached.`); return; }
-    const toAdd = valid.slice(0, remaining);
-    if (valid.length > remaining) alert(`Only ${remaining} slot(s) left. Adding first ${remaining}.`);
+  // API Call
+  convertBtn.addEventListener('click', async () => {
+    if (items.length === 0) return;
+    
+    loaderOverlay.style.display = 'flex';
+    errorMsg.style.display = 'none';
 
-    toAdd.forEach(f => images.push({ file: f, url: URL.createObjectURL(f) }));
-    fileInput.value = '';
-    renderAll();
-  }
-
-  /* ── RENDER ──────────────────────────────────────── */
-  function renderAll() {
-    if (!images.length) {
-      workArea.style.display = 'none';
-      uploadZone.style.display = '';
-      return;
-    }
-
-    uploadZone.style.display = 'none';
-    workArea.style.display = 'flex';
-    countLabel.textContent = images.length;
-
-    imgGrid.innerHTML = images.map((img, idx) => `
-      <div class="img-card slide-up" data-idx="${idx}" draggable="true" style="animation-delay:${Math.min(idx*0.04,0.4)}s">
-        <!-- Thumbnail -->
-        <div class="thumb-wrap" style="aspect-ratio:3/4; position:relative; overflow:hidden; background:#111113;" onclick="openModal(${idx})">
-          <img src="${img.url}" alt="" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform 0.25s;" onmouseover="this.style.transform='scale(1.04)'" onmouseout="this.style.transform='scale(1)'"/>
-          <div class="overlay">
-            <span class="material-symbols-outlined" style="color:#fff; font-size:1.5rem; font-variation-settings:'FILL' 0,'wght' 300">zoom_in</span>
-          </div>
-          <div class="page-badge">${idx + 1}</div>
-        </div>
-        <!-- Controls -->
-        <div style="display:flex; align-items:center; gap:4px; padding:8px 10px; border-top:1px solid #2a2a2e; background:#18181b;">
-          <button class="icon-btn" onclick="moveImg(${idx},-1)" ${idx===0?'disabled':''} title="Move left">
-            <span class="material-symbols-outlined" style="font-size:0.9rem;">arrow_back</span>
-          </button>
-          <button class="icon-btn" onclick="moveImg(${idx},1)" ${idx===images.length-1?'disabled':''} title="Move right">
-            <span class="material-symbols-outlined" style="font-size:0.9rem;">arrow_forward</span>
-          </button>
-          <span style="flex:1; font-family:'Geist Mono',monospace; font-size:0.6rem; color:#3f3f46; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; padding:0 4px;" title="${img.file.name}">${img.file.name}</span>
-          <button class="icon-btn danger" onclick="removeImg(${idx})" title="Remove">
-            <span class="material-symbols-outlined" style="font-size:0.9rem;">close</span>
-          </button>
-        </div>
-      </div>
-    `).join('');
-
-    // Drag to reorder
-    imgGrid.querySelectorAll('.img-card').forEach(card => {
-      card.addEventListener('dragstart', e => {
-        dragSrcIdx = +card.dataset.idx;
-        setTimeout(() => card.classList.add('dragging'), 0);
-        e.dataTransfer.effectAllowed = 'move';
-      });
-      card.addEventListener('dragend', () => card.classList.remove('dragging'));
-      card.addEventListener('dragover', e => { e.preventDefault(); card.classList.add('drag-target'); });
-      card.addEventListener('dragleave', () => card.classList.remove('drag-target'));
-      card.addEventListener('drop', e => {
-        e.preventDefault();
-        card.classList.remove('drag-target');
-        const targetIdx = +card.dataset.idx;
-        if (dragSrcIdx !== null && dragSrcIdx !== targetIdx) {
-          const [moved] = images.splice(dragSrcIdx, 1);
-          images.splice(targetIdx, 0, moved);
-          renderAll();
-        }
-        dragSrcIdx = null;
-      });
+    const formData = new FormData();
+    formData.append('margin', currentMargin);
+    
+    // Append files and their specific orientations in order
+    items.forEach(item => {
+      formData.append('files', item.file);
+      formData.append('orientations', item.orientation);
     });
-  }
-
-  /* ── MOVE / REMOVE ───────────────────────────────── */
-  function moveImg(idx, dir) {
-    const ni = idx + dir;
-    if (ni < 0 || ni >= images.length) return;
-    [images[idx], images[ni]] = [images[ni], images[idx]];
-    renderAll();
-  }
-  function removeImg(idx) {
-    URL.revokeObjectURL(images[idx].url);
-    images.splice(idx, 1);
-    renderAll();
-  }
-  function clearAll() {
-    images.forEach(i => URL.revokeObjectURL(i.url));
-    images = [];
-    renderAll();
-    uploadZone.style.display = '';
-  }
-
-  /* ── MODAL ───────────────────────────────────────── */
-  function openModal(idx) {
-    modalIndex = idx;
-    updateModal();
-    previewModal.style.display = 'flex';
-  }
-  function updateModal() {
-    const img = images[modalIndex];
-    modalImg.src = img.url;
-    modalTitle.textContent = img.file.name;
-    modalCounter.textContent = `${modalIndex + 1} / ${images.length}`;
-    modalPrev.disabled = modalIndex === 0;
-    modalNext.disabled = modalIndex === images.length - 1;
-    modalPrev.style.opacity = modalIndex === 0 ? '0.35' : '1';
-    modalNext.style.opacity = modalIndex === images.length - 1 ? '0.35' : '1';
-  }
-  function navigateModal(dir) {
-    const ni = modalIndex + dir;
-    if (ni < 0 || ni >= images.length) return;
-    modalIndex = ni;
-    updateModal();
-  }
-  function closePreviewModal() { previewModal.style.display = 'none'; }
-  previewModal.addEventListener('click', e => { if (e.target === previewModal) closePreviewModal(); });
-  document.addEventListener('keydown', e => {
-    if (previewModal.style.display === 'none') return;
-    if (e.key === 'Escape') closePreviewModal();
-    if (e.key === 'ArrowLeft') navigateModal(-1);
-    if (e.key === 'ArrowRight') navigateModal(1);
-  });
-
-  /* ── PROCESS ─────────────────────────────────────── */
-  async function processImages() {
-    if (!images.length) return;
-
-    workArea.style.display = 'none';
-    processingArea.style.display = 'flex';
-
-    const steps = ['Building your PDF', 'Composing pages', 'Finalizing layout…'];
-    let si = 0;
-    const stepInterval = setInterval(() => { processingLabel.textContent = steps[si++ % steps.length]; }, 900);
 
     try {
-      const fd = new FormData();
-      images.forEach(img => fd.append('files', img.file));
-      fd.append('layout', selectedLayout);
+      const res = await fetch('/api/img-to-pdf', {
+        method: 'POST',
+        body: formData
+      });
 
-      const res = await fetch('/api/img-to-pdf', { method: 'POST', body: fd });
       if (!res.ok) {
         const err = await res.json().catch(() => ({ detail: 'Unknown error' }));
         throw new Error(err.detail || `Error ${res.status}`);
@@ -591,14 +377,13 @@
       a.download = 'images_converted.pdf';
       a.click();
 
-    } catch (e) {
-      alert('Error: ' + e.message);
+    } catch (err) {
+      showError(err.message);
     } finally {
-      clearInterval(stepInterval);
-      processingArea.style.display = 'none';
-      workArea.style.display = 'flex';
+      loaderOverlay.style.display = 'none';
     }
-  }
+  });
+
 </script>
 </body>
 </html>
