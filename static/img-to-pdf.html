@@ -11,11 +11,16 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg: #FBFBFA; --surface: #FFFFFF; --border: #EAEAEA;
-      --text: #2F3437; --text-muted: #787774; --black: #111111;
+      --bg: #FBFBFA;
+      --surface: #FFFFFF;
+      --border: #EAEAEA;
+      --text: #2F3437;
+      --text-muted: #787774;
+      --black: #111111;
       --pastel-blue-bg: #E1F3FE; --pastel-blue-txt: #1F6C9F;
       --pastel-green-bg: #EDF3EC; --pastel-green-txt: #346538;
       --pastel-red-bg: #FDEBEC; --pastel-red-txt: #9F2F2D;
+      --preview-padding: 8px;
     }
     body { background: var(--bg); color: var(--text); font-family: 'Geist', sans-serif; min-height: 100dvh; display: flex; flex-direction: column; line-height: 1.6; }
     .serif { font-family: 'Newsreader', serif; letter-spacing: -0.02em; }
@@ -72,7 +77,7 @@
     .img-card.dragging { opacity: 0.5; box-shadow: 0 12px 32px rgba(0,0,0,0.05); }
     .img-card.drag-target { border: 2px dashed var(--black); }
 
-    .thumb-wrap { width: 100%; aspect-ratio: 1/1.414; background: #F0F0F0; background-image: linear-gradient(45deg, #FFF 25%, transparent 25%, transparent 75%, #FFF 75%), linear-gradient(45deg, #FFF 25%, transparent 25%, transparent 75%, #FFF 75%); background-size: 10px 10px; background-position: 0 0, 5px 5px; position: relative; cursor: grab; }
+    .thumb-wrap { width: 100%; aspect-ratio: 1/1.414; background: #F0F0F0; background-image: linear-gradient(45deg, #FFF 25%, transparent 25%, transparent 75%, #FFF 75%), linear-gradient(45deg, #FFF 25%, transparent 25%, transparent 75%, #FFF 75%); background-size: 10px 10px; background-position: 0 0, 5px 5px; position: relative; cursor: grab; padding: var(--preview-padding); transition: padding 0.2s ease; }
     .thumb-wrap img { width: 100%; height: 100%; object-fit: contain; }
     
     .remove-btn { position: absolute; top: 8px; right: 8px; width: 24px; height: 24px; border-radius: 4px; background: rgba(255,255,255,0.9); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-muted); opacity: 0; transition: opacity 0.2s; }
@@ -81,8 +86,8 @@
 
     .card-meta { padding: 12px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
     .card-idx { font-family: 'Geist Mono', monospace; font-size: 0.6875rem; color: var(--text-muted); }
-    .orientation-btn { width: 24px; height: 24px; border: 1px solid var(--border); border-radius: 4px; background: var(--bg); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-muted); }
-    .orientation-btn:hover { border-color: #D0D0D0; color: var(--black); }
+    .orientation-btn { width: auto; padding: 0 12px; height: 28px; border: 1px solid var(--border); border-radius: 4px; background: var(--bg); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--black); font-size: 0.75rem; font-weight: 500; font-family: 'Geist', sans-serif; transition: all 0.2s; }
+    .orientation-btn:hover { border-color: var(--black); background: var(--surface); }
 
     /* LOADER */
     #loader-overlay { position: fixed; inset: 0; background: rgba(251,251,250,0.8); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 200; }
@@ -183,6 +188,12 @@
     document.querySelectorAll('.select-pill').forEach(el => {
       el.classList.toggle('active', el.textContent.toLowerCase() === val);
     });
+    
+    // Visually reflect margin
+    let pad = '8px';
+    if(val === 'none') pad = '0px';
+    if(val === 'big') pad = '24px';
+    document.documentElement.style.setProperty('--preview-padding', pad);
   };
 
   function addFiles(files) {
@@ -260,7 +271,7 @@
         <div class="card-meta">
           <span class="card-idx">${index + 1}</span>
           <button class="orientation-btn" onclick="toggleOrientation('${item.id}')" title="Switch to ${item.orientation === 'portrait' ? 'Landscape' : 'Portrait'}">
-            <span class="material-symbols-outlined" style="font-size:16px; transform: ${item.orientation === 'landscape' ? 'rotate(90deg)' : 'none'}">crop_portrait</span>
+            ${item.orientation === 'portrait' ? 'Portrait' : 'Landscape'}
           </button>
         </div>
       `;
