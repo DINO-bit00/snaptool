@@ -142,25 +142,28 @@
     </div>
 
     <div class="two-col anim" style="transition-delay: 0.1s;">
-      <!-- UPLOAD -->
-      <div id="upload-zone">
-        <span class="material-symbols-outlined upload-icon">picture_as_pdf</span>
-        <h3 style="font-weight: 500; color: var(--black); margin-bottom: 8px;">Upload PDF Files</h3>
-        <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 24px;">Drag and drop .pdf files here</p>
-        <button id="browse-btn" class="btn">Select Files</button>
-        <input type="file" id="file-input" accept=".pdf" multiple style="display:none;"/>
+      <!-- LEFT: UPLOAD + OPTIONS -->
+      <div>
+        <div id="upload-zone">
+          <span class="material-symbols-outlined upload-icon">picture_as_pdf</span>
+          <h3 style="font-weight: 500; color: var(--black); margin-bottom: 8px;">Upload PDF Files</h3>
+          <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 24px;">Drag and drop .pdf files here</p>
+          <button id="browse-btn" class="btn">Select Files</button>
+          <input type="file" id="file-input" accept=".pdf" multiple style="display:none;"/>
+        </div>
+
+        <!-- COMPRESSION OPTIONS -->
+        <div style="margin-top: 16px; padding: 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px;">
+          <label for="compress-level" style="display:block; font-size: 0.75rem; font-weight:600; color:var(--text-muted); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.06em;">Compression Level</label>
+          <select id="compress-level" style="width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 6px; font-family: inherit; font-size: 0.875rem; cursor: pointer; outline:none; background:var(--bg); color: var(--black);" onchange="updateHint(this.value)">
+            <option value="standard">Standard — Lossless, safe</option>
+            <option value="strong">Strong — Maximum reduction (images only)</option>
+          </select>
+          <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 8px;" id="level-hint">Removes duplicates &amp; compresses streams. Text stays selectable.</p>
+        </div>
       </div>
 
-      <!-- COMPRESSION OPTIONS - outside upload zone so clicks don't trigger file picker -->
-      <div style="display:flex; align-items:center; gap:16px; padding: 16px 0 0;">
-        <label for="compress-level" style="font-size: 0.85rem; font-weight:500; color:var(--black); white-space:nowrap;">Compression Level</label>
-        <select id="compress-level" style="flex:1; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; font-family: inherit; font-size: 0.85rem; cursor: pointer; outline:none; background:var(--surface);" onclick="event.stopPropagation()">
-          <option value="standard">Standard — Lossless, safe, text still selectable</option>
-          <option value="strong">Strong — Flatten to images, maximum size reduction</option>
-        </select>
-      </div>
-
-      <!-- QUEUE -->
+      <!-- RIGHT: QUEUE -->
       <div class="queue-container">
         <div class="queue-header">
           <div>
@@ -335,6 +338,16 @@
   });
 
   setTimeout(() => document.querySelectorAll('.anim').forEach(el => el.classList.add('visible')), 50);
+
+  function updateHint(val) {
+    const hint = document.getElementById('level-hint');
+    if (!hint) return;
+    if (val === 'strong') {
+      hint.textContent = 'Pages are flattened to images at 100 DPI. Maximally reduces file size but text becomes non-selectable.';
+    } else {
+      hint.textContent = 'Removes duplicates & compresses streams. Text stays selectable and quality is unchanged.';
+    }
+  }
 </script>
 </body>
 </html>
