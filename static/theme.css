@@ -51,6 +51,21 @@ html[data-theme="dark"] .warning-box {
   color: #D4A017 !important;
 }
 
+/* Primary buttons */
+html[data-theme="dark"] .btn {
+  color: #111111 !important;
+}
+html[data-theme="dark"] .btn:hover {
+  background: #D4D4D4 !important;
+}
+html[data-theme="dark"] .btn-ghost {
+  color: var(--text) !important;
+  background: transparent !important;
+}
+html[data-theme="dark"] .btn-ghost:hover {
+  background: var(--surface) !important;
+}
+
 /* Theme toggle button */
 #theme-toggle {
   margin-left: auto;
