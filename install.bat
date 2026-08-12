@@ -1,5 +1,4 @@
 @echo off
-chcp 65001 >nul
 title SnapTool - Installer
 color 0A
 
@@ -9,7 +8,7 @@ echo   SNAPTOOL - INSTALLER OTOMATIS
 echo  ============================================================
 echo.
 
-:: ─── LANGKAH 1: Cari Python ──────────────────────────────────────────────────
+:: --- LANGKAH 1: Cari Python ---
 echo  [1/3] Mencari Python di komputer Anda...
 
 set PYTHON_EXE=
@@ -68,7 +67,7 @@ exit /b 1
 :python_found
 echo  [OK] Python siap digunakan.
 
-:: ─── LANGKAH 2: Install semua library ────────────────────────────────────────
+:: --- LANGKAH 2: Install semua library ---
 echo.
 echo  [2/3] Menginstall semua library yang dibutuhkan...
 echo        Proses ini mungkin memakan waktu 2-10 menit.
@@ -94,13 +93,12 @@ if %ERRORLEVEL% NEQ 0 (
     exit /b 1
 )
 
-:: ─── LANGKAH 3: Tulis start.bat dengan Python yang benar ─────────────────────
+:: --- LANGKAH 3: Tulis start.bat dengan Python yang benar ---
 echo.
 echo  [3/3] Menyimpan konfigurasi untuk start.bat...
 
 (
 echo @echo off
-echo chcp 65001 ^>nul
 echo title SnapTool
 echo.
 echo echo.
@@ -117,14 +115,14 @@ echo.
 echo echo  Server berjalan. Browser akan terbuka sebentar lagi...
 echo echo  Tekan CTRL+C di jendela ini untuk menghentikan server.
 echo echo.
-echo start "" "http://localhost:8000"
+echo start http://localhost:8000
 echo "%PYTHON_EXE%" -m uvicorn main:app --host 0.0.0.0 --port 8000
 echo pause
 ) > start.bat
 
 echo  [OK] start.bat berhasil dikonfigurasi!
 
-:: ─── SELESAI ──────────────────────────────────────────────────────────────────
+:: --- SELESAI ---
 echo.
 echo  ============================================================
 echo   INSTALASI BERHASIL!
@@ -138,7 +136,7 @@ set /p confirm= Mau langsung jalankan sekarang? (Y/N):
 if /i "%confirm%"=="Y" (
     echo.
     echo  Menjalankan SnapTool...
-    start "" "http://localhost:8000"
+    start http://localhost:8000
     "%PYTHON_EXE%" -m uvicorn main:app --host 0.0.0.0 --port 8000
 )
 
