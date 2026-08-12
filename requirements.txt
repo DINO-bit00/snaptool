@@ -7,3 +7,4 @@ aiofiles
 docx2pdf
 pypdf
 docxcompose
+pymupdf

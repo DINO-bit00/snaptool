@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Word to PDF — SnapTool</title>
+  <title>Compress PDF — SnapTool</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&display=swap" rel="stylesheet"/>
@@ -71,7 +71,6 @@
 
     #empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 40px; text-align: center; flex: 1; color: var(--text-muted); }
 
-    /* ANIMATIONS */
     @keyframes spin { to { transform: rotate(360deg); } }
     .spinning { animation: spin 1s linear infinite; }
     .anim { opacity: 0; transform: translateY(12px); transition: opacity 0.5s ease-out, transform 0.5s ease-out; }
@@ -85,7 +84,7 @@
     <a href="/" class="logo">SnapTool.</a>
     <div class="nav-links">
       <a href="/bg-remover" class="nav-link">BG Remover</a>
-      <a href="/word-to-pdf" class="nav-link active">Word → PDF</a>
+      <a href="/word-to-pdf" class="nav-link">Word → PDF</a>
       <a href="/pdf-to-word" class="nav-link">PDF → Word</a>
             <a href="/doc-tools" class="nav-link">Doc Toolkit</a>
       <a href="/compress-pdf" class="nav-link">Compress PDF</a>
@@ -96,18 +95,18 @@
 
   <main>
     <div class="page-header anim">
-      <h1 class="serif">Word to PDF.</h1>
-      <p>Convert .doc and .docx files to PDF securely. Batch upload supported — drop multiple files at once.</p>
+      <h1 class="serif">Compress PDF.</h1>
+      <p>Reduce PDF file size while maintaining readability. Batch upload supported.</p>
     </div>
 
     <div class="two-col anim" style="transition-delay: 0.1s;">
       <!-- UPLOAD -->
       <div id="upload-zone">
-        <span class="material-symbols-outlined upload-icon">description</span>
-        <h3 style="font-weight: 500; color: var(--black); margin-bottom: 8px;">Upload Word Files</h3>
-        <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 24px;">Drag and drop .doc or .docx files here</p>
+        <span class="material-symbols-outlined upload-icon">picture_as_pdf</span>
+        <h3 style="font-weight: 500; color: var(--black); margin-bottom: 8px;">Upload PDF Files</h3>
+        <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 24px;">Drag and drop .pdf files here</p>
         <button id="browse-btn" class="btn">Select Files</button>
-        <input type="file" id="file-input" accept=".doc,.docx" multiple style="display:none;"/>
+        <input type="file" id="file-input" accept=".pdf" multiple style="display:none;"/>
       </div>
 
       <!-- QUEUE -->
@@ -206,7 +205,7 @@
   }
 
   function addFiles(files) {
-    const valid = [...files].filter(f => f.name.match(/\.(doc|docx)$/i));
+    const valid = [...files].filter(f => f.name.match(/\.pdf$/i));
     valid.forEach(f => queue.push({ file: f, status: 'pending', blob: null, outName: '', errorMsg: '' }));
     renderQueue();
     processNext();
@@ -225,13 +224,13 @@
     formData.append('file', item.file);
 
     try {
-      const res = await fetch('/api/word-to-pdf', { method: 'POST', body: formData });
+      const res = await fetch('/api/compress-pdf', { method: 'POST', body: formData });
       if (!res.ok) {
         const err = await res.json().catch(() => ({ detail: 'Unknown error' }));
         throw new Error(err.detail || `Error ${res.status}`);
       }
       item.blob = await res.blob();
-      item.outName = item.file.name.replace(/\.[^/.]+$/, '') + '.pdf';
+      item.outName = item.file.name.replace(/\.[^/.]+$/, '') + '_compressed.pdf';
       item.status = 'done';
     } catch(e) {
       item.status = 'error';

@@ -489,6 +489,150 @@ async def img_to_pdf(
 
 
 # ─────────────────────────────────────────────
+#  API: Compress PDF
+# ─────────────────────────────────────────────
+@app.post("/api/compress-pdf")
+async def compress_pdf(file: UploadFile = File(...)):
+    if not (file.filename or "").lower().endswith(".pdf"):
+        raise HTTPException(400, "Only PDF files are supported.")
+    
+    input_path = get_temp_path(".pdf")
+    output_path = get_temp_path(".pdf")
+    
+    try:
+        with open(input_path, "wb") as f:
+            shutil.copyfileobj(file.file, f)
+            
+        def _compress():
+            import fitz
+            doc = fitz.open(input_path)
+            doc.save(output_path, garbage=4, deflate=True, clean=True)
+            doc.close()
+            
+        await asyncio.get_event_loop().run_in_executor(None, _compress)
+        
+        filename = Path(file.filename).stem + "_compressed.pdf"
+        return FileResponse(output_path, media_type="application/pdf", filename=filename)
+    except Exception as e:
+        cleanup(output_path)
+        raise HTTPException(500, f"Compression failed: {str(e)}")
+    finally:
+        cleanup(input_path)
+
+# ─────────────────────────────────────────────
+#  API: PDF to Image
+# ─────────────────────────────────────────────
+@app.post("/api/pdf-to-img")
+async def pdf_to_img(file: UploadFile = File(...)):
+    if not (file.filename or "").lower().endswith(".pdf"):
+        raise HTTPException(400, "Only PDF files are supported.")
+    
+    input_path = get_temp_path(".pdf")
+    zip_path = get_temp_path(".zip")
+    
+    try:
+        with open(input_path, "wb") as f:
+            shutil.copyfileobj(file.file, f)
+            
+        def _extract():
+            import fitz
+            doc = fitz.open(input_path)
+            
+            with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zf:
+                for i in range(len(doc)):
+                    page = doc.load_page(i)
+                    pix = page.get_pixmap(dpi=150)
+                    img_bytes = pix.tobytes("jpeg")
+                    zf.writestr(f"page_{i+1}.jpg", img_bytes)
+            doc.close()
+            
+        await asyncio.get_event_loop().run_in_executor(None, _extract)
+        
+        filename = Path(file.filename).stem + "_images.zip"
+        return FileResponse(zip_path, media_type="application/zip", filename=filename)
+    except Exception as e:
+        cleanup(zip_path)
+        raise HTTPException(500, f"Extraction failed: {str(e)}")
+    finally:
+        cleanup(input_path)
+
+# ─────────────────────────────────────────────
+#  API: Protect / Unlock PDF
+# ─────────────────────────────────────────────
+@app.post("/api/protect-pdf")
+async def protect_pdf(password: str = Form(...), file: UploadFile = File(...)):
+    if not (file.filename or "").lower().endswith(".pdf"):
+        raise HTTPException(400, "Only PDF files are supported.")
+    if not password:
+        raise HTTPException(400, "Password is required.")
+
+    input_path = get_temp_path(".pdf")
+    output_path = get_temp_path(".pdf")
+    
+    try:
+        from pypdf import PdfWriter, PdfReader
+        with open(input_path, "wb") as f:
+            shutil.copyfileobj(file.file, f)
+            
+        def _protect():
+            reader = PdfReader(input_path)
+            writer = PdfWriter()
+            writer.append_pages_from_reader(reader)
+            writer.encrypt(password)
+            with open(output_path, "wb") as f_out:
+                writer.write(f_out)
+                
+        await asyncio.get_event_loop().run_in_executor(None, _protect)
+        
+        filename = Path(file.filename).stem + "_protected.pdf"
+        return FileResponse(output_path, media_type="application/pdf", filename=filename)
+    except Exception as e:
+        cleanup(output_path)
+        raise HTTPException(500, f"Protection failed: {str(e)}")
+    finally:
+        cleanup(input_path)
+
+@app.post("/api/unlock-pdf")
+async def unlock_pdf(password: str = Form(...), file: UploadFile = File(...)):
+    if not (file.filename or "").lower().endswith(".pdf"):
+        raise HTTPException(400, "Only PDF files are supported.")
+    if not password:
+        raise HTTPException(400, "Password is required.")
+
+    input_path = get_temp_path(".pdf")
+    output_path = get_temp_path(".pdf")
+    
+    try:
+        from pypdf import PdfWriter, PdfReader
+        from pypdf.errors import FileNotDecryptedError
+        with open(input_path, "wb") as f:
+            shutil.copyfileobj(file.file, f)
+            
+        def _unlock():
+            reader = PdfReader(input_path)
+            if reader.is_encrypted:
+                reader.decrypt(password)
+            
+            # Will raise FileNotDecryptedError if password is wrong
+            writer = PdfWriter()
+            writer.append_pages_from_reader(reader)
+            with open(output_path, "wb") as f_out:
+                writer.write(f_out)
+                
+        await asyncio.get_event_loop().run_in_executor(None, _unlock)
+        
+        filename = Path(file.filename).stem + "_unlocked.pdf"
+        return FileResponse(output_path, media_type="application/pdf", filename=filename)
+    except Exception as e:
+        cleanup(output_path)
+        if "Password is not correct" in str(e) or "FileNotDecryptedError" in str(type(e)):
+             raise HTTPException(400, "Incorrect password.")
+        raise HTTPException(500, f"Unlock failed: {str(e)}")
+    finally:
+        cleanup(input_path)
+
+
+# ─────────────────────────────────────────────
 #  Serve static HTML pages
 # ─────────────────────────────────────────────
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -516,6 +660,18 @@ async def doc_tools_page():
 @app.get("/img-to-pdf", response_class=HTMLResponse)
 async def img_to_pdf_page():
     return FileResponse("static/img-to-pdf.html")
+
+@app.get("/compress-pdf", response_class=HTMLResponse)
+async def compress_pdf_page():
+    return FileResponse("static/compress-pdf.html")
+
+@app.get("/pdf-to-img", response_class=HTMLResponse)
+async def pdf_to_img_page():
+    return FileResponse("static/pdf-to-img.html")
+
+@app.get("/protect-pdf", response_class=HTMLResponse)
+async def protect_pdf_page():
+    return FileResponse("static/protect-pdf.html")
 
 
 if __name__ == "__main__":
