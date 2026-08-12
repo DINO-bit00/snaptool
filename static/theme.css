@@ -1,0 +1,78 @@
+/* ====================================================
+   SnapTool — Dark Mode Overrides
+   Applied when: html[data-theme="dark"]
+   ==================================================== */
+
+html[data-theme="dark"] {
+  --bg:              #0F0F0E;
+  --surface:         #1C1C1B;
+  --border:          #2E2E2D;
+  --text:            #B8B8B5;
+  --text-muted:      #5A5A57;
+  --black:           #F0F0EE;
+
+  --pastel-green-bg:  #1A2C1A;
+  --pastel-green-txt: #6DBF6D;
+  --pastel-blue-bg:   #131D2E;
+  --pastel-blue-txt:  #6AAEE8;
+  --pastel-red-bg:    #2E1515;
+  --pastel-red-txt:   #E87777;
+}
+
+/* Fix inputs / selects that use hard-coded backgrounds */
+html[data-theme="dark"] input,
+html[data-theme="dark"] select,
+html[data-theme="dark"] textarea {
+  background-color: var(--surface) !important;
+  color: var(--black) !important;
+  border-color: var(--border) !important;
+  color-scheme: dark;
+}
+
+/* Fix iframes */
+html[data-theme="dark"] iframe {
+  filter: invert(1) hue-rotate(180deg);
+}
+
+/* Nav backdrop */
+html[data-theme="dark"] nav {
+  background: rgba(15, 15, 14, 0.9) !important;
+}
+
+/* Card hover borders */
+html[data-theme="dark"] .card:hover {
+  border-color: #3E3E3D !important;
+}
+
+/* Warning box */
+html[data-theme="dark"] .warning-box {
+  background: #2C2200 !important;
+  border-color: #3D3000 !important;
+  color: #D4A017 !important;
+}
+
+/* Theme toggle button */
+#theme-toggle {
+  margin-left: auto;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 10px;
+  cursor: pointer;
+  color: var(--text-muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  font-family: inherit;
+  font-weight: 500;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+#theme-toggle:hover {
+  color: var(--black);
+  border-color: var(--black);
+  background: var(--surface);
+}
+#theme-toggle .material-symbols-outlined {
+  font-size: 16px !important;
+}
