@@ -147,6 +147,15 @@
         <span class="material-symbols-outlined upload-icon">picture_as_pdf</span>
         <h3 style="font-weight: 500; color: var(--black); margin-bottom: 8px;">Upload PDF Files</h3>
         <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 24px;">Drag and drop .pdf files here</p>
+        
+        <div style="margin-bottom: 24px; text-align: left; width: 100%; max-width: 300px;">
+          <label for="compress-level" style="display:block; font-size: 0.8rem; font-weight:500; margin-bottom:6px;">Compression Level</label>
+          <select id="compress-level" style="width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; font-family: inherit; font-size: 0.85rem; cursor: pointer; outline:none;">
+            <option value="standard">Standard (Lossless, Safe)</option>
+            <option value="strong">Strong (Flatten Images, Lossy)</option>
+          </select>
+        </div>
+
         <button id="browse-btn" class="btn">Select Files</button>
         <input type="file" id="file-input" accept=".pdf" multiple style="display:none;"/>
       </div>
@@ -264,6 +273,8 @@
 
     const formData = new FormData();
     formData.append('file', item.file);
+    const mode = document.getElementById('compress-level').value;
+    formData.append('mode', mode);
 
     try {
       const res = await fetch('/api/compress-pdf', { method: 'POST', body: formData });

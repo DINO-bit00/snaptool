@@ -492,7 +492,7 @@ async def img_to_pdf(
 #  API: Compress PDF
 # ─────────────────────────────────────────────
 @app.post("/api/compress-pdf")
-async def compress_pdf(file: UploadFile = File(...)):
+async def compress_pdf(mode: str = Form("standard"), file: UploadFile = File(...)):
     if not (file.filename or "").lower().endswith(".pdf"):
         raise HTTPException(400, "Only PDF files are supported.")
     
@@ -506,7 +506,22 @@ async def compress_pdf(file: UploadFile = File(...)):
         def _compress():
             import fitz
             doc = fitz.open(input_path)
-            doc.save(output_path, garbage=4, deflate=True, clean=True)
+            
+            if mode == "strong":
+                new_doc = fitz.open()
+                for i in range(len(doc)):
+                    page = doc.load_page(i)
+                    # Use dpi=100 for strong size reduction
+                    pix = page.get_pixmap(dpi=100)
+                    pdfbytes = pix.pdfodoc()
+                    imgdoc = fitz.open("pdf", pdfbytes)
+                    new_doc.insert_pdf(imgdoc)
+                    imgdoc.close()
+                new_doc.save(output_path, garbage=4, deflate=True)
+                new_doc.close()
+            else:
+                doc.save(output_path, garbage=4, deflate=True, clean=True)
+                
             doc.close()
             
         await asyncio.get_event_loop().run_in_executor(None, _compress)
