@@ -1,107 +1,145 @@
 @echo off
 chcp 65001 >nul
 title SnapTool - Installer
+color 0A
 
 echo.
-echo  ██████╗██╗  ██╗ █████╗ ██████╗ ████████╗ ██████╗  ██████╗ ██╗
-echo ██╔════╝██║  ██║██╔══██╗██╔══██╗╚══██╔══╝██╔═══██╗██╔═══██╗██║
-echo ╚█████╗ ███████║███████║██████╔╝   ██║   ██║   ██║██║   ██║██║
-echo  ╚═══██╗██╔══██║██╔══██║██╔═══╝    ██║   ██║   ██║██║   ██║██║
-echo ██████╔╝██║  ██║██║  ██║██║        ██║   ╚██████╔╝╚██████╔╝███████╗
-echo ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝        ╚═╝    ╚═════╝  ╚═════╝ ╚══════╝
-echo.
-echo  Installer otomatis - cukup tunggu sampai selesai!
-echo ============================================================
+echo  ============================================================
+echo   SNAPTOOL - INSTALLER OTOMATIS
+echo  ============================================================
 echo.
 
-:: ─── LANGKAH 1: Cek Python ───────────────────────────────────────────────────
-echo [1/4] Memeriksa Python...
+:: ─── LANGKAH 1: Cari Python ──────────────────────────────────────────────────
+echo  [1/3] Mencari Python di komputer Anda...
+
+set PYTHON_EXE=
+
+:: Cek "python" dulu
 python --version >nul 2>&1
-if %ERRORLEVEL% NEQ 0 (
-    echo.
-    echo  [!] Python belum terinstall.
-    echo      Membuka halaman download Python di browser...
-    echo      Setelah install Python, CENTANG "Add Python to PATH",
-    echo      lalu jalankan install.bat ini lagi.
-    echo.
-    start https://www.python.org/downloads/
-    pause
-    exit /b 1
-) else (
-    for /f "tokens=2 delims= " %%v in ('python --version 2^>^&1') do (
-        echo  [OK] Python %%v ditemukan.
+if %ERRORLEVEL% EQU 0 (
+    for /f "tokens=2 delims= " %%v in ('python --version 2^>^&1') do set PY_VER=%%v
+    set PYTHON_EXE=python
+    echo        Ditemukan: python (versi %PY_VER%)
+    goto :python_found
+)
+
+:: Cek "python3"
+python3 --version >nul 2>&1
+if %ERRORLEVEL% EQU 0 (
+    for /f "tokens=2 delims= " %%v in ('python3 --version 2^>^&1') do set PY_VER=%%v
+    set PYTHON_EXE=python3
+    echo        Ditemukan: python3 (versi %PY_VER%)
+    goto :python_found
+)
+
+:: Cari di lokasi umum
+for %%p in (
+    "%LOCALAPPDATA%\Programs\Python\Python313\python.exe"
+    "%LOCALAPPDATA%\Programs\Python\Python312\python.exe"
+    "%LOCALAPPDATA%\Programs\Python\Python311\python.exe"
+    "%LOCALAPPDATA%\Programs\Python\Python310\python.exe"
+    "C:\Python313\python.exe"
+    "C:\Python312\python.exe"
+    "C:\Python311\python.exe"
+) do (
+    if exist %%p (
+        set PYTHON_EXE=%%~p
+        echo        Ditemukan di: %%~p
+        goto :python_found
     )
 )
 
-:: ─── LANGKAH 2: Cek pip ──────────────────────────────────────────────────────
+:: Python tidak ketemu
 echo.
-echo [2/4] Memastikan pip tersedia...
-python -m pip --version >nul 2>&1
-if %ERRORLEVEL% NEQ 0 (
-    echo  [!] pip tidak ditemukan. Mencoba menginstall pip...
-    python -m ensurepip --upgrade
-)
-python -m pip install --upgrade pip --quiet
-echo  [OK] pip siap.
+echo  [!] Python tidak ditemukan di komputer Anda!
+echo.
+echo      1. Buka browser dan pergi ke: https://www.python.org/downloads/
+echo      2. Klik tombol "Download Python" (versi terbaru)
+echo      3. Jalankan installer-nya
+echo      4. PENTING: Centang kotak "Add Python to PATH"
+echo      5. Setelah selesai, jalankan install.bat ini lagi
+echo.
+start https://www.python.org/downloads/
+echo  Halaman download Python sudah dibuka di browser.
+echo.
+pause
+exit /b 1
 
-:: ─── LANGKAH 3: Install dependencies ─────────────────────────────────────────
+:python_found
+echo  [OK] Python siap digunakan.
+
+:: ─── LANGKAH 2: Install semua library ────────────────────────────────────────
 echo.
-echo [3/4] Menginstall semua library yang dibutuhkan...
-echo       (Proses ini mungkin memakan waktu 2-5 menit tergantung koneksi internet)
+echo  [2/3] Menginstall semua library yang dibutuhkan...
+echo        Proses ini mungkin memakan waktu 2-10 menit.
+echo        Mohon tunggu dan jangan tutup jendela ini.
 echo.
-python -m pip install -r requirements.txt
+
+"%PYTHON_EXE%" -m pip install --upgrade pip --quiet
+"%PYTHON_EXE%" -m pip install -r requirements.txt
+
 if %ERRORLEVEL% NEQ 0 (
     echo.
-    echo  [ERROR] Gagal menginstall library. Pastikan koneksi internet aktif.
+    echo  ============================================================
+    echo  [ERROR] Gagal menginstall library!
+    echo  ============================================================
+    echo.
+    echo  Kemungkinan penyebab:
+    echo    - Koneksi internet tidak aktif atau lambat
+    echo    - Antivirus memblokir proses instalasi
+    echo.
+    echo  Coba lagi setelah memastikan internet terhubung.
+    echo.
     pause
     exit /b 1
 )
-echo.
-echo  [OK] Semua library berhasil diinstall!
 
-:: ─── LANGKAH 4: Buat start.bat portable ──────────────────────────────────────
+:: ─── LANGKAH 3: Tulis start.bat dengan Python yang benar ─────────────────────
 echo.
-echo [4/4] Menyiapkan shortcut untuk menjalankan aplikasi...
+echo  [3/3] Menyimpan konfigurasi untuk start.bat...
 
-:: Tulis start.bat baru yang portable
 (
 echo @echo off
 echo chcp 65001 ^>nul
 echo title SnapTool
+echo.
+echo echo.
+echo echo  ============================================================
+echo echo   SNAPTOOL - Siap Digunakan!
+echo echo  ============================================================
 echo echo.
 echo echo  Menghentikan server lama jika ada...
 echo for /f "tokens=5" %%%%a in ^('netstat -aon ^| findstr ":8000"'^) do ^(
 echo     taskkill /F /PID %%%%a ^>nul 2^>^&1
 echo ^)
 echo timeout /t 1 ^>nul
-echo echo  Menjalankan SnapTool...
-echo echo  Buka browser dan ketik: http://localhost:8000
-echo echo  Tekan CTRL+C untuk menghentikan server.
+echo.
+echo echo  Server berjalan. Browser akan terbuka sebentar lagi...
+echo echo  Tekan CTRL+C di jendela ini untuk menghentikan server.
 echo echo.
 echo start "" "http://localhost:8000"
-echo python -m uvicorn main:app --host 0.0.0.0 --port 8000
+echo "%PYTHON_EXE%" -m uvicorn main:app --host 0.0.0.0 --port 8000
 echo pause
 ) > start.bat
 
-echo  [OK] File start.bat siap digunakan.
+echo  [OK] start.bat berhasil dikonfigurasi!
 
 :: ─── SELESAI ──────────────────────────────────────────────────────────────────
 echo.
-echo ============================================================
-echo  INSTALASI SELESAI!
-echo ============================================================
+echo  ============================================================
+echo   INSTALASI BERHASIL!
+echo  ============================================================
 echo.
-echo  Cara menjalankan SnapTool:
+echo  Cara menjalankan SnapTool selanjutnya:
 echo    ^> Klik dua kali file  start.bat
-echo    ^> Browser akan terbuka otomatis ke http://localhost:8000
+echo    ^> Browser akan terbuka otomatis
 echo.
-echo  Mau langsung jalankan sekarang? (Y/N)
-set /p confirm=  Pilihan: 
+set /p confirm= Mau langsung jalankan sekarang? (Y/N): 
 if /i "%confirm%"=="Y" (
     echo.
     echo  Menjalankan SnapTool...
     start "" "http://localhost:8000"
-    python -m uvicorn main:app --host 0.0.0.0 --port 8000
+    "%PYTHON_EXE%" -m uvicorn main:app --host 0.0.0.0 --port 8000
 )
 
 pause
