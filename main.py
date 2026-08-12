@@ -511,12 +511,14 @@ async def compress_pdf(mode: str = Form("standard"), file: UploadFile = File(...
                 new_doc = fitz.open()
                 for i in range(len(doc)):
                     page = doc.load_page(i)
-                    # Use dpi=100 for strong size reduction
+                    # Render page to image at lower DPI for strong compression
                     pix = page.get_pixmap(dpi=100)
-                    pdfbytes = pix.pdfodoc()
-                    imgdoc = fitz.open("pdf", pdfbytes)
-                    new_doc.insert_pdf(imgdoc)
-                    imgdoc.close()
+                    # Convert pixmap to JPEG bytes then wrap as PDF image
+                    img_bytes = pix.tobytes("jpeg", jpg_quality=70)
+                    # Create a new page in new_doc with same dimensions
+                    rect = page.rect
+                    new_page = new_doc.new_page(width=rect.width, height=rect.height)
+                    new_page.insert_image(rect, stream=img_bytes)
                 new_doc.save(output_path, garbage=4, deflate=True)
                 new_doc.close()
             else:
