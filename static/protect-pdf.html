@@ -613,15 +613,12 @@
     processBtn.addEventListener('click', async () => {
       if (selectedFiles.length === 0) return;
       
-      const isMerge = currentMode.startsWith('merge');
-      if (isMerge && selectedFiles.length < 2) {
-        alert("Please select at least 2 files to merge.");
-        return;
-      }
+      const file = selectedFiles[0];
+      const passwordInput = document.getElementById('password-input');
+      const password = passwordInput ? passwordInput.value : '';
       
-      const ranges = document.getElementById('ranges-input').value;
-      if (!isMerge && !ranges.trim()) {
-        alert("Please specify page ranges (e.g. '1-5, 6-10').");
+      if (!password) {
+        alert("Please enter a password.");
         return;
       }
 
@@ -629,22 +626,20 @@
       spinner.classList.remove('hidden');
 
       const formData = new FormData();
-      if (isMerge) {
-        selectedFiles.forEach(f => formData.append('files', f));
-      } else {
-        formData.append('file', selectedFiles[0]);
-        formData.append('ranges', ranges);
-      }
+      formData.append('file', file);
+      formData.append('password', password);
+
+      const endpoint = currentMode === 'protect' ? '/api/protect-pdf' : '/api/unlock-pdf';
 
       try {
-        const response = await fetch(`/api/${currentMode}`, {
+        const response = await fetch(endpoint, {
           method: 'POST',
           body: formData
         });
 
         if (!response.ok) {
-          const err = await response.json();
-          throw new Error(err.detail || "Processing failed");
+          const err = await response.json().catch(() => ({detail: "Processing failed"}));
+          throw new Error(err.detail);
         }
 
         const blob = await response.blob();
@@ -652,32 +647,23 @@
         const a = document.createElement('a');
         a.href = url;
         
-        const disposition = response.headers.get('content-disposition');
-        let filename = 'result';
-        if (disposition && disposition.indexOf('filename=') !== -1) {
-          const matches = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(disposition);
-          if (matches != null && matches[1]) {
-            filename = matches[1].replace(/['"]/g, '');
-          }
-        } else {
-          filename = isMerge ? (currentMode.includes('pdf') ? 'merged.pdf' : 'merged.docx') : 'split_result.zip';
-        }
+        const suffix = currentMode === 'protect' ? '_protected.pdf' : '_unlocked.pdf';
+        a.download = file.name.replace(/\.[^/.]+$/, '') + suffix;
         
-        a.download = filename;
         document.body.appendChild(a);
         a.click();
         window.URL.revokeObjectURL(url);
         a.remove();
         
       } catch(e) {
-      alert(e.message);
-    } finally {
-      processBtn.disabled = false;
-      spinner.classList.add('hidden');
-    }
-  });
+        alert(e.message);
+      } finally {
+        processBtn.disabled = false;
+        spinner.classList.add('hidden');
+      }
+    });
   
-  setTimeout(() => document.querySelectorAll('.anim').forEach(el => el.classList.add('visible')), 50);
+    setTimeout(() => document.querySelectorAll('.anim').forEach(el => el.classList.add('visible')), 50);
   </script>
 </body>
 </html>
