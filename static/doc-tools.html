@@ -235,22 +235,6 @@
     @keyframes spin { 100% { transform: rotate(360deg); } }
     .spinner { animation: spin 1s linear infinite; }
     
-    footer {
-      border-top: 1px solid #EAEAEA;
-      padding: 32px 24px;
-      margin-top: auto;
-      background: #FFFFFF;
-    }
-    .footer-content {
-      max-width: 900px;
-      margin: 0 auto;
-      display: flex;
-      justify-content: flex-start; gap: 40px;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-  
     /* DROPDOWN NAV */
     .dropdown { position: relative; display: inline-block; }
     .dropdown-content { display: none; position: absolute; background-color: var(--surface); min-width: 180px; box-shadow: 0 10px 24px rgba(0,0,0,0.08); z-index: 100; border: 1px solid var(--border); border-radius: 8px; top: 100%; left: 0; right: auto; padding: 8px 0; opacity: 0; transform: translateY(-10px); transition: opacity 0.2s, transform 0.2s; }
@@ -376,13 +360,6 @@
 
     </div>
   </main>
-
-  <footer>
-    <div class="footer-content">
-      <span style="font-weight:600;font-size:0.9rem;color:var(--black);">SnapTool</span>
-      <span>&copy; 2026 Arya Yusuf Fadilah &middot; All processing is local.</span>
-    </div>
-  </footer>
 
   <script>
     let currentMode = 'merge-pdf'; // 'merge-pdf', 'split-pdf', 'merge-word', 'split-word'
