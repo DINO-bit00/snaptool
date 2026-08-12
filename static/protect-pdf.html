@@ -136,7 +136,12 @@
       <!-- Password Field -->
       <div class="field-group">
         <label class="field-label" for="password-input" id="password-label">Password</label>
-        <input type="password" id="password-input" class="field-input" placeholder="Enter a strong password..."/>
+        <div style="position: relative;">
+          <input type="password" id="password-input" class="field-input" placeholder="Enter a strong password..." style="padding-right: 40px;"/>
+          <button type="button" id="toggle-password" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-muted); display: flex; align-items: center; padding: 4px;">
+            <span class="material-symbols-outlined" id="toggle-icon" style="font-size: 20px;">visibility</span>
+          </button>
+        </div>
       </div>
 
       <!-- Actions -->
@@ -237,6 +242,16 @@
     e.preventDefault();
     uploadZone.classList.remove('drag-over');
     if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+  });
+
+  const togglePasswordBtn = document.getElementById('toggle-password');
+  const toggleIcon = document.getElementById('toggle-icon');
+  const passwordInput = document.getElementById('password-input');
+
+  togglePasswordBtn.addEventListener('click', () => {
+    const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+    passwordInput.setAttribute('type', type);
+    toggleIcon.textContent = type === 'password' ? 'visibility' : 'visibility_off';
   });
 
   clearBtn.addEventListener('click', clearState);
