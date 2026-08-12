@@ -147,17 +147,17 @@
         <span class="material-symbols-outlined upload-icon">picture_as_pdf</span>
         <h3 style="font-weight: 500; color: var(--black); margin-bottom: 8px;">Upload PDF Files</h3>
         <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 24px;">Drag and drop .pdf files here</p>
-        
-        <div style="margin-bottom: 24px; text-align: left; width: 100%; max-width: 300px;">
-          <label for="compress-level" style="display:block; font-size: 0.8rem; font-weight:500; margin-bottom:6px;">Compression Level</label>
-          <select id="compress-level" style="width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; font-family: inherit; font-size: 0.85rem; cursor: pointer; outline:none;">
-            <option value="standard">Standard (Lossless, Safe)</option>
-            <option value="strong">Strong (Flatten Images, Lossy)</option>
-          </select>
-        </div>
-
         <button id="browse-btn" class="btn">Select Files</button>
         <input type="file" id="file-input" accept=".pdf" multiple style="display:none;"/>
+      </div>
+
+      <!-- COMPRESSION OPTIONS - outside upload zone so clicks don't trigger file picker -->
+      <div style="display:flex; align-items:center; gap:16px; padding: 16px 0 0;">
+        <label for="compress-level" style="font-size: 0.85rem; font-weight:500; color:var(--black); white-space:nowrap;">Compression Level</label>
+        <select id="compress-level" style="flex:1; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; font-family: inherit; font-size: 0.85rem; cursor: pointer; outline:none; background:var(--surface);" onclick="event.stopPropagation()">
+          <option value="standard">Standard — Lossless, safe, text still selectable</option>
+          <option value="strong">Strong — Flatten to images, maximum size reduction</option>
+        </select>
       </div>
 
       <!-- QUEUE -->
