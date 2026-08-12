@@ -118,21 +118,63 @@
     .spinning { animation: spin 1s linear infinite; }
 
     @media (max-width: 800px) { .two-col { grid-template-columns: 1fr; } .nav-links { display: none; } }
+  
+    /* DROPDOWN NAV */
+    .dropdown { position: relative; display: inline-block; }
+    .dropdown-content { display: none; position: absolute; background-color: var(--surface); min-width: 180px; box-shadow: 0 10px 24px rgba(0,0,0,0.08); z-index: 100; border: 1px solid var(--border); border-radius: 8px; top: 100%; left: 0; padding: 8px 0; opacity: 0; transform: translateY(-10px); transition: opacity 0.2s, transform 0.2s; }
+    .dropdown:hover .dropdown-content { display: block; opacity: 1; transform: translateY(0); }
+    .dropdown-content a { color: var(--text); padding: 8px 20px; text-decoration: none; display: block; font-size: 0.875rem; transition: background 0.1s; }
+    .dropdown-content a:hover { background-color: var(--bg); color: var(--black); }
+    .dropbtn { font-size: 0.875rem; color: var(--text-muted); text-decoration: none; cursor: pointer; padding: 22px 0; display: inline-flex; align-items: center; gap: 4px; border: none; background: transparent; font-family: inherit; font-weight: 500; transition: color 0.15s; }
+    .dropdown:hover .dropbtn { color: var(--black); }
+
   </style>
 </head>
 <body>
-  <nav>
+    <nav>
     <a href="/" class="logo">SnapTool.</a>
     <div class="nav-links">
-      <a href="/bg-remover" class="nav-link active">BG Remover</a>
-      <a href="/word-to-pdf" class="nav-link">Word → PDF</a>
-      <a href="/pdf-to-word" class="nav-link">PDF → Word</a>
-            <a href="/doc-tools" class="nav-link">Doc Toolkit</a>
-      <a href="/compress-pdf" class="nav-link">Compress PDF</a>
-      <a href="/protect-pdf" class="nav-link">Lock / Unlock</a>
-      <a href="/img-to-pdf" class="nav-link">Img → PDF</a>
+      <div class="dropdown">
+        <button class="dropbtn">Convert <span class="material-symbols-outlined" style="font-size: 16px;">expand_more</span></button>
+        <div class="dropdown-content">
+          <a href="/word-to-pdf">Word → PDF</a>
+          <a href="/pdf-to-word">PDF → Word</a>
+          <a href="/img-to-pdf">Image → PDF</a>
+          <a href="/pdf-to-img">PDF → Image</a>
+        </div>
+      </div>
+      
+      <div class="dropdown">
+        <button class="dropbtn">PDF Tools <span class="material-symbols-outlined" style="font-size: 16px;">expand_more</span></button>
+        <div class="dropdown-content">
+          <a href="/doc-tools">Merge & Split</a>
+          <a href="/compress-pdf">Compress</a>
+          <a href="/protect-pdf">Lock / Unlock</a>
+        </div>
+      </div>
+
+      <div class="dropdown">
+        <button class="dropbtn">Image <span class="material-symbols-outlined" style="font-size: 16px;">expand_more</span></button>
+        <div class="dropdown-content">
+          <a href="/bg-remover">Background Remover</a>
+        </div>
+      </div>
     </div>
   </nav>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const currentPath = window.location.pathname;
+      document.querySelectorAll('.dropdown-content a').forEach(link => {
+        if (link.getAttribute('href') === currentPath) {
+          link.style.fontWeight = '600';
+          link.style.color = 'var(--black)';
+          const dropbtn = link.closest('.dropdown').querySelector('.dropbtn');
+          if(dropbtn) dropbtn.style.color = 'var(--black)';
+        }
+      });
+    });
+  </script>
 
   <main>
     <div class="page-header anim">
