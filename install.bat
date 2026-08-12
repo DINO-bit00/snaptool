@@ -67,15 +67,29 @@ exit /b 1
 :python_found
 echo  [OK] Python siap digunakan.
 
-:: --- LANGKAH 2: Install semua library ---
+:: --- LANGKAH 2: Membuat Virtual Environment ---
 echo.
-echo  [2/3] Menginstall semua library yang dibutuhkan...
+echo  [2/4] Membuat Virtual Environment (venv) terisolasi...
+if not exist "venv" (
+    "%PYTHON_EXE%" -m venv venv
+    if %ERRORLEVEL% NEQ 0 (
+        echo  [ERROR] Gagal membuat venv!
+        pause
+        exit /b 1
+    )
+)
+echo  [OK] venv siap.
+
+:: --- LANGKAH 3: Install semua library ---
+echo.
+echo  [3/4] Menginstall semua library ke dalam venv...
 echo        Proses ini mungkin memakan waktu 2-10 menit.
 echo        Mohon tunggu dan jangan tutup jendela ini.
 echo.
 
-"%PYTHON_EXE%" -m pip install --upgrade pip --quiet
-"%PYTHON_EXE%" -m pip install -r requirements.txt
+call venv\Scripts\activate.bat
+python -m pip install --upgrade pip --quiet
+python -m pip install -r requirements.txt
 
 if %ERRORLEVEL% NEQ 0 (
     echo.
@@ -92,10 +106,11 @@ if %ERRORLEVEL% NEQ 0 (
     pause
     exit /b 1
 )
+call venv\Scripts\deactivate.bat
 
-:: --- LANGKAH 3: Tulis start.bat dengan Python yang benar ---
+:: --- LANGKAH 4: Tulis start.bat dengan venv ---
 echo.
-echo  [3/3] Menyimpan konfigurasi untuk start.bat...
+echo  [4/4] Menyimpan konfigurasi untuk start.bat...
 
 (
 echo @echo off
@@ -116,7 +131,8 @@ echo echo  Server berjalan. Browser akan terbuka sebentar lagi...
 echo echo  Tekan CTRL+C di jendela ini untuk menghentikan server.
 echo echo.
 echo start http://localhost:8000
-echo "%PYTHON_EXE%" -m uvicorn main:app --host 0.0.0.0 --port 8000
+echo call venv\Scripts\activate.bat
+echo python -m uvicorn main:app --host 0.0.0.0 --port 8000
 echo pause
 ) > start.bat
 
@@ -137,7 +153,8 @@ if /i "%confirm%"=="Y" (
     echo.
     echo  Menjalankan SnapTool...
     start http://localhost:8000
-    "%PYTHON_EXE%" -m uvicorn main:app --host 0.0.0.0 --port 8000
+    call venv\Scripts\activate.bat
+    python -m uvicorn main:app --host 0.0.0.0 --port 8000
 )
 
 pause
