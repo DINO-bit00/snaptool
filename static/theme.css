@@ -29,9 +29,9 @@ html[data-theme="dark"] textarea {
   color-scheme: dark;
 }
 
-/* Fix iframes */
+/* Fix iframes (don't invert them, keep them normal) */
 html[data-theme="dark"] iframe {
-  filter: invert(1) hue-rotate(180deg);
+  /* user requested normal preview */
 }
 
 /* Nav backdrop */
@@ -52,18 +52,26 @@ html[data-theme="dark"] .warning-box {
 }
 
 /* Primary buttons */
-html[data-theme="dark"] .btn {
+html[data-theme="dark"] .btn,
+html[data-theme="dark"] .btn-primary {
   color: #111111 !important;
+  background: var(--black) !important;
+  border-color: var(--black) !important;
 }
-html[data-theme="dark"] .btn:hover {
+html[data-theme="dark"] .btn:hover,
+html[data-theme="dark"] .btn-primary:hover {
   background: #D4D4D4 !important;
+  border-color: #D4D4D4 !important;
 }
-html[data-theme="dark"] .btn-ghost {
+html[data-theme="dark"] .btn-ghost,
+html[data-theme="dark"] #clear-btn {
   color: var(--text) !important;
   background: transparent !important;
 }
-html[data-theme="dark"] .btn-ghost:hover {
+html[data-theme="dark"] .btn-ghost:hover,
+html[data-theme="dark"] #clear-btn:hover {
   background: var(--surface) !important;
+  color: var(--black) !important;
 }
 
 /* Upload zone hover fix */
