@@ -66,6 +66,13 @@ html[data-theme="dark"] .btn-ghost:hover {
   background: var(--surface) !important;
 }
 
+/* Upload zone hover fix */
+html[data-theme="dark"] #upload-zone:hover,
+html[data-theme="dark"] #upload-zone.drag-over {
+  background: #262625 !important;
+  border-color: #555 !important;
+}
+
 /* Theme toggle button */
 #theme-toggle {
   margin-left: auto;
