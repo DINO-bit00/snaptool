@@ -698,19 +698,42 @@ async def smart_crop_page():
 async def smart_crop(
     file: UploadFile = File(...),
     ratio: str = Form(...),
-    smart_mode: str = Form("true")
+    smart_mode: str = Form("true"),
+    bg_color: str = Form("none")
 ):
     try:
-        from PIL import Image as PILImage
+        from PIL import Image as PILImage, ImageColor
         import io
         import cv2
         import numpy as np
-
+        
         contents = await file.read()
+        
+        # 1. Background Removal
+        if bg_color.lower() != "none":
+            def _run_rembg():
+                from rembg import remove
+                return remove(contents, session=rembg_session)
+            # Remove background using rembg
+            contents = await asyncio.get_event_loop().run_in_executor(None, _run_rembg)
+            
         img = PILImage.open(io.BytesIO(contents))
         
-        # Convert to RGB if needed
-        if img.mode not in ('RGB', 'RGBA'):
+        # 2. Add Solid Background if requested
+        if bg_color.lower() in ["red", "blue"]:
+            # Convert color names to hex for standard passport colors
+            color_map = {"red": "#db1514", "blue": "#0b00a3"}
+            solid_color = color_map.get(bg_color.lower(), bg_color.lower())
+            
+            # Ensure the image has an alpha channel to use as a mask
+            img = img.convert("RGBA")
+            bg_img = PILImage.new("RGBA", img.size, solid_color)
+            # Paste using alpha channel as mask
+            bg_img.paste(img, (0, 0), img)
+            img = bg_img
+
+        # Convert to RGB if needed (unless we want to keep it transparent)
+        if bg_color.lower() != "transparent" and img.mode in ('RGBA', 'LA'):
             img = img.convert('RGB')
         
         img_w, img_h = img.size
@@ -777,10 +800,11 @@ async def smart_crop(
         
         # Output
         out_io = io.BytesIO()
-        fmt = img.format if img.format else "PNG"
-        if cropped.mode == 'RGBA' and fmt == 'JPEG':
-            fmt = 'PNG'
-        cropped.save(out_io, format=fmt)
+        fmt = "PNG" if (cropped.mode == 'RGBA' or bg_color.lower() == "transparent") else "JPEG"
+        if fmt == "JPEG" and cropped.mode == "RGBA":
+            cropped = cropped.convert("RGB")
+            
+        cropped.save(out_io, format=fmt, quality=95)
         out_io.seek(0)
         
         from fastapi.responses import StreamingResponse

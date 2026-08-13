@@ -207,7 +207,7 @@
       <div style="display: flex; flex-direction: column; gap: 24px;">
         
         <div class="options-panel">
-          <div class="input-group" style="flex: 1;">
+          <div class="input-group" style="flex: 1; min-width: 150px;">
             <label for="ratio-select">Target Aspect Ratio</label>
             <select id="ratio-select" class="form-select">
               <option value="3:4">Pas Foto 3x4</option>
@@ -217,7 +217,17 @@
             </select>
           </div>
           
-          <label class="toggle-container" style="flex: 1;">
+          <div class="input-group" style="flex: 1; min-width: 150px;">
+            <label for="bg-select">Background Color</label>
+            <select id="bg-select" class="form-select">
+              <option value="none">Biarkan Asli (Original)</option>
+              <option value="red">Merah (Pas Foto)</option>
+              <option value="blue">Biru (Pas Foto)</option>
+              <option value="transparent">Transparan (PNG)</option>
+            </select>
+          </div>
+          
+          <label class="toggle-container" style="flex: 1; min-width: 150px;">
             <input type="checkbox" id="smart-mode-toggle" checked>
             <div class="toggle-switch"></div>
             <div>
@@ -276,6 +286,7 @@
   const emptyState     = document.getElementById('empty-state');
   
   const ratioSelect    = document.getElementById('ratio-select');
+  const bgSelect       = document.getElementById('bg-select');
   const smartModeToggle = document.getElementById('smart-mode-toggle');
 
   let queue = [];
@@ -343,11 +354,13 @@
   function addFiles(files) {
     const images = [...files].filter(f => f.type.startsWith('image/'));
     const currentRatio = ratioSelect.value;
+    const currentBg = bgSelect.value;
     const currentSmartMode = smartModeToggle.checked ? "true" : "false";
     
     images.forEach(f => queue.push({ 
       file: f, 
       ratio: currentRatio,
+      bgMode: currentBg,
       smartMode: currentSmartMode,
       status: 'pending', 
       blob: null, 
@@ -385,6 +398,7 @@
     formData.append('file', item.file);
     formData.append('ratio', item.ratio);
     formData.append('smart_mode', item.smartMode);
+    formData.append('bg_color', item.bgMode);
 
     try {
       const res = await fetch('/api/smart-crop', { method: 'POST', body: formData });
@@ -395,7 +409,9 @@
       item.blob = await res.blob();
       
       const ratioStr = item.ratio.replace(':', 'x');
-      item.outName = item.file.name.replace(/\.[^/.]+$/, '') + `_crop_${ratioStr}.jpg`;
+      const bgStr = item.bgMode !== 'none' ? `_bg_${item.bgMode}` : '';
+      const ext = item.bgMode === 'transparent' ? '.png' : '.jpg';
+      item.outName = item.file.name.replace(/\.[^/.]+$/, '') + `_crop_${ratioStr}${bgStr}${ext}`;
       item.previewUrl = URL.createObjectURL(item.blob);
       item.status = 'done';
     } catch(e) {
