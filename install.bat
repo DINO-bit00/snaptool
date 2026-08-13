@@ -122,7 +122,7 @@ echo echo   SNAPTOOL - Siap Digunakan!
 echo echo  ============================================================
 echo echo.
 echo echo  Menghentikan server lama jika ada...
-echo for /f "tokens=5" %%%%a in ^('netstat -aon ^| findstr ":8000"'^) do ^(
+echo for /f "tokens=5" %%%%a in ^('netstat -aon ^^^| findstr ":8000"'^) do ^(
 echo     taskkill /F /PID %%%%a ^>nul 2^>^&1
 echo ^)
 echo timeout /t 1 ^>nul

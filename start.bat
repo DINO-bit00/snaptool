@@ -1,7 +1,10 @@
 @echo off
-chcp 65001 >nul
 title SnapTool
 
+echo.
+echo  ============================================================
+echo   SNAPTOOL - Siap Digunakan!
+echo  ============================================================
 echo.
 echo  Menghentikan server lama jika ada...
 for /f "tokens=5" %%a in ('netstat -aon ^| findstr ":8000"') do (
@@ -9,11 +12,10 @@ for /f "tokens=5" %%a in ('netstat -aon ^| findstr ":8000"') do (
 )
 timeout /t 1 >nul
 
-echo  Menjalankan SnapTool...
-echo  Membuka browser ke http://localhost:8000
-echo  Tekan CTRL+C untuk menghentikan server.
+echo  Server berjalan. Browser akan terbuka sebentar lagi...
+echo  Tekan CTRL+C di jendela ini untuk menghentikan server.
 echo.
-
-start "" "http://localhost:8000"
+start http://localhost:8000
+call venv\Scripts\activate.bat
 python -m uvicorn main:app --host 0.0.0.0 --port 8000
 pause
