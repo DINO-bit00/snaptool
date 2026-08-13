@@ -90,16 +90,16 @@
 
     /* Container */
     .tool-container {
-      background: #FFFFFF;
-      border: 1px solid #EAEAEA;
+      background: var(--surface);
+      border: 1px solid var(--border);
       padding: 32px;
       border-radius: 12px;
     }
     
     /* Upload Zone */
     .drop-zone {
-      background: #FFFFFF;
-      border: 1px dashed #EAEAEA;
+      background: var(--surface);
+      border: 1px dashed var(--border);
       border-radius: 8px;
       padding: 48px 32px;
       display: flex;
@@ -111,8 +111,8 @@
       position: relative;
     }
     .drop-zone:hover, .drop-zone.drag-over {
-      border-color: #111111;
-      background: #FBFBFA;
+      border-color: var(--black);
+      background: var(--bg);
     }
     
     .btn {
@@ -130,24 +130,24 @@
       gap: 8px;
     }
     .btn-primary {
-      background: #111111;
-      color: #FFFFFF;
-      border-color: #111111;
+      background: var(--black);
+      color: var(--bg);
+      border-color: var(--black);
     }
     .btn-primary:hover {
-      background: #2F3437;
-      border-color: #2F3437;
+      opacity: 0.9;
     }
     .btn-primary:disabled {
       opacity: 0.5;
       cursor: not-allowed;
     }
     .btn-secondary {
-      background: #FFFFFF;
-      color: #111111;
+      background: var(--surface);
+      color: var(--text);
+      border-color: var(--border);
     }
     .btn-secondary:hover {
-      background: #FBFBFA;
+      background: var(--bg);
     }
     
     /* File List */
@@ -155,8 +155,8 @@
       display: flex;
       align-items: center;
       justify-content: flex-start; gap: 40px;
-      background: #FFFFFF;
-      border: 1px solid #EAEAEA;
+      background: var(--surface);
+      border: 1px solid var(--border);
       padding: 12px 16px;
       border-radius: 6px;
       margin-bottom: 8px;
@@ -172,8 +172,8 @@
       transition: all 0.2s;
     }
     .icon-btn:hover {
-      color: #111111;
-      background: #FBFBFA;
+      color: var(--black);
+      background: var(--bg);
     }
 
     /* Inputs */
@@ -181,18 +181,18 @@
     .input-label { display: block; font-family: 'Geist', sans-serif; font-size: 0.9rem; color: #2F3437; margin-bottom: 8px; font-weight: 500; }
     .text-input {
       width: 100%;
-      background: #FFFFFF;
-      border: 1px solid #EAEAEA;
+      background: var(--surface);
+      border: 1px solid var(--border);
       border-radius: 6px;
       padding: 10px 12px;
-      color: #111111;
+      color: var(--text);
       font-family: 'Geist Mono', monospace;
       font-size: 0.9rem;
       transition: border-color 0.2s;
     }
     .text-input:focus {
       outline: none;
-      border-color: #111111;
+      border-color: var(--black);
     }
 
     /* Helpers */
@@ -313,9 +313,9 @@
       
       <!-- Upload Zone -->
       <div id="upload-zone" class="drop-zone" style="margin-bottom: 32px;">
-        <span class="material-symbols-outlined" style="color: #111111; font-size: 32px; margin-bottom: 12px;">upload_file</span>
-        <h3 id="upload-title" style="margin: 0 0 8px 0; font-size: 1.1rem; font-weight: 500; color: #111111;">Select PDFs to merge</h3>
-        <p id="upload-desc" style="color: #787774; margin: 0 0 24px 0; font-size: 0.9rem;">Select multiple .pdf files</p>
+        <span class="material-symbols-outlined" style="color: var(--text); font-size: 32px; margin-bottom: 12px;">upload_file</span>
+        <h3 id="upload-title" style="margin: 0 0 8px 0; font-size: 1.1rem; font-weight: 500; color: var(--black);">Select PDFs to merge</h3>
+        <p id="upload-desc" style="color: var(--text-muted); margin: 0 0 24px 0; font-size: 0.9rem;">Select multiple .pdf files</p>
         <button id="browse-btn" class="btn btn-secondary">Browse Files</button>
         <input id="file-input" type="file" multiple accept=".pdf" class="hidden" aria-hidden="true"/>
       </div>
