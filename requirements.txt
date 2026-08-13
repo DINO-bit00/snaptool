@@ -8,3 +8,5 @@ docx2pdf
 pypdf
 docxcompose
 pymupdf
+opencv-python-headless
+numpy

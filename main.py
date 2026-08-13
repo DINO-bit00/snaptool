@@ -690,6 +690,112 @@ async def pdf_to_img_page():
 async def protect_pdf_page():
     return FileResponse("static/protect-pdf.html")
 
+@app.get("/smart-crop", response_class=HTMLResponse)
+async def smart_crop_page():
+    return FileResponse("static/smart-crop.html")
+
+@app.post("/api/smart-crop")
+async def smart_crop(
+    file: UploadFile = File(...),
+    ratio: str = Form(...),
+    smart_mode: str = Form("true")
+):
+    try:
+        from PIL import Image as PILImage
+        import io
+        import cv2
+        import numpy as np
+
+        contents = await file.read()
+        img = PILImage.open(io.BytesIO(contents))
+        
+        # Convert to RGB if needed
+        if img.mode not in ('RGB', 'RGBA'):
+            img = img.convert('RGB')
+        
+        img_w, img_h = img.size
+        
+        # Parse ratio (e.g., "3:4")
+        try:
+            rw, rh = map(float, ratio.split(':'))
+            target_ratio = rw / rh
+        except:
+            target_ratio = 1.0 # default square
+            
+        # Determine maximum possible crop size for this ratio
+        if img_w / img_h > target_ratio:
+            box_h = img_h
+            box_w = int(img_h * target_ratio)
+        else:
+            box_w = img_w
+            box_h = int(img_w / target_ratio)
+            
+        cx, cy = img_w / 2, img_h / 2
+        
+        if smart_mode.lower() == "true":
+            try:
+                # Convert PIL to OpenCV format
+                open_cv_image = np.array(img.convert('RGB'))
+                open_cv_image = open_cv_image[:, :, ::-1].copy() # RGB to BGR
+                gray = cv2.cvtColor(open_cv_image, cv2.COLOR_BGR2GRAY)
+                
+                # Load Haar Cascade
+                cascade_path = cv2.data.haarcascades + 'haarcascade_frontalface_default.xml'
+                face_cascade = cv2.CascadeClassifier(cascade_path)
+                faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30))
+                
+                if len(faces) > 0:
+                    # Find largest face
+                    largest_face = max(faces, key=lambda rect: rect[2] * rect[3])
+                    fx, fy, fw, fh = largest_face
+                    cx = fx + fw / 2
+                    
+                    # For portrait ratios (height > width), put eyes around 1/3 from top of crop
+                    if target_ratio < 1.0:
+                        eyes_y = fy + fh / 3
+                        # Ideal top = eyes_y - box_h * 0.33
+                        # Therefore center y = top + box_h/2 = eyes_y + box_h * 0.17
+                        cy = eyes_y + box_h * 0.17
+                    else:
+                        cy = fy + fh / 2
+            except Exception as e:
+                print("Face detection failed, falling back to center crop:", e)
+        
+        # Ideal top-left
+        left = cx - box_w / 2
+        top = cy - box_h / 2
+        
+        # Clamp to image boundaries
+        left = max(0, min(left, img_w - box_w))
+        top = max(0, min(top, img_h - box_h))
+        
+        right = left + box_w
+        bottom = top + box_h
+        
+        # Crop
+        cropped = img.crop((left, top, right, bottom))
+        
+        # Output
+        out_io = io.BytesIO()
+        fmt = img.format if img.format else "PNG"
+        if cropped.mode == 'RGBA' and fmt == 'JPEG':
+            fmt = 'PNG'
+        cropped.save(out_io, format=fmt)
+        out_io.seek(0)
+        
+        from fastapi.responses import StreamingResponse
+        ext = ".png" if fmt == "PNG" else ".jpg"
+        out_filename = file.filename.rsplit('.', 1)[0] + "_cropped" + ext
+        
+        return StreamingResponse(
+            out_io,
+            media_type=f"image/{fmt.lower()}",
+            headers={"Content-Disposition": f'attachment; filename="{out_filename}"'}
+        )
+    except Exception as e:
+        print("Smart crop error:", e)
+        return {"error": str(e)}
+
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
