@@ -17,9 +17,22 @@ app = FastAPI(title="SnapTool API", version="1.0.0")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+from starlette.middleware.base import BaseHTTPMiddleware
+class NoCacheMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request, call_next):
+        response = await call_next(request)
+        if request.url.path.endswith(".html") or response.headers.get("content-type") == "text/html":
+            response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+            response.headers["Pragma"] = "no-cache"
+            response.headers["Expires"] = "0"
+        return response
+
+app.add_middleware(NoCacheMiddleware)
 
 TEMP_DIR = Path("temp")
 TEMP_DIR.mkdir(exist_ok=True)
@@ -819,6 +832,111 @@ async def smart_crop(
     except Exception as e:
         print("Smart crop error:", e)
         return {"error": str(e)}
+
+
+# ─────────────────────────────────────────────
+#  API: AI Image Upscaler
+# ─────────────────────────────────────────────
+REALESRGAN_DIR = Path("tools/realesrgan")
+REALESRGAN_EXE = REALESRGAN_DIR / "realesrgan-ncnn-vulkan.exe"
+REALESRGAN_URL = "https://github.com/xinntao/Real-ESRGAN/releases/download/v0.2.5.0/realesrgan-ncnn-vulkan-20220424-windows.zip"
+
+@app.get("/image-upscaler", response_class=HTMLResponse)
+async def image_upscaler_page():
+    return FileResponse("static/image-upscaler.html")
+
+@app.post("/api/image-upscaler")
+async def image_upscaler(
+    file: UploadFile = File(...),
+    model: str = Form("general") # "general" or "anime"
+):
+    if not (file.filename or "").lower().endswith((".jpg", ".jpeg", ".png", ".webp")):
+        raise HTTPException(400, "Supported formats: JPG, PNG, WebP.")
+        
+    input_path = get_temp_path(Path(file.filename).suffix or ".jpg")
+    output_path = get_temp_path(".png") # Always output as high quality PNG
+    
+    try:
+        with open(input_path, "wb") as f:
+            shutil.copyfileobj(file.file, f)
+            
+        def _upscale():
+            import urllib.request
+            import zipfile
+            import io
+            import subprocess
+            import time
+            
+            # Download if not exists
+            if not REALESRGAN_EXE.exists():
+                print(f"Downloading Real-ESRGAN from {REALESRGAN_URL}...")
+                response = urllib.request.urlopen(REALESRGAN_URL)
+                zip_data = response.read()
+                print("Extracting Real-ESRGAN...")
+                # Extract to project root — the ZIP already contains tools/realesrgan/ internally
+                with zipfile.ZipFile(io.BytesIO(zip_data)) as z:
+                    z.extractall(".")
+                print("Real-ESRGAN installed successfully.")
+                time.sleep(1) # Ensure files are written
+                
+            # Determine model flag
+            # filenames: realesrgan-x4plus.param / realesrgan-x4plus-anime.param
+            model_flag = "realesrgan-x4plus"
+            if model == "anime":
+                model_flag = "realesrgan-x4plus-anime"
+                
+            print(f"Running Real-ESRGAN with model {model_flag} on {input_path}...")
+            
+            # Use full absolute exe path but run with cwd=exe_dir
+            # so "-m models" resolves relative to the exe's folder
+            exe_abs = str(REALESRGAN_EXE.resolve())
+            exe_dir = str(REALESRGAN_EXE.resolve().parent)
+            input_abs = str(Path(input_path).resolve())
+            output_abs = str(Path(output_path).resolve())
+            
+            print(f"DEBUG exe_abs: {exe_abs}")
+            print(f"DEBUG exe_dir: {exe_dir}")
+            print(f"DEBUG input_abs: {input_abs}")
+            print(f"DEBUG output_abs: {output_abs}")
+            
+            cmd = [
+                exe_abs,
+                "-i", input_abs,
+                "-o", output_abs,
+                "-n", model_flag,
+                "-m", "models",
+                "-f", "png"
+            ]
+            
+            result = subprocess.run(cmd, capture_output=True, text=True, cwd=exe_dir)
+            print(f"DEBUG returncode: {result.returncode}")
+            print(f"DEBUG stdout: {result.stdout}")
+            print(f"DEBUG stderr: {result.stderr}")
+            print(f"DEBUG output exists: {Path(output_abs).exists()}")
+            
+            # Real-ESRGAN writes GPU info to stderr which can cause non-zero exit;
+            # check if output file was actually created instead
+            if not Path(output_abs).exists() or Path(output_abs).stat().st_size == 0:
+                print(f"Real-ESRGAN Error (rc={result.returncode}): {result.stderr}")
+                raise RuntimeError("Failed to process image with Real-ESRGAN.")
+
+        import traceback
+        try:
+            await asyncio.get_event_loop().run_in_executor(None, _upscale)
+        except Exception as inner_e:
+            print(f"UPSCALE EXCEPTION: {inner_e}")
+            traceback.print_exc()
+            raise
+        
+        filename = Path(file.filename).stem + f"_upscaled_x4.png"
+        return FileResponse(output_path, media_type="image/png", filename=filename)
+    except Exception as e:
+        cleanup(output_path)
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(500, f"Upscaling failed: {str(e)}")
+    finally:
+        cleanup(input_path)
 
 
 if __name__ == "__main__":

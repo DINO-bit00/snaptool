@@ -8,3 +8,6 @@ temp/
 Thumbs.db
 venv/
 .venv/
+
+models/
+tools/realesrgan/
