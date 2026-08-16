@@ -124,63 +124,61 @@
 <body class="bg-background text-on-background font-body-md min-h-screen flex flex-col antialiased">
     <!-- TopNavBar -->
     <nav class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl border-b border-white/10 shadow-sm">
-        <div class="flex justify-between items-center px-margin-desktop py-4 max-w-container-max mx-auto">
-            <a href="/" class="font-headline-md text-headline-md font-bold text-on-surface drop-shadow-[0_0_10px_rgba(236,178,255,0.5)]">
-                SnapTool.
-            </a>
-            
-            <div class="hidden md:flex items-center gap-6">
-                <!-- Convert Dropdown -->
-                <div class="relative group">
-                    <button class="text-on-surface-variant hover:text-on-surface transition-colors hover:bg-white/5 rounded-lg transition-all duration-300 px-3 py-2 scale-95 active:scale-90 transition-transform font-body-md text-body-md flex items-center gap-1">
-                        Convert <span class="material-symbols-outlined text-[16px]">expand_more</span>
-                    </button>
-                    <div class="absolute left-0 top-full mt-2 hidden group-hover:flex flex-col bg-[#1c1b1b] border border-white/10 rounded-lg shadow-xl w-48 py-2 z-50 overflow-hidden">
-                        <a href="/word-to-pdf" class="px-4 py-2 text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-colors text-sm">Word → PDF</a>
-                        <a href="/pdf-to-word" class="px-4 py-2 text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-colors text-sm">PDF → Word</a>
-                        <a href="/pdf-to-md" class="px-4 py-2 text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-colors text-sm">PDF → MD</a>
-                        <a href="/img-to-pdf" class="px-4 py-2 text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-colors text-sm">Image → PDF</a>
-                        <a href="/pdf-to-img" class="px-4 py-2 text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-colors text-sm">PDF → Image</a>
+    <div class="flex justify-between items-center px-margin-desktop py-4 max-w-container-max mx-auto">
+        <a href="/" class="font-headline-md text-headline-md font-bold text-on-surface drop-shadow-[0_0_10px_rgba(236,178,255,0.5)]">
+            SnapTool.
+        </a>
+        <div class="hidden md:flex items-center gap-6">
+            <!-- Convert Dropdown -->
+            <div class="relative group">
+                <button class="text-on-surface-variant hover:text-on-surface transition-colors hover:bg-white/5 rounded-lg transition-all duration-300 px-3 py-2 font-body-md text-body-md flex items-center gap-1">
+                    Convert <span class="material-symbols-outlined text-[16px]">expand_more</span>
+                </button>
+                <div class="absolute left-0 top-full pt-2 hidden group-hover:block z-50">
+                    <div class="flex flex-col bg-[#1c1b1b] border border-white/10 rounded-lg shadow-xl w-48 py-2 overflow-hidden">
+                        <a href="/word-to-pdf" class="px-4 py-2 text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-colors text-sm">Word &#8594; PDF</a>
+                        <a href="/pdf-to-word" class="px-4 py-2 text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-colors text-sm">PDF &#8594; Word</a>
+                        <a href="/pdf-to-md" class="px-4 py-2 text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-colors text-sm">PDF &#8594; MD</a>
+                        <a href="/img-to-pdf" class="px-4 py-2 text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-colors text-sm">Image &#8594; PDF</a>
+                        <a href="/pdf-to-img" class="px-4 py-2 text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-colors text-sm">PDF &#8594; Image</a>
                     </div>
                 </div>
-
-                <!-- PDF Tools Dropdown -->
-                <div class="relative group">
-                    <button class="text-on-surface-variant hover:text-on-surface transition-colors hover:bg-white/5 rounded-lg transition-all duration-300 px-3 py-2 scale-95 active:scale-90 transition-transform font-body-md text-body-md flex items-center gap-1">
-                        PDF Tools <span class="material-symbols-outlined text-[16px]">expand_more</span>
-                    </button>
-                    <div class="absolute left-0 top-full mt-2 hidden group-hover:flex flex-col bg-[#1c1b1b] border border-white/10 rounded-lg shadow-xl w-48 py-2 z-50 overflow-hidden">
-                        <a href="/doc-tools" class="px-4 py-2 text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-colors text-sm">Merge & Split</a>
+            </div>
+            <!-- PDF Tools Dropdown -->
+            <div class="relative group">
+                <button class="text-on-surface-variant hover:text-on-surface transition-colors hover:bg-white/5 rounded-lg transition-all duration-300 px-3 py-2 font-body-md text-body-md flex items-center gap-1">
+                    PDF Tools <span class="material-symbols-outlined text-[16px]">expand_more</span>
+                </button>
+                <div class="absolute left-0 top-full pt-2 hidden group-hover:block z-50">
+                    <div class="flex flex-col bg-[#1c1b1b] border border-white/10 rounded-lg shadow-xl w-48 py-2 overflow-hidden">
+                        <a href="/doc-tools" class="px-4 py-2 text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-colors text-sm">Merge &amp; Split</a>
                         <a href="/compress-pdf" class="px-4 py-2 text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-colors text-sm">Compress</a>
                         <a href="/protect-pdf" class="px-4 py-2 text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-colors text-sm">Lock / Unlock</a>
                     </div>
                 </div>
-
-                <!-- Image Dropdown -->
-                <div class="relative group">
-                    <button class="text-on-surface-variant hover:text-on-surface transition-colors hover:bg-white/5 rounded-lg transition-all duration-300 px-3 py-2 scale-95 active:scale-90 transition-transform font-body-md text-body-md flex items-center gap-1">
-                        Image <span class="material-symbols-outlined text-[16px]">expand_more</span>
-                    </button>
-                    <div class="absolute left-0 top-full mt-2 hidden group-hover:flex flex-col bg-[#1c1b1b] border border-white/10 rounded-lg shadow-xl w-56 py-2 z-50 overflow-hidden">
+            </div>
+            <!-- Image Dropdown -->
+            <div class="relative group">
+                <button class="text-on-surface-variant hover:text-on-surface transition-colors hover:bg-white/5 rounded-lg transition-all duration-300 px-3 py-2 font-body-md text-body-md flex items-center gap-1">
+                    Image <span class="material-symbols-outlined text-[16px]">expand_more</span>
+                </button>
+                <div class="absolute left-0 top-full pt-2 hidden group-hover:block z-50">
+                    <div class="flex flex-col bg-[#1c1b1b] border border-white/10 rounded-lg shadow-xl w-56 py-2 overflow-hidden">
                         <a href="/bg-remover" class="px-4 py-2 text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-colors text-sm">Background Remover</a>
                         <a href="/smart-crop" class="px-4 py-2 text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-colors text-sm">Smart Crop</a>
                         <a href="/image-upscaler" class="px-4 py-2 text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-colors text-sm">AI Upscaler</a>
                     </div>
                 </div>
-
-                <a class="text-primary font-bold border-b-2 border-primary pb-1 hover:bg-white/5 rounded-lg transition-all duration-300 px-3 py-2 scale-95 active:scale-90 transition-transform font-body-md text-body-md" href="/">About</a>
             </div>
-            
-            <div class="flex items-center gap-4">
-                <button class="text-on-surface-variant hover:text-on-surface transition-colors scale-95 active:scale-90 transition-transform">
-                    <span class="material-symbols-outlined">light_mode</span>
-                </button>
-                <a href="#tools" class="bg-gradient-to-r from-primary-container to-secondary-container text-white px-4 py-2 rounded-lg font-label-md text-label-md hover:shadow-[0_0_15px_rgba(189,0,255,0.4)] transition-all duration-300 hidden sm:block">
-                    View Tools
-                </a>
-            </div>
+            <a class="text-on-surface-variant hover:text-on-surface transition-colors hover:bg-white/5 rounded-lg px-3 py-2 font-body-md text-body-md" href="/">About</a>
         </div>
-    </nav>
+        <div class="flex items-center gap-4">
+            <a href="/" class="bg-gradient-to-r from-primary-container to-secondary-container text-white px-4 py-2 rounded-lg font-label-md text-label-md hover:shadow-[0_0_15px_rgba(189,0,255,0.4)] transition-all duration-300 hidden sm:block text-[14px]">
+                Home
+            </a>
+        </div>
+    </div>
+</nav>
 
     <!-- Main Content Canvas -->
     <main class="flex-grow pt-24 pb-section-gap flex flex-col gap-section-gap px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto w-full">
