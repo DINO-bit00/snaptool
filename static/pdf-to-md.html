@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>PDF to Image — SnapTool</title>
+  <title>PDF to Word — SnapTool</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&display=swap" rel="stylesheet"/>
@@ -99,7 +99,6 @@
         <button class="dropbtn">Convert <span class="material-symbols-outlined" style="font-size: 16px;">expand_more</span></button>
         <div class="dropdown-content">
           <a href="/word-to-pdf">Word → PDF</a>
-          <a href="/pdf-to-word">PDF → Word</a>
           <a href="/pdf-to-md">PDF → MD</a>
           <a href="/img-to-pdf">Image → PDF</a>
           <a href="/pdf-to-img">PDF → Image</a>
@@ -142,8 +141,8 @@
 
   <main>
     <div class="page-header anim">
-      <h1 class="serif">PDF to Image.</h1>
-      <p>Extract every page of a PDF into high-quality JPG images. Returns a ZIP file.</p>
+      <h1 class="serif">PDF to Word.</h1>
+      <p>Extract and convert PDF documents into editable .md files. Batch upload supported.</p>
     </div>
 
     <div class="two-col anim" style="transition-delay: 0.1s;">
@@ -271,13 +270,13 @@
     formData.append('file', item.file);
 
     try {
-      const res = await fetch('/api/pdf-to-img', { method: 'POST', body: formData });
+      const res = await fetch('/api/pdf-to-md', { method: 'POST', body: formData });
       if (!res.ok) {
         const err = await res.json().catch(() => ({ detail: 'Unknown error' }));
         throw new Error(err.detail || `Error ${res.status}`);
       }
       item.blob = await res.blob();
-      item.outName = item.file.name.replace(/\.[^/.]+$/, '') + '_images.zip';
+      item.outName = item.file.name.replace(/\.[^/.]+$/, '') + '.md';
       item.status = 'done';
     } catch(e) {
       item.status = 'error';

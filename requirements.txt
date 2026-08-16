@@ -10,3 +10,4 @@ docxcompose
 pymupdf
 opencv-contrib-python-headless<5.0.0
 numpy
+pymupdf4llm

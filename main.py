@@ -417,6 +417,42 @@ ALLOWED_IMG = {"image/jpeg", "image/png", "image/webp", "image/bmp", "image/tiff
 A4_W_PT = 595
 A4_H_PT = 842
 
+
+# ─────────────────────────────────────────────
+#  API: PDF → MD (Markdown)
+# ─────────────────────────────────────────────
+@app.post("/api/pdf-to-md")
+async def pdf_to_md(file: UploadFile = File(...)):
+    if not (file.filename or "").lower().endswith(".pdf"):
+        raise HTTPException(400, "Only PDF files are supported.")
+
+    input_path = get_temp_path(".pdf")
+    output_path = get_temp_path(".md")
+
+    try:
+        with open(input_path, "wb") as f:
+            f.write(await file.read())
+
+        def _convert():
+            import pymupdf4llm
+            md_text = pymupdf4llm.to_markdown(str(input_path))
+            with open(output_path, "w", encoding="utf-8") as out_f:
+                out_f.write(md_text)
+
+        import asyncio
+        await asyncio.get_event_loop().run_in_executor(None, _convert)
+
+        if not output_path.exists():
+            raise HTTPException(500, "Conversion produced no output.")
+
+        filename = Path(file.filename).stem + ".md"
+        return FileResponse(output_path, media_type="text/markdown", filename=filename)
+    except Exception as e:
+        cleanup(output_path)
+        raise HTTPException(500, f"Failed to convert PDF to Markdown: {str(e)}")
+    finally:
+        cleanup(input_path)
+
 @app.post("/api/img-to-pdf")
 async def img_to_pdf(
     files: List[UploadFile] = File(...),
@@ -687,6 +723,10 @@ async def pdf_to_word_page():
 async def doc_tools_page():
     return FileResponse("static/doc-tools.html")
 
+
+@app.get("/pdf-to-md", response_class=HTMLResponse)
+async def page_pdf_to_md():
+    return FileResponse("static/pdf-to-md.html")
 @app.get("/img-to-pdf", response_class=HTMLResponse)
 async def img_to_pdf_page():
     return FileResponse("static/img-to-pdf.html")
