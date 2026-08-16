@@ -1,146 +1,222 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>PDF to Image — SnapTool</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&display=swap" rel="stylesheet"/>
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,300,0,0" rel="stylesheet"/>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --bg: #FBFBFA;
-      --surface: #FFFFFF;
-      --border: #EAEAEA;
-      --text: #2F3437;
-      --text-muted: #787774;
-      --black: #111111;
-      --pastel-blue-bg: #E1F3FE; --pastel-blue-txt: #1F6C9F;
-      --pastel-green-bg: #EDF3EC; --pastel-green-txt: #346538;
-      --pastel-red-bg: #FDEBEC; --pastel-red-txt: #9F2F2D;
-    }
-    body { background: var(--bg); color: var(--text); font-family: 'Geist', sans-serif; min-height: 100dvh; display: flex; flex-direction: column; -webkit-font-smoothing: antialiased; line-height: 1.6; }
-    .serif { font-family: 'Newsreader', serif; letter-spacing: -0.02em; }
-    .mono { font-family: 'Geist Mono', monospace; }
-
-    /* NAV */
-    nav { position: sticky; top: 0; z-index: 100; background: rgba(251,251,250,0.9); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 0 clamp(1.5rem,5vw,3rem); height: 64px; display: flex; align-items: center; justify-content: flex-start; gap: 40px; }
-    .logo { font-weight: 600; color: var(--black); text-decoration: none; font-size: 1.05rem; }
-    .nav-links { display: flex; gap: 24px; }
-    .nav-link { font-size: 0.875rem; color: var(--text-muted); text-decoration: none; transition: color 0.15s; }
-    .nav-link:hover, .nav-link.active { color: var(--black); }
-
-    /* LAYOUT */
-    main { flex: 1; width: 100%; max-width: 1100px; margin: 0 auto; padding: 60px clamp(1.5rem,5vw,3rem); }
-    .page-header { margin-bottom: 60px; }
-    .page-header h1 { font-size: clamp(2.5rem,4vw,3.5rem); color: var(--black); margin-bottom: 16px; font-weight: 500; line-height: 1.1; }
-    .page-header p { font-size: 1.125rem; color: var(--text-muted); max-width: 52ch; }
-
-    .two-col { display: grid; grid-template-columns: 1fr; gap: 40px; align-items: start; }
-    @media (min-width: 800px) { .two-col { grid-template-columns: 1fr 1fr; } }
-
-    /* UPLOAD ZONE */
-    #upload-zone { background: var(--surface); border: 1px dashed #D0D0D0; border-radius: 8px; padding: 60px 40px; text-align: center; cursor: pointer; transition: background 0.2s, border-color 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 360px; }
-    #upload-zone:hover, #upload-zone.drag-over { background: #F9F9F8; border-color: #A0A0A0; }
-    .upload-icon { margin-bottom: 20px; color: var(--black); font-size: 32px !important; }
-
-    /* BUTTONS */
-    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: var(--black); color: #fff; padding: 10px 20px; border-radius: 6px; font-size: 0.875rem; font-weight: 500; border: none; cursor: pointer; transition: background 0.15s, transform 0.1s; font-family: 'Geist', sans-serif; }
-    .btn:hover { background: #333333; }
-    .btn:active { transform: scale(0.98); }
-    .btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--text); }
-    .btn-ghost:hover { background: var(--surface); }
-
-    /* QUEUE */
-    .queue-container { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; min-height: 360px; display: flex; flex-direction: column; }
-    .queue-header { padding: 16px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: flex-start; gap: 40px; background: var(--bg); }
-    .queue-title { font-weight: 500; color: var(--black); font-size: 0.9375rem; }
-    .queue-meta { font-size: 0.75rem; color: var(--text-muted); font-family: 'Geist Mono', monospace; }
-
-    #file-list { list-style: none; flex: 1; overflow-y: auto; max-height: 500px; }
-    .file-item { display: flex; align-items: center; gap: 16px; padding: 14px 24px; border-bottom: 1px solid var(--border); }
-    .file-item:last-child { border-bottom: none; }
-    .file-thumb { width: 40px; height: 40px; border-radius: 4px; background: var(--bg); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-
-    .badge { padding: 4px 8px; border-radius: 9999px; font-size: 0.6875rem; font-family: 'Geist Mono', monospace; letter-spacing: 0.05em; text-transform: uppercase; }
-    .badge-green  { background: var(--pastel-green-bg);  color: var(--pastel-green-txt); }
-    .badge-red    { background: var(--pastel-red-bg);    color: var(--pastel-red-txt); }
-    .badge-blue   { background: var(--pastel-blue-bg);   color: var(--pastel-blue-txt); }
-
-    #empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 40px; text-align: center; flex: 1; color: var(--text-muted); }
-
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .spinning { animation: spin 1s linear infinite; }
-    .anim { opacity: 0; transform: translateY(12px); transition: opacity 0.5s ease-out, transform 0.5s ease-out; }
-    .anim.visible { opacity: 1; transform: translateY(0); }
-
-    @media (max-width: 700px) { .nav-links { display: none; } }
-  
-    /* DROPDOWN NAV */
-    .dropdown { position: relative; display: inline-block; }
-    .dropdown-content { display: none; position: absolute; background-color: var(--surface); min-width: 180px; box-shadow: 0 10px 24px rgba(0,0,0,0.08); z-index: 100; border: 1px solid var(--border); border-radius: 8px; top: 100%; left: 0; right: auto; padding: 8px 0; opacity: 0; transform: translateY(-10px); transition: opacity 0.2s, transform 0.2s; }
-    .dropdown:hover .dropdown-content { display: block; opacity: 1; transform: translateY(0); }
-    .dropdown-content a { color: var(--text); padding: 8px 20px; text-decoration: none; display: block; font-size: 0.875rem; transition: background 0.1s; }
-    .dropdown-content a:hover { background-color: var(--bg); color: var(--black); }
-    .dropbtn { font-size: 0.875rem; color: var(--text-muted); text-decoration: none; cursor: pointer; padding: 22px 0; display: inline-flex; align-items: center; gap: 4px; border: none; background: transparent; font-family: inherit; font-weight: 500; transition: color 0.15s; }
-    .dropdown:hover .dropbtn { color: var(--black); }
-
-  </style>
-  <link rel="stylesheet" href="/static/theme.css"/>
-</head>
-<body>
-  <script src="/static/theme.js"></script>
-    <nav>
-    <a href="/" class="logo">SnapTool.</a>
-    <div class="nav-links">
-      <div class="dropdown">
-        <button class="dropbtn">Convert <span class="material-symbols-outlined" style="font-size: 16px;">expand_more</span></button>
-        <div class="dropdown-content">
-          <a href="/word-to-pdf">Word → PDF</a>
-          <a href="/pdf-to-word">PDF → Word</a>
-          <a href="/pdf-to-md">PDF → MD</a>
-          <a href="/img-to-pdf">Image → PDF</a>
-          <a href="/pdf-to-img">PDF → Image</a>
-        </div>
-      </div>
-      
-      <div class="dropdown">
-        <button class="dropbtn">PDF Tools <span class="material-symbols-outlined" style="font-size: 16px;">expand_more</span></button>
-        <div class="dropdown-content">
-          <a href="/doc-tools">Merge & Split</a>
-          <a href="/compress-pdf">Compress</a>
-          <a href="/protect-pdf">Lock / Unlock</a>
-        </div>
-      </div>
-
-      <div class="dropdown">
-        <button class="dropbtn">Image <span class="material-symbols-outlined" style="font-size: 16px;">expand_more</span></button>
-        <div class="dropdown-content">
-          <a href="/bg-remover">Background Remover</a>
-          <a href="/smart-crop">Smart Crop</a>
-          <a href="/image-upscaler">AI Upscaler</a>
-        </div>
-      </div>
-    </div>
-  </nav>
-
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const currentPath = window.location.pathname;
-      document.querySelectorAll('.dropdown-content a').forEach(link => {
-        if (link.getAttribute('href') === currentPath) {
-          link.style.fontWeight = '600';
-          link.style.color = 'var(--black)';
-          const dropbtn = link.closest('.dropdown').querySelector('.dropbtn');
-          if(dropbtn) dropbtn.style.color = 'var(--black)';
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>PDF to Image - SnapTool</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600&family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .material-symbols-outlined {
+                font-family: 'Material Symbols Outlined';
+                font-weight: normal;
+                font-style: normal;
+                font-size: 24px;
+                line-height: 1;
+                letter-spacing: normal;
+                text-transform: none;
+                display: inline-block;
+                white-space: nowrap;
+                word-wrap: normal;
+                direction: ltr;
+                -webkit-font-feature-settings: 'liga';
+                -webkit-font-smoothing: antialiased;
+            }
         }
-      });
-    });
-  </script>
+    </style>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-low": "#1c1b1b",
+                        "on-primary": "#520071",
+                        "surface-container-lowest": "#0e0e0e",
+                        "surface-variant": "#353534",
+                        "primary-fixed": "#f8d8ff",
+                        "on-primary-fixed-variant": "#74009f",
+                        "surface-bright": "#3a3939",
+                        "surface-container-high": "#2a2a2a",
+                        "outline": "#9d8ba0",
+                        "error-container": "#93000a",
+                        "tertiary-container": "#168900",
+                        "inverse-surface": "#e5e2e1",
+                        "inverse-primary": "#9900cf",
+                        "tertiary": "#2ae500",
+                        "on-surface": "#e5e2e1",
+                        "on-secondary": "#00363a",
+                        "primary-container": "#bd00ff",
+                        "surface-container": "#201f1f",
+                        "on-error": "#690005",
+                        "primary": "#ecb2ff",
+                        "outline-variant": "#514255",
+                        "on-surface-variant": "#d4c0d7",
+                        "secondary": "#d3fbff",
+                        "error": "#ffb4ab",
+                        "surface-container-highest": "#353534",
+                        "on-primary-container": "#ffffff",
+                        "on-tertiary": "#053900",
+                        "secondary-container": "#00eefc",
+                        "surface-dim": "#131313",
+                        "on-background": "#e5e2e1",
+                        "tertiary-fixed": "#79ff5b",
+                        "background": "#131313",
+                        "surface": "#131313"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "base": "8px",
+                        "gutter": "24px",
+                        "container-max": "1280px",
+                        "margin-mobile": "16px",
+                        "section-gap": "80px",
+                        "margin-desktop": "40px"
+                    },
+                    "fontFamily": {
+                        "label-md": ["Hanken Grotesk"],
+                        "headline-md": ["Libre Caslon Text"],
+                        "headline-lg": ["Libre Caslon Text"],
+                        "body-lg": ["Hanken Grotesk"],
+                        "display-lg": ["Libre Caslon Text"],
+                        "body-md": ["Hanken Grotesk"],
+                        "display-lg-mobile": ["Libre Caslon Text"]
+                    },
+                    "fontSize": {
+                        "label-md": ["14px", { "lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "1.4", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "1.3", "fontWeight": "400" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "display-lg": ["64px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "400" }],
+                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "display-lg-mobile": ["40px", { "lineHeight": "1.2", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Legacy styles for tool functionality -->
+    <style>
+      :root {
+        --bg: #1a1a1a;
+        --surface: #222222;
+        --border: #3a3a3a;
+        --text: #e5e2e1;
+        --text-muted: #9d8ba0;
+        --black: #ecb2ff;
+        --pastel-blue-bg: #1a2a3a; --pastel-blue-txt: #7ec8f7;
+        --pastel-green-bg: #1a2e1a; --pastel-green-txt: #2ae500;
+        --pastel-red-bg: #2e1a1a; --pastel-red-txt: #ffb4ab;
+      }
+      .serif { font-family: 'Libre Caslon Text', serif; letter-spacing: -0.02em; }
+      .mono { font-family: 'Hanken Grotesk', monospace; }
 
-  <main>
+      /* LAYOUT */
+      main { flex: 1; width: 100%; max-width: 1100px; margin: 0 auto; padding: 60px clamp(1.5rem,5vw,3rem); }
+      .page-header { margin-bottom: 60px; }
+      .page-header h1 { font-size: clamp(2.5rem,4vw,3.5rem); color: #ecb2ff; margin-bottom: 16px; font-weight: 500; line-height: 1.1; }
+      .page-header p { font-size: 1.125rem; color: var(--text-muted); max-width: 52ch; }
+
+      .two-col { display: grid; grid-template-columns: 1fr; gap: 40px; align-items: start; }
+      @media (min-width: 800px) { .two-col { grid-template-columns: 1fr 1fr; } }
+
+      /* UPLOAD ZONE */
+      #upload-zone { background: var(--surface); border: 1px dashed #555; border-radius: 8px; padding: 60px 40px; text-align: center; cursor: pointer; transition: background 0.2s, border-color 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 360px; }
+      #upload-zone:hover, #upload-zone.drag-over { background: #2a2a2a; border-color: #ecb2ff; }
+      .upload-icon { margin-bottom: 20px; color: #ecb2ff; font-size: 32px !important; }
+
+      /* BUTTONS */
+      .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: #bd00ff; color: #fff; padding: 10px 20px; border-radius: 6px; font-size: 0.875rem; font-weight: 500; border: none; cursor: pointer; transition: background 0.15s, transform 0.1s; font-family: 'Hanken Grotesk', sans-serif; }
+      .btn:hover { background: #9900cf; }
+      .btn:active { transform: scale(0.98); }
+      .btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--text); }
+      .btn-ghost:hover { background: var(--surface); }
+
+      /* QUEUE */
+      .queue-container { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; min-height: 360px; display: flex; flex-direction: column; }
+      .queue-header { padding: 16px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: flex-start; gap: 40px; background: #1c1b1b; }
+      .queue-title { font-weight: 500; color: #ecb2ff; font-size: 0.9375rem; }
+      .queue-meta { font-size: 0.75rem; color: var(--text-muted); font-family: 'Hanken Grotesk', monospace; }
+
+      #file-list { list-style: none; flex: 1; overflow-y: auto; max-height: 500px; }
+      .file-item { display: flex; align-items: center; gap: 16px; padding: 14px 24px; border-bottom: 1px solid var(--border); }
+      .file-item:last-child { border-bottom: none; }
+      .file-thumb { width: 40px; height: 40px; border-radius: 4px; background: #1c1b1b; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+
+      .badge { padding: 4px 8px; border-radius: 9999px; font-size: 0.6875rem; font-family: 'Hanken Grotesk', monospace; letter-spacing: 0.05em; text-transform: uppercase; }
+      .badge-green  { background: var(--pastel-green-bg);  color: var(--pastel-green-txt); }
+      .badge-red    { background: var(--pastel-red-bg);    color: var(--pastel-red-txt); }
+      .badge-blue   { background: var(--pastel-blue-bg);   color: var(--pastel-blue-txt); }
+
+      #empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 40px; text-align: center; flex: 1; color: var(--text-muted); }
+
+      @keyframes spin { to { transform: rotate(360deg); } }
+      .spinning { animation: spin 1s linear infinite; }
+      .anim { opacity: 0; transform: translateY(12px); transition: opacity 0.5s ease-out, transform 0.5s ease-out; }
+      .anim.visible { opacity: 1; transform: translateY(0); }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen flex flex-col antialiased dark">
+
+<nav class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl border-b border-white/10 shadow-sm">
+    <div class="flex justify-between items-center px-margin-desktop py-4 max-w-container-max mx-auto">
+        <a href="/" class="font-headline-md text-headline-md font-bold text-on-surface drop-shadow-[0_0_10px_rgba(236,178,255,0.5)]">
+            SnapTool.
+        </a>
+        <div class="hidden md:flex items-center gap-6">
+            <!-- Convert Dropdown -->
+            <div class="relative group">
+                <button class="text-on-surface-variant hover:text-on-surface transition-colors hover:bg-white/5 rounded-lg transition-all duration-300 px-3 py-2 font-body-md text-body-md flex items-center gap-1">
+                    Convert <span class="material-symbols-outlined text-[16px]">expand_more</span>
+                </button>
+                <div class="absolute left-0 top-full mt-2 hidden group-hover:flex flex-col bg-[#1c1b1b] border border-white/10 rounded-lg shadow-xl w-48 py-2 z-50 overflow-hidden">
+                    <a href="/word-to-pdf" class="px-4 py-2 text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-colors text-sm">Word &rarr; PDF</a>
+                    <a href="/pdf-to-word" class="px-4 py-2 text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-colors text-sm">PDF &rarr; Word</a>
+                    <a href="/pdf-to-md" class="px-4 py-2 text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-colors text-sm">PDF &rarr; MD</a>
+                    <a href="/img-to-pdf" class="px-4 py-2 text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-colors text-sm">Image &rarr; PDF</a>
+                    <a href="/pdf-to-img" class="px-4 py-2 text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-colors text-sm">PDF &rarr; Image</a>
+                </div>
+            </div>
+            <!-- PDF Tools Dropdown -->
+            <div class="relative group">
+                <button class="text-on-surface-variant hover:text-on-surface transition-colors hover:bg-white/5 rounded-lg transition-all duration-300 px-3 py-2 font-body-md text-body-md flex items-center gap-1">
+                    PDF Tools <span class="material-symbols-outlined text-[16px]">expand_more</span>
+                </button>
+                <div class="absolute left-0 top-full mt-2 hidden group-hover:flex flex-col bg-[#1c1b1b] border border-white/10 rounded-lg shadow-xl w-48 py-2 z-50 overflow-hidden">
+                    <a href="/doc-tools" class="px-4 py-2 text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-colors text-sm">Merge &amp; Split</a>
+                    <a href="/compress-pdf" class="px-4 py-2 text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-colors text-sm">Compress</a>
+                    <a href="/protect-pdf" class="px-4 py-2 text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-colors text-sm">Lock / Unlock</a>
+                </div>
+            </div>
+            <!-- Image Dropdown -->
+            <div class="relative group">
+                <button class="text-on-surface-variant hover:text-on-surface transition-colors hover:bg-white/5 rounded-lg transition-all duration-300 px-3 py-2 font-body-md text-body-md flex items-center gap-1">
+                    Image <span class="material-symbols-outlined text-[16px]">expand_more</span>
+                </button>
+                <div class="absolute left-0 top-full mt-2 hidden group-hover:flex flex-col bg-[#1c1b1b] border border-white/10 rounded-lg shadow-xl w-56 py-2 z-50 overflow-hidden">
+                    <a href="/bg-remover" class="px-4 py-2 text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-colors text-sm">Background Remover</a>
+                    <a href="/smart-crop" class="px-4 py-2 text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-colors text-sm">Smart Crop</a>
+                    <a href="/image-upscaler" class="px-4 py-2 text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-colors text-sm">AI Upscaler</a>
+                </div>
+            </div>
+            <a class="text-on-surface-variant hover:text-on-surface transition-colors hover:bg-white/5 rounded-lg px-3 py-2 font-body-md text-body-md" href="/">About</a>
+        </div>
+        <div class="flex items-center gap-4">
+            <a href="/" class="bg-gradient-to-r from-primary-container to-secondary-container text-white px-4 py-2 rounded-lg font-label-md text-label-md hover:shadow-[0_0_15px_rgba(189,0,255,0.4)] transition-all duration-300 hidden sm:block text-[14px]">
+                Home
+            </a>
+        </div>
+    </div>
+</nav>
+
+  <main class="pt-24">
     <div class="page-header anim">
       <h1 class="serif">PDF to Image.</h1>
       <p>Extract every page of a PDF into high-quality JPG images. Returns a ZIP file.</p>
@@ -150,7 +226,7 @@
       <!-- UPLOAD -->
       <div id="upload-zone">
         <span class="material-symbols-outlined upload-icon">picture_as_pdf</span>
-        <h3 style="font-weight: 500; color: var(--black); margin-bottom: 8px;">Upload PDF Files</h3>
+        <h3 style="font-weight: 500; color: #ecb2ff; margin-bottom: 8px;">Upload PDF Files</h3>
         <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 24px;">Drag and drop .pdf files here</p>
         <button id="browse-btn" class="btn">Select Files</button>
         <input type="file" id="file-input" accept=".pdf" multiple style="display:none;"/>
@@ -178,6 +254,20 @@
       </div>
     </div>
   </main>
+
+<footer class="bg-surface-container-lowest w-full py-8 border-t border-outline-variant/30 mt-auto">
+    <div class="flex flex-col md:flex-row justify-between items-center px-margin-desktop gap-gutter max-w-container-max mx-auto w-full">
+        <div class="font-headline-md text-on-surface font-bold text-lg">
+            SnapTool.
+        </div>
+        <div class="font-body-md text-body-md text-on-surface-variant text-center">
+            &copy; 2026 Arya Yusuf Fadilah. All processing is local. No tracking.
+        </div>
+        <div class="flex items-center gap-6">
+            <a class="font-body-md text-body-md text-on-surface-variant hover:text-tertiary transition-colors" href="https://github.com/DINO-bit00" target="_blank" rel="noopener noreferrer">Github</a>
+        </div>
+    </div>
+</footer>
 
 <script>
   const uploadZone     = document.getElementById('upload-zone');
@@ -243,7 +333,7 @@
       return `<li class="file-item">
         ${icon}
         <div style="flex:1;min-width:0;">
-          <div style="font-size:0.875rem;color:var(--black);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${item.file.name}">${item.file.name}</div>
+          <div style="font-size:0.875rem;color:#ecb2ff;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${item.file.name}">${item.file.name}</div>
           ${item.status === 'error' ? `<div style="font-size:0.75rem;color:var(--pastel-red-txt);">${item.errorMsg}</div>` : ''}
         </div>
         <div>${action}</div>
