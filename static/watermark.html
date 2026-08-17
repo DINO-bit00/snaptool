@@ -104,6 +104,67 @@
     </script>
     <!-- Legacy styles for tool functionality -->
     <style>
+      :root {
+        --bg: #1a1a1a;
+        --surface: #201f1f;
+        --border: #353534;
+        --text: #e5e2e1;
+        --text-muted: #9d8ba0;
+        --black: #e5e2e1;
+        --pastel-blue-bg: #1a2a3a; --pastel-blue-txt: #7ec8f5;
+        --pastel-green-bg: #0d2b0d; --pastel-green-txt: #2ae500;
+        --pastel-red-bg: #2b0d0d; --pastel-red-txt: #ffb4ab;
+      }
+      .serif { font-family: 'Libre Caslon Text', serif; letter-spacing: -0.02em; }
+
+      /* LAYOUT */
+      main { flex: 1; width: 100%; max-width: 1100px; margin: 0 auto; padding: 60px clamp(1.5rem,5vw,3rem); }
+      .page-header { margin-bottom: 60px; }
+      .page-header h1 { font-size: clamp(2.5rem,4vw,3.5rem); color: #ecb2ff; margin-bottom: 16px; font-weight: 500; line-height: 1.1; }
+      .page-header p { font-size: 1.125rem; color: var(--text-muted); max-width: 52ch; }
+
+      .two-col { display: grid; grid-template-columns: 1fr; gap: 40px; align-items: start; }
+      @media (min-width: 800px) { .two-col { grid-template-columns: 1fr 1fr; } }
+
+      /* UPLOAD ZONE */
+      #upload-zone { background: var(--surface); border: 1px dashed #514255; border-radius: 8px; padding: 60px 40px; text-align: center; cursor: pointer; transition: background 0.2s, border-color 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 360px; }
+      #upload-zone:hover, #upload-zone.drag-over { background: #2a2a2a; border-color: #9d8ba0; }
+      .upload-icon { margin-bottom: 20px; color: #ecb2ff; font-size: 32px !important; }
+
+      /* BUTTONS */
+      .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: #bd00ff; color: #fff; padding: 10px 20px; border-radius: 6px; font-size: 0.875rem; font-weight: 500; border: none; cursor: pointer; transition: background 0.15s, transform 0.1s; font-family: 'Hanken Grotesk', sans-serif; }
+      .btn:hover { background: #9900cf; }
+      .btn:active { transform: scale(0.98); }
+      .btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--text); }
+      .btn-ghost:hover { background: var(--surface); }
+
+      /* QUEUE */
+      .queue-container { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; min-height: 360px; display: flex; flex-direction: column; }
+      .queue-header { padding: 16px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: flex-start; gap: 40px; background: #1c1b1b; }
+      .queue-title { font-weight: 500; color: var(--black); font-size: 0.9375rem; }
+      .queue-meta { font-size: 0.75rem; color: var(--text-muted); font-family: monospace; }
+
+      #file-list { list-style: none; flex: 1; overflow-y: auto; max-height: 500px; }
+      .file-item { display: flex; align-items: center; gap: 16px; padding: 14px 24px; border-bottom: 1px solid var(--border); }
+      .file-item:last-child { border-bottom: none; }
+      .file-thumb { width: 40px; height: 40px; border-radius: 4px; background: #1c1b1b; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+
+      .badge { padding: 4px 8px; border-radius: 9999px; font-size: 0.6875rem; font-family: monospace; letter-spacing: 0.05em; text-transform: uppercase; }
+      .badge-green  { background: var(--pastel-green-bg);  color: var(--pastel-green-txt); }
+      .badge-red    { background: var(--pastel-red-bg);    color: var(--pastel-red-txt); }
+      .badge-blue   { background: var(--pastel-blue-bg);   color: var(--pastel-blue-txt); }
+
+      #empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 40px; text-align: center; flex: 1; color: var(--text-muted); }
+
+      /* ANIMATIONS */
+      @keyframes spin { to { transform: rotate(360deg); } }
+      .spinning { animation: spin 1s linear infinite; }
+      .anim { opacity: 0; transform: translateY(12px); transition: opacity 0.5s ease-out, transform 0.5s ease-out; }
+      .anim.visible { opacity: 1; transform: translateY(0); }
+    </style>
+
+    <!-- Legacy styles -->
+    <style>
     *, *::before, *::after { box-sizing: border-box; }
 
     main {
