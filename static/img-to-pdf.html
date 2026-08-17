@@ -196,14 +196,21 @@
         <a href="/" class="font-headline-md text-headline-md font-bold text-on-surface drop-shadow-[0_0_10px_rgba(236,178,255,0.5)]">
             SnapTool.
         </a>
-        <div class="hidden md:flex items-center gap-6">
+        
+        <!-- Mobile Menu Button -->
+        <button id="mobile-menu-btn" class="md:hidden text-on-surface p-2 rounded-lg hover:bg-white/5 transition-colors">
+            <span class="material-symbols-outlined">menu</span>
+        </button>
+
+        <!-- Nav Links (Desktop & Mobile) -->
+        <div id="nav-links" class="hidden absolute top-full left-0 w-full bg-[#16161c] border-b border-white/10 flex-col py-4 px-6 gap-2 md:static md:flex md:flex-row md:w-auto md:bg-transparent md:border-none md:py-0 md:px-0 md:gap-6 z-50 shadow-xl md:shadow-none">
             <!-- Convert Dropdown -->
             <div class="relative group">
-                <button class="text-on-surface-variant hover:text-on-surface transition-colors hover:bg-white/5 rounded-lg transition-all duration-300 px-3 py-2 font-body-md text-body-md flex items-center gap-1">
-                    Convert <span class="material-symbols-outlined text-[16px]">expand_more</span>
+                <button class="text-on-surface-variant hover:text-on-surface transition-colors hover:bg-white/5 rounded-lg transition-all duration-300 px-3 py-2 font-body-md text-body-md flex items-center justify-between w-full md:w-auto gap-1">
+                    Convert <span class="material-symbols-outlined text-[16px] group-hover:rotate-180 transition-transform">expand_more</span>
                 </button>
-                <div class="absolute left-0 top-full pt-2 hidden group-hover:block z-50">
-                    <div class="flex flex-col bg-[#1c1b1b] border border-white/10 rounded-lg shadow-xl w-48 py-2 overflow-hidden">
+                <div class="hidden group-hover:block md:absolute left-0 top-full pt-2 z-50 w-full md:w-48 pl-4 md:pl-0">
+                    <div class="flex flex-col md:bg-[#1c1b1b] md:border border-white/10 md:rounded-lg md:shadow-xl py-2 overflow-hidden border-l border-white/5 md:border-l-0">
                         <a href="/word-to-pdf" class="px-4 py-2 text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-colors text-sm">Word &#8594; PDF</a>
                         <a href="/pdf-to-word" class="px-4 py-2 text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-colors text-sm">PDF &#8594; Word</a>
                         <a href="/pdf-to-md" class="px-4 py-2 text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-colors text-sm">PDF &#8594; MD</a>
@@ -214,11 +221,11 @@
             </div>
             <!-- PDF Tools Dropdown -->
             <div class="relative group">
-                <button class="text-on-surface-variant hover:text-on-surface transition-colors hover:bg-white/5 rounded-lg transition-all duration-300 px-3 py-2 font-body-md text-body-md flex items-center gap-1">
-                    PDF Tools <span class="material-symbols-outlined text-[16px]">expand_more</span>
+                <button class="text-on-surface-variant hover:text-on-surface transition-colors hover:bg-white/5 rounded-lg transition-all duration-300 px-3 py-2 font-body-md text-body-md flex items-center justify-between w-full md:w-auto gap-1">
+                    PDF Tools <span class="material-symbols-outlined text-[16px] group-hover:rotate-180 transition-transform">expand_more</span>
                 </button>
-                <div class="absolute left-0 top-full pt-2 hidden group-hover:block z-50">
-                    <div class="flex flex-col bg-[#1c1b1b] border border-white/10 rounded-lg shadow-xl w-48 py-2 overflow-hidden">
+                <div class="hidden group-hover:block md:absolute left-0 top-full pt-2 z-50 w-full md:w-48 pl-4 md:pl-0">
+                    <div class="flex flex-col md:bg-[#1c1b1b] md:border border-white/10 md:rounded-lg md:shadow-xl py-2 overflow-hidden border-l border-white/5 md:border-l-0">
                         <a href="/doc-tools" class="px-4 py-2 text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-colors text-sm">Merge &amp; Split</a>
                         <a href="/compress-pdf" class="px-4 py-2 text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-colors text-sm">Compress</a>
                         <a href="/protect-pdf" class="px-4 py-2 text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-colors text-sm">Lock / Unlock</a>
@@ -228,25 +235,44 @@
             </div>
             <!-- Image Dropdown -->
             <div class="relative group">
-                <button class="text-on-surface-variant hover:text-on-surface transition-colors hover:bg-white/5 rounded-lg transition-all duration-300 px-3 py-2 font-body-md text-body-md flex items-center gap-1">
-                    Image <span class="material-symbols-outlined text-[16px]">expand_more</span>
+                <button class="text-on-surface-variant hover:text-on-surface transition-colors hover:bg-white/5 rounded-lg transition-all duration-300 px-3 py-2 font-body-md text-body-md flex items-center justify-between w-full md:w-auto gap-1">
+                    Image <span class="material-symbols-outlined text-[16px] group-hover:rotate-180 transition-transform">expand_more</span>
                 </button>
-                <div class="absolute left-0 top-full pt-2 hidden group-hover:block z-50">
-                    <div class="flex flex-col bg-[#1c1b1b] border border-white/10 rounded-lg shadow-xl w-56 py-2 overflow-hidden">
+                <div class="hidden group-hover:block md:absolute left-0 top-full pt-2 z-50 w-full md:w-56 pl-4 md:pl-0">
+                    <div class="flex flex-col md:bg-[#1c1b1b] md:border border-white/10 md:rounded-lg md:shadow-xl py-2 overflow-hidden border-l border-white/5 md:border-l-0">
                         <a href="/bg-remover" class="px-4 py-2 text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-colors text-sm">Background Remover</a>
                         <a href="/smart-crop" class="px-4 py-2 text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-colors text-sm">Smart Crop</a>
                         <a href="/image-upscaler" class="px-4 py-2 text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-colors text-sm">AI Upscaler</a>
                     </div>
                 </div>
             </div>
-            <a class="text-on-surface-variant hover:text-on-surface transition-colors hover:bg-white/5 rounded-lg px-3 py-2 font-body-md text-body-md" href="/">About</a>
+            <a class="text-on-surface-variant hover:text-on-surface transition-colors hover:bg-white/5 rounded-lg px-3 py-2 font-body-md text-body-md w-full md:w-auto text-left" href="/">About</a>
+            
+            <a href="/" class="md:hidden bg-gradient-to-r from-primary-container to-secondary-container text-white px-4 py-2 rounded-lg font-label-md text-label-md text-center mt-4 shadow-[0_0_15px_rgba(189,0,255,0.2)]">
+                Home
+            </a>
         </div>
-        <div class="flex items-center gap-4">
-            <a href="/" class="bg-gradient-to-r from-primary-container to-secondary-container text-white px-4 py-2 rounded-lg font-label-md text-label-md hover:shadow-[0_0_15px_rgba(189,0,255,0.4)] transition-all duration-300 hidden sm:block text-[14px]">
+        <div class="hidden md:flex items-center gap-4">
+            <a href="/" class="bg-gradient-to-r from-primary-container to-secondary-container text-white px-4 py-2 rounded-lg font-label-md text-label-md hover:shadow-[0_0_15px_rgba(189,0,255,0.4)] transition-all duration-300 text-[14px]">
                 Home
             </a>
         </div>
     </div>
+    <script>
+        const btn = document.getElementById('mobile-menu-btn');
+        if(btn) {
+            btn.addEventListener('click', function() {
+                const navLinks = document.getElementById('nav-links');
+                if (navLinks.classList.contains('hidden')) {
+                    navLinks.classList.remove('hidden');
+                    navLinks.classList.add('flex');
+                } else {
+                    navLinks.classList.add('hidden');
+                    navLinks.classList.remove('flex');
+                }
+            });
+        }
+    </script>
 </nav>
 
   <main class="pt-24">
