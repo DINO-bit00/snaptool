@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
-<title>Image to PDF - SnapTool</title>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Image to PDF - SnapTool</title>
     
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
@@ -26,18 +26,6 @@
                 -webkit-font-smoothing: antialiased;
             }
         }
-    
-      
-
-          #file-list {
-        flex: 1;
-        overflow-y: auto;
-        width: 100%;
-        margin: 0;
-        padding: 0;
-        list-style: none;
-      }
-          .hidden { display: none !important; }
     </style>
     
     <script id="tailwind-config">
@@ -69,37 +57,23 @@
     </script>
     
     <style>
-      #empty-state {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: 48px 24px;
-        text-align: center;
-        color: #a8a6a5;
-        flex: 1;
-      }
-
       :root {
         --bg: #131313;
-        --surface: #1c1b1b;
+        --surface: #1a1a1a;
         --surface-high: #242323;
         --border: #353534;
         --text: #e5e2e1;
         --text-muted: #a8a6a5;
-        --black: #e5e2e1;
         --accent: #ecb2ff;
-        --pastel-blue-bg: rgba(0, 238, 252, 0.15); --pastel-blue-txt: #d3fbff;
-        --pastel-green-bg: rgba(42, 229, 0, 0.15); --pastel-green-txt: #79ff5b;
-        --pastel-red-bg: rgba(255, 180, 171, 0.15); --pastel-red-txt: #ffb4ab;
+        --preview-padding: 8px;
       }
       *, *::before, *::after { box-sizing: border-box; }
       body { background-color: var(--bg); color: var(--text); font-family: 'Hanken Grotesk', sans-serif; }
       .serif { font-family: 'Libre Caslon Text', serif; }
 
       /* Page Header */
-      .page-header { margin-bottom: 40px; }
-      .page-header h1, h1.serif {
+      .page-header { margin-bottom: 36px; }
+      .page-header h1 {
         font-family: 'Libre Caslon Text', serif !important;
         font-size: clamp(2.25rem, 4vw, 3.25rem) !important;
         color: #ecb2ff !important;
@@ -112,22 +86,80 @@
       .page-header p {
         font-size: 1.05rem !important;
         color: var(--text-muted) !important;
-        max-width: 56ch !important;
+        max-width: 58ch !important;
         line-height: 1.6 !important;
       }
 
       /* Two Column Layout */
-      .two-col { display: grid; grid-template-columns: 1fr; gap: 32px; align-items: stretch; } @media (min-width: 860px) { .two-col { grid-template-columns: 1fr 1fr; } }
-      @media (min-width: 860px) { .two-col { display: grid; grid-template-columns: 1fr; gap: 32px; align-items: stretch; } @media (min-width: 860px) { .two-col { grid-template-columns: 1fr 1fr; } } }
+      .two-col { display: grid; grid-template-columns: 1fr; gap: 32px; align-items: stretch; }
+      @media (min-width: 860px) { .two-col { grid-template-columns: 1.2fr 0.8fr; } }
 
       /* Upload Zone */
-      #upload-zone { background: var(--surface); border: 1.5px dashed var(--border); border-radius: 16px; padding: 40px 28px; text-align: center; cursor: pointer; transition: all 0.2s ease; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 420px; height: 100%; } #upload-zone:hover, #upload-zone.drag-over { background: #222121; border-color: #ecb2ff; box-shadow: 0 0 25px rgba(236, 178, 255, 0.12); }
-      #upload-zone:hover, #upload-zone.drag-over {
-        background: #242323;
-        border-color: #ecb2ff;
-        box-shadow: 0 0 25px rgba(236, 178, 255, 0.1);
+      #upload-zone {
+        background: var(--surface);
+        border: 1.5px dashed var(--border);
+        border-radius: 16px;
+        padding: 40px 24px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 280px;
       }
-      .upload-icon { margin-bottom: 16px; color: #ecb2ff; font-size: 40px !important; }
+      #upload-zone:hover, #upload-zone.drag-over {
+        background: #201f1f;
+        border-color: #ecb2ff;
+        box-shadow: 0 0 25px rgba(236, 178, 255, 0.12);
+      }
+      .upload-icon { margin-bottom: 14px; color: #ecb2ff; font-size: 40px !important; }
+
+      /* Options Card */
+      .options-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        min-height: 280px;
+      }
+
+      /* Option Group & Pills */
+      .option-label {
+        display: block;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #a8a6a5;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 10px;
+      }
+      .select-pill-group { display: flex; gap: 8px; }
+      .select-pill {
+        background: #161616;
+        border: 1px solid #353534;
+        color: #a8a6a5;
+        padding: 8px 18px;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        flex: 1;
+        text-align: center;
+      }
+      .select-pill:hover { border-color: rgba(236, 178, 255, 0.4); color: #fff; background: #222121; }
+      .select-pill.active {
+        background: linear-gradient(135deg, rgba(189, 0, 255, 0.25) 0%, rgba(116, 0, 159, 0.35) 100%);
+        border-color: #ecb2ff;
+        color: #fff;
+        font-weight: 600;
+        box-shadow: 0 0 12px rgba(236, 178, 255, 0.2);
+      }
 
       /* Buttons */
       .btn, .btn-primary {
@@ -137,18 +169,18 @@
         gap: 8px;
         background: linear-gradient(135deg, #bd00ff 0%, #74009f 100%) !important;
         color: #fff !important;
-        padding: 10px 20px;
-        border-radius: 8px;
-        font-size: 0.875rem;
+        padding: 12px 24px;
+        border-radius: 10px;
+        font-size: 0.9rem;
         font-weight: 600;
         border: none !important;
         cursor: pointer;
         transition: all 0.2s ease;
-        box-shadow: 0 0 15px rgba(189, 0, 255, 0.35);
+        box-shadow: 0 0 16px rgba(189, 0, 255, 0.35);
       }
       .btn:hover:not(:disabled), .btn-primary:hover:not(:disabled) {
         background: linear-gradient(135deg, #d338ff 0%, #8e00c4 100%) !important;
-        box-shadow: 0 0 22px rgba(189, 0, 255, 0.55);
+        box-shadow: 0 0 24px rgba(189, 0, 255, 0.55);
         transform: translateY(-1px);
       }
       .btn:disabled, .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
@@ -162,78 +194,101 @@
         font-size: 0.8rem;
         cursor: pointer;
         transition: all 0.2s ease;
-        box-shadow: none !important;
       }
       .btn-ghost:hover { background: var(--surface-high) !important; color: var(--text) !important; border-color: rgba(255,255,255,0.2) !important; }
 
-      /* Queue Container */
-      .queue-container {
-        background: var(--surface);
-        border: 1px solid var(--border);
-        border-radius: 16px;
-        overflow: hidden;
-        min-height: 420px;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-      }
-      .queue-header {
-        padding: 18px 24px;
-        border-bottom: 1px solid var(--border);
-        display: flex;
-        align-items: center;
+      /* Grid Header & Images Grid */
+      #grid-header {
+        display: none;
         justify-content: space-between;
-        background: #161616;
+        align-items: center;
+        margin-top: 36px;
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid var(--border);
       }
-      .queue-title { font-weight: 600; color: #e5e2e1; font-size: 0.9375rem; }
-      .queue-meta { font-size: 0.75rem; color: #a8a6a5; font-family: monospace; }
-
-      .options-panel, .options-card {
-        background: var(--surface);
+      #images-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 18px;
+      }
+      .img-card {
+        background: #161616;
         border: 1px solid var(--border);
         border-radius: 12px;
-        padding: 20px;
+        overflow: hidden;
+        padding: 12px;
+        transition: all 0.2s ease;
+        position: relative;
+        cursor: grab;
       }
-
-      /* Form inputs override */
-      input[type="text"], input[type="number"], input[type="password"], input[type="search"], textarea, select {
-        background-color: #161616 !important;
-        color: #e5e2e1 !important;
-        border: 1px solid #353534 !important;
-        border-radius: 8px !important;
-        padding: 10px 14px !important;
-        font-size: 0.875rem !important;
-        outline: none !important;
-        transition: border-color 0.2s !important;
+      .img-card:hover { border-color: #ecb2ff; box-shadow: 0 0 15px rgba(236, 178, 255, 0.15); }
+      .img-card.dragging { opacity: 0.4; transform: scale(0.95); }
+      .img-card.drag-target { border-color: #00eefc; }
+      
+      .thumb-wrap {
+        position: relative;
+        width: 100%;
+        background: #201f1f;
+        border-radius: 8px;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: var(--preview-padding);
+        transition: padding 0.2s ease;
       }
-      input[type="text"]:focus, input[type="number"]:focus, input[type="password"]:focus, input[type="search"]:focus, textarea:focus, select:focus {
-        border-color: #ecb2ff !important;
-        box-shadow: 0 0 0 2px rgba(236, 178, 255, 0.2) !important;
+      .thumb-wrap img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 4px; }
+      .remove-btn {
+        position: absolute;
+        top: 6px;
+        right: 6px;
+        background: rgba(0,0,0,0.65);
+        color: #fff;
+        border: none;
+        border-radius: 6px;
+        padding: 4px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.2s;
       }
-      select option {
-        background-color: #161616 !important;
-        color: #e5e2e1 !important;
+      .remove-btn:hover { background: #ff3b30; }
+
+      .card-meta { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
+      .card-idx { font-size: 0.75rem; color: #a8a6a5; font-family: monospace; }
+      .orientation-btn {
+        background: #242323;
+        border: 1px solid var(--border);
+        color: #ecb2ff;
+        font-size: 0.75rem;
+        padding: 4px 10px;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.2s;
       }
+      .orientation-btn:hover { border-color: #ecb2ff; background: #2e2d2d; }
 
-      .file-item { display: flex; align-items: center; gap: 14px; padding: 14px 20px; border-bottom: 1px solid var(--border); }
-      .file-item:last-child { border-bottom: none; }
-      .file-thumb { width: 36px; height: 36px; border-radius: 8px; background: #161616; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-
-      .badge { padding: 3px 8px; border-radius: 9999px; font-size: 0.7rem; font-family: monospace; letter-spacing: 0.05em; text-transform: uppercase; }
-      .badge-green { background: rgba(42, 229, 0, 0.15); color: #79ff5b; border: 1px solid rgba(42, 229, 0, 0.3); }
-      .badge-red   { background: rgba(255, 180, 171, 0.15); color: #ffb4ab; border: 1px solid rgba(255, 180, 171, 0.3); }
-      .badge-blue  { background: rgba(0, 238, 252, 0.15); color: #d3fbff; border: 1px solid rgba(0, 238, 252, 0.3); }
-
-      /* Animations */
-      .anim { opacity: 1; transform: translateY(0); }
-      .anim.visible { opacity: 1; transform: translateY(0); }
-      @keyframes spin { to { transform: rotate(360deg); } }
-      .spinning { animation: spin 1s linear infinite; }
+      /* Loader overlay */
+      #loader-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(19, 19, 19, 0.85);
+        backdrop-filter: blur(8px);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+      }
+      @keyframes spin { 100% { transform: rotate(360deg); } }
+      .spinner { width: 36px; height: 36px; border: 3px solid rgba(236,178,255,0.2); border-top-color: #ecb2ff; border-radius: 50%; animation: spin 1s linear infinite; }
+      
     </style>
-
 </head>
 
-<body class="bg-background text-on-background min-h-screen flex flex-col antialiased dark">
+<body class="bg-background text-on-background min-h-screen flex flex-col antialiased">
+
 <nav class="fixed top-0 w-full z-50 bg-[#131313]/85 backdrop-blur-xl border-b border-white/10 shadow-sm">
     <div class="flex justify-between items-center w-full px-6 md:px-10 py-4 max-w-7xl mx-auto">
         <a href="/" class="font-headline-md text-2xl font-bold text-[#e5e2e1] drop-shadow-[0_0_12px_rgba(236,178,255,0.45)] hover:text-white transition-colors" style="font-family: 'Libre Caslon Text', serif;">
@@ -316,60 +371,70 @@
     </script>
 </nav>
 
-  <main class="flex-1 w-full max-w-7xl mx-auto px-6 md:px-10 pt-28 pb-16">
-    <div class="page-header anim">
+<main class="flex-1 w-full max-w-7xl mx-auto px-6 md:px-10 pt-28 pb-16">
+    <div class="page-header">
       <h1 class="serif">Image to PDF.</h1>
       <p>Compile multiple images into a clean A4 PDF document. Drag to reorder, choose layout per image, and convert locally.</p>
     </div>
 
-    <div class="two-col anim" style="transition-delay: 0.1s;">
-      <!-- Main Area (Upload + Grid) -->
+    <div class="two-col">
+      <!-- Main Area (Upload Zone) -->
       <div>
         <div id="upload-zone">
-          <span class="material-symbols-outlined" style="font-size: 32px; color: #ecb2ff; margin-bottom: 16px;">collections</span>
-          <h4 style="font-weight: 500; margin-bottom: 8px; color: #e5e2e1;">Upload Images</h4>
-          <p style="font-size: 0.875rem; color: #d4c0d7; margin-bottom: 24px;">Drag and drop up to 30 images (JPG, PNG, WebP)</p>
-          <button id="browse-btn" class="btn" style="padding: 10px 20px;">Select Files</button>
+          <span class="material-symbols-outlined upload-icon">collections</span>
+          <h3 style="font-weight: 500; font-size: 1.15rem; margin-bottom: 6px; color: #e5e2e1;">Upload Images</h3>
+          <p style="font-size: 0.875rem; color: #a8a6a5; margin-bottom: 20px;">Drag and drop up to 30 images (JPG, PNG, WebP)</p>
+          <button id="browse-btn" class="btn-primary" style="padding: 10px 22px; font-size: 0.875rem;">Select Files</button>
           <input type="file" id="file-input" accept="image/png, image/jpeg, image/webp, image/bmp, image/gif" multiple style="display:none;"/>
         </div>
-
       </div>
 
       <!-- Options Sidebar -->
       <div>
         <div class="options-card">
-          <h3>Document Options</h3>
+          <div>
+            <h3 class="text-sm font-semibold text-[#e5e2e1] uppercase tracking-wider mb-4 border-b border-[#353534] pb-2">Document Options</h3>
 
-          <div class="option-group">
-            <span class="option-label">Margins</span>
-            <div class="select-pill-group">
-              <div class="select-pill active" onclick="setMargin('small')">Small</div>
-              <div class="select-pill" onclick="setMargin('none')">None</div>
-              <div class="select-pill" onclick="setMargin('big')">Big</div>
+            <div class="option-group">
+              <span class="option-label">Page Margins</span>
+              <div class="select-pill-group">
+                <div class="select-pill active" onclick="setMargin('small')">Small</div>
+                <div class="select-pill" onclick="setMargin('none')">None</div>
+                <div class="select-pill" onclick="setMargin('big')">Big</div>
+              </div>
             </div>
           </div>
 
-          <button id="convert-btn" class="btn" style="width:100%; margin-top:24px;" disabled>Create PDF</button>
-
-          <div id="error-msg"></div>
+          <div>
+            <button id="convert-btn" class="btn-primary w-full justify-center" disabled>
+                <span class="material-symbols-outlined text-[20px]">picture_as_pdf</span>
+                <span>Create PDF</span>
+            </button>
+            <div id="error-msg" class="hidden text-xs text-[#ffb4ab] mt-2 text-center"></div>
+          </div>
         </div>
       </div>
     </div>
 
-    <div id="grid-header" style="margin-top: 40px;">
-      <h4 id="grid-count">0 images</h4>
-      <button id="clear-all-btn">Clear all</button>
+    <!-- Interactive Images Grid Header -->
+    <div id="grid-header">
+      <div class="flex items-center gap-3">
+        <h4 id="grid-count" class="text-sm font-semibold text-[#e5e2e1]">0 images</h4>
+        <span class="text-xs text-[#a8a6a5] font-mono">Drag cards to reorder pages</span>
+      </div>
+      <button id="clear-all-btn" class="btn-ghost">Clear All</button>
     </div>
 
+    <!-- Images Grid List -->
     <div id="images-grid"></div>
-  </main>
+</main>
 
-  <div id="loader-overlay">
-    <div style="display:flex; flex-direction:column; align-items:center; gap:16px;">
+<div id="loader-overlay">
+    <div class="flex flex-col items-center gap-3">
       <div class="spinner"></div>
-      <div style="font-size:0.875rem; font-weight:500; color:#e5e2e1;">Generating PDF...</div>
+      <div class="text-sm font-medium text-[#e5e2e1]">Generating PDF...</div>
     </div>
-  </div>
+</div>
 
 <footer class="bg-[#0e0e0e] w-full py-8 border-t border-white/10 mt-auto">
     <div class="flex flex-col md:flex-row justify-between items-center px-6 md:px-10 gap-4 max-w-7xl mx-auto w-full">
@@ -416,7 +481,7 @@
   };
 
   function addFiles(files) {
-    errorMsg.style.display = 'none';
+    errorMsg.classList.add('hidden');
     const valid = [...files].filter(f => f.type.startsWith('image/'));
 
     if (items.length + valid.length > MAX_FILES) {
@@ -429,7 +494,7 @@
         id: Math.random().toString(36).substr(2, 9),
         file: f,
         url: URL.createObjectURL(f),
-        orientation: 'portrait' // default A4 portrait
+        orientation: 'portrait'
       });
     });
 
@@ -455,7 +520,7 @@
 
   function showError(msg) {
     errorMsg.textContent = msg;
-    errorMsg.style.display = 'block';
+    errorMsg.classList.remove('hidden');
   }
 
   function renderGrid() {
@@ -477,7 +542,6 @@
       card.draggable = true;
       card.dataset.id = item.id;
 
-      // Adjust thumbnail aspect ratio based on chosen orientation
       const aspect = item.orientation === 'portrait' ? '1/1.414' : '1.414/1';
 
       card.innerHTML = `
@@ -488,7 +552,7 @@
           </button>
         </div>
         <div class="card-meta">
-          <span class="card-idx">${index + 1}</span>
+          <span class="card-idx">#${index + 1}</span>
           <button class="orientation-btn" onclick="toggleOrientation('${item.id}')" title="Switch to ${item.orientation === 'portrait' ? 'Landscape' : 'Portrait'}">
             ${item.orientation === 'portrait' ? 'Portrait' : 'Landscape'}
           </button>
@@ -506,7 +570,6 @@
     });
   }
 
-  // HTML5 Drag and Drop logic for reordering
   let draggedId = null;
   let dragEl = null;
 
@@ -514,13 +577,12 @@
     draggedId = this.dataset.id;
     dragEl = this;
     e.dataTransfer.effectAllowed = 'move';
-    // Firefox needs setData
     e.dataTransfer.setData('text/plain', draggedId);
     setTimeout(() => this.classList.add('dragging'), 0);
   }
 
   function handleDragOver(e) {
-    if (e.preventDefault) e.preventDefault(); // allow drop
+    if (e.preventDefault) e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
     if (this !== dragEl) this.classList.add('drag-target');
     return false;
@@ -539,7 +601,6 @@
       const toIdx = items.findIndex(i => i.id === this.dataset.id);
 
       if (fromIdx > -1 && toIdx > -1) {
-        // Swap or move
         const movedItem = items.splice(fromIdx, 1)[0];
         items.splice(toIdx, 0, movedItem);
         renderGrid();
@@ -553,17 +614,15 @@
     document.querySelectorAll('.img-card').forEach(el => el.classList.remove('drag-target'));
   }
 
-  // File Selection Events
   browseBtn.addEventListener('click', (e) => { e.stopPropagation(); fileInput.click(); });
   uploadZone.addEventListener('click', (e) => { if (!e.target.closest('button')) fileInput.click(); });
   fileInput.addEventListener('change', (e) => {
     if (e.target.files.length) {
       addFiles(e.target.files);
-      fileInput.value = ''; // reset
+      fileInput.value = '';
     }
   });
 
-  // Drag and Drop files into zone
   uploadZone.addEventListener('dragenter', e => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
   uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
   uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
@@ -579,20 +638,17 @@
     renderGrid();
   });
 
-  // API Call
   convertBtn.addEventListener('click', async () => {
     if (items.length === 0) return;
 
     loaderOverlay.style.display = 'flex';
-    errorMsg.style.display = 'none';
+    errorMsg.classList.add('hidden');
 
     const formData = new FormData();
-    formData.append('margin', currentMargin);
+    formData.append('layout', 'auto');
 
-    // Append files and their specific orientations in order
     items.forEach(item => {
       formData.append('files', item.file);
-      formData.append('orientations', item.orientation);
     });
 
     try {
@@ -602,24 +658,25 @@
       });
 
       if (!res.ok) {
-        const err = await res.json().catch(() => ({ detail: 'Unknown error' }));
-        throw new Error(err.detail || `Error ${res.status}`);
+        const err = await res.json().catch(() => ({ detail: 'Failed to convert images' }));
+        throw new Error(err.detail || `Server error ${res.status}`);
       }
 
       const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
+      a.href = url;
       a.download = 'images_converted.pdf';
+      document.body.appendChild(a);
       a.click();
-
-    } catch (err) {
-      showError(err.message);
+      URL.revokeObjectURL(url);
+      a.remove();
+    } catch(err) {
+      showError(err.message || 'Conversion failed');
     } finally {
       loaderOverlay.style.display = 'none';
     }
   });
-
-  setTimeout(() => document.querySelectorAll('.anim').forEach(el => el.classList.add('visible')), 50);
 </script>
 </body>
 </html>
