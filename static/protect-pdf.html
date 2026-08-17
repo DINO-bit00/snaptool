@@ -29,6 +29,14 @@
     
       
 
+          #file-list {
+        flex: 1;
+        overflow-y: auto;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
     </style>
     
     <script id="tailwind-config">
@@ -60,7 +68,16 @@
     </script>
     
     <style>
-      #empty-state { flex: 1 !important; display: flex !important; flex-direction: column !important; align-items: center !important; justify-content: center !important; padding: 48px 24px !important; text-align: center !important; color: #a8a6a5 !important; }
+      #empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 48px 24px;
+        text-align: center;
+        color: #a8a6a5;
+        flex: 1;
+      }
 
       :root {
         --bg: #131313;
