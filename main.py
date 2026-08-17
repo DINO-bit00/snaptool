@@ -867,10 +867,14 @@ async def apply_watermark(
                         pos = (margin, img.height - th - margin)
                     elif position == "bottom-right":
                         pos = (img.width - tw - margin, img.height - th - margin)
-                    else: # center
+                    else: # center or diagonal
                         pos = ((img.width - tw) // 2, (img.height - th) // 2)
                         
                     draw.text(pos, watermark_text, fill=rgb + (alpha,), font=font)
+                    
+                    if position == "diagonal":
+                        # Rotate the text layer by 45 degrees
+                        txt_layer = txt_layer.rotate(45, center=(img.width//2, img.height//2))
                     
                     out_img = PILImage.alpha_composite(img, txt_layer)
                     
