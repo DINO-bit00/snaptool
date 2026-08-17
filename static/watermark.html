@@ -1,12 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Watermark PDF & Image - SnapTool</title>
+    
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600&family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    
     <style type="text/tailwindcss">
         @layer utilities {
             .material-symbols-outlined {
@@ -26,518 +27,397 @@
             }
         }
     </style>
+    
     <script id="tailwind-config">
         tailwind.config = {
             darkMode: "class",
             theme: {
                 extend: {
-                    "colors": {
-                        "surface-container-low": "#1c1b1b",
-                        "on-primary": "#520071",
-                        "surface-container-lowest": "#0e0e0e",
-                        "surface-variant": "#353534",
-                        "primary-fixed": "#f8d8ff",
-                        "on-primary-fixed-variant": "#74009f",
-                        "surface-bright": "#3a3939",
-                        "surface-container-high": "#2a2a2a",
-                        "outline": "#9d8ba0",
-                        "error-container": "#93000a",
-                        "tertiary-container": "#168900",
-                        "inverse-surface": "#e5e2e1",
-                        "inverse-primary": "#9900cf",
+                    colors: {
+                        "background": "#131313",
+                        "surface": "#1a1a1a",
+                        "surface-container": "#201f1f",
+                        "surface-container-high": "#262525",
+                        "outline": "#514255",
+                        "outline-variant": "#353534",
+                        "primary": "#ecb2ff",
+                        "primary-container": "#bd00ff",
+                        "secondary-container": "#00eefc",
                         "tertiary": "#2ae500",
                         "on-surface": "#e5e2e1",
-                        "on-secondary": "#00363a",
-                        "primary-container": "#bd00ff",
-                        "surface-container": "#201f1f",
-                        "on-error": "#690005",
-                        "primary": "#ecb2ff",
-                        "outline-variant": "#514255",
-                        "on-surface-variant": "#d4c0d7",
-                        "secondary": "#d3fbff",
-                        "error": "#ffb4ab",
-                        "surface-container-highest": "#353534",
-                        "on-primary-container": "#ffffff",
-                        "on-tertiary": "#053900",
-                        "secondary-container": "#00eefc",
-                        "surface-dim": "#131313",
-                        "on-background": "#e5e2e1",
-                        "tertiary-fixed": "#79ff5b",
-                        "background": "#131313",
-                        "surface": "#131313"
+                        "on-surface-variant": "#a8a6a5"
                     },
-                    "borderRadius": {
-                        "DEFAULT": "0.25rem",
-                        "lg": "0.5rem",
-                        "xl": "0.75rem",
-                        "full": "9999px"
-                    },
-                    "spacing": {
-                        "base": "8px",
-                        "gutter": "24px",
-                        "container-max": "1280px",
-                        "margin-mobile": "16px",
-                        "section-gap": "80px",
-                        "margin-desktop": "40px"
-                    },
-                    "fontFamily": {
-                        "label-md": ["Hanken Grotesk"],
-                        "headline-md": ["Libre Caslon Text"],
-                        "headline-lg": ["Libre Caslon Text"],
-                        "body-lg": ["Hanken Grotesk"],
-                        "display-lg": ["Libre Caslon Text"],
-                        "body-md": ["Hanken Grotesk"],
-                        "display-lg-mobile": ["Libre Caslon Text"]
-                    },
-                    "fontSize": {
-                        "label-md": ["14px", { "lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "600" }],
-                        "headline-md": ["24px", { "lineHeight": "1.4", "fontWeight": "400" }],
-                        "headline-lg": ["32px", { "lineHeight": "1.3", "fontWeight": "400" }],
-                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
-                        "display-lg": ["64px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "400" }],
-                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
-                        "display-lg-mobile": ["40px", { "lineHeight": "1.2", "fontWeight": "400" }]
+                    fontFamily: {
+                        "sans": ["Hanken Grotesk", "sans-serif"],
+                        "serif": ["Libre Caslon Text", "serif"]
                     }
                 }
             }
         }
     </script>
-    <!-- Legacy styles for tool functionality -->
+    
     <style>
       :root {
-        --bg: #1a1a1a;
-        --surface: #201f1f;
+        --bg: #131313;
+        --surface: #1c1b1b;
+        --surface-high: #242323;
         --border: #353534;
         --text: #e5e2e1;
-        --text-muted: #9d8ba0;
-        --black: #e5e2e1;
-        --pastel-blue-bg: #1a2a3a; --pastel-blue-txt: #7ec8f5;
-        --pastel-green-bg: #0d2b0d; --pastel-green-txt: #2ae500;
-        --pastel-red-bg: #2b0d0d; --pastel-red-txt: #ffb4ab;
+        --text-muted: #a8a6a5;
+        --accent: #ecb2ff;
       }
-      .serif { font-family: 'Libre Caslon Text', serif; letter-spacing: -0.02em; }
+      *, *::before, *::after { box-sizing: border-box; }
+      body { background-color: var(--bg); color: var(--text); font-family: 'Hanken Grotesk', sans-serif; }
+      .serif { font-family: 'Libre Caslon Text', serif; }
 
-      /* LAYOUT */
-      main { flex: 1; width: 100%; max-width: 1100px; margin: 0 auto; padding: 60px clamp(1.5rem,5vw,3rem); }
-      .page-header { margin-bottom: 60px; }
-      .page-header h1 { font-size: clamp(2.5rem,4vw,3.5rem); color: #ecb2ff; margin-bottom: 16px; font-weight: 500; line-height: 1.1; }
-      .page-header p { font-size: 1.125rem; color: var(--text-muted); max-width: 52ch; }
+      /* Page Header */
+      .page-header { margin-bottom: 40px; }
+      .page-header h1 {
+        font-family: 'Libre Caslon Text', serif;
+        font-size: clamp(2.25rem, 4vw, 3.25rem);
+        color: #ecb2ff;
+        margin-bottom: 12px;
+        font-weight: 500;
+        line-height: 1.15;
+        letter-spacing: -0.01em;
+        text-shadow: 0 0 30px rgba(236, 178, 255, 0.25);
+      }
+      .page-header p {
+        font-size: 1.05rem;
+        color: var(--text-muted);
+        max-width: 56ch;
+        line-height: 1.6;
+      }
 
-      .two-col { display: grid; grid-template-columns: 1fr; gap: 40px; align-items: start; }
-      @media (min-width: 800px) { .two-col { grid-template-columns: 1fr 1fr; } }
+      /* Two Column Layout */
+      .two-col { display: grid; grid-template-columns: 1fr; gap: 32px; align-items: start; }
+      @media (min-width: 860px) { .two-col { grid-template-columns: 1fr 1fr; } }
 
-      /* UPLOAD ZONE */
-      #upload-zone { background: var(--surface); border: 1px dashed #514255; border-radius: 8px; padding: 60px 40px; text-align: center; cursor: pointer; transition: background 0.2s, border-color 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 360px; }
-      #upload-zone:hover, #upload-zone.drag-over { background: #2a2a2a; border-color: #9d8ba0; }
-      .upload-icon { margin-bottom: 20px; color: #ecb2ff; font-size: 32px !important; }
+      /* Upload Zone */
+      #upload-zone {
+        background: var(--surface);
+        border: 1px dashed var(--border);
+        border-radius: 12px;
+        padding: 48px 32px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 240px;
+      }
+      #upload-zone:hover, #upload-zone.drag-over {
+        background: #242323;
+        border-color: #ecb2ff;
+        box-shadow: 0 0 25px rgba(236, 178, 255, 0.1);
+      }
+      .upload-icon { margin-bottom: 16px; color: #ecb2ff; font-size: 40px !important; }
 
-      /* BUTTONS */
-      .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: #bd00ff; color: #fff; padding: 10px 20px; border-radius: 6px; font-size: 0.875rem; font-weight: 500; border: none; cursor: pointer; transition: background 0.15s, transform 0.1s; font-family: 'Hanken Grotesk', sans-serif; }
-      .btn:hover { background: #9900cf; }
-      .btn:active { transform: scale(0.98); }
-      .btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--text); }
-      .btn-ghost:hover { background: var(--surface); }
+      /* Settings Panel Card */
+      .settings-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 24px;
+      }
 
-      /* QUEUE */
-      .queue-container { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; min-height: 360px; display: flex; flex-direction: column; }
-      .queue-header { padding: 16px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: flex-start; gap: 40px; background: #1c1b1b; }
-      .queue-title { font-weight: 500; color: var(--black); font-size: 0.9375rem; }
-      .queue-meta { font-size: 0.75rem; color: var(--text-muted); font-family: monospace; }
+      /* Buttons */
+      .btn-primary {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        background: linear-gradient(135deg, #bd00ff 0%, #74009f 100%);
+        color: #fff;
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: 0 0 15px rgba(189, 0, 255, 0.35);
+      }
+      .btn-primary:hover:not(:disabled) {
+        background: linear-gradient(135deg, #d338ff 0%, #8e00c4 100%);
+        box-shadow: 0 0 22px rgba(189, 0, 255, 0.55);
+        transform: translateY(-1px);
+      }
+      .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+      
+      .btn-ghost {
+        background: transparent;
+        border: 1px solid var(--border);
+        color: var(--text-muted);
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-size: 0.825rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+      .btn-ghost:hover { background: var(--surface-high); color: var(--text); border-color: rgba(255,255,255,0.2); }
 
-      #file-list { list-style: none; flex: 1; overflow-y: auto; max-height: 500px; }
-      .file-item { display: flex; align-items: center; gap: 16px; padding: 14px 24px; border-bottom: 1px solid var(--border); }
-      .file-item:last-child { border-bottom: none; }
-      .file-thumb { width: 40px; height: 40px; border-radius: 4px; background: #1c1b1b; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+      /* Queue Container */
+      .queue-container {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        overflow: hidden;
+        min-height: 480px;
+        display: flex;
+        flex-direction: column;
+      }
+      .queue-header {
+        padding: 18px 24px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: #161616;
+      }
 
-      .badge { padding: 4px 8px; border-radius: 9999px; font-size: 0.6875rem; font-family: monospace; letter-spacing: 0.05em; text-transform: uppercase; }
-      .badge-green  { background: var(--pastel-green-bg);  color: var(--pastel-green-txt); }
-      .badge-red    { background: var(--pastel-red-bg);    color: var(--pastel-red-txt); }
-      .badge-blue   { background: var(--pastel-blue-bg);   color: var(--pastel-blue-txt); }
+      /* Form inputs override */
+      input[type="text"], input[type="number"], select {
+        background-color: #161616 !important;
+        color: #e5e2e1 !important;
+        border: 1px solid #353534 !important;
+        border-radius: 8px !important;
+        padding: 10px 14px !important;
+        font-size: 0.875rem !important;
+        width: 100% !important;
+        outline: none !important;
+        transition: border-color 0.2s !important;
+      }
+      input[type="text"]:focus, input[type="number"]:focus, select:focus {
+        border-color: #ecb2ff !important;
+        box-shadow: 0 0 0 2px rgba(236, 178, 255, 0.2) !important;
+      }
+      select option {
+        background-color: #161616 !important;
+        color: #e5e2e1 !important;
+      }
 
-      #empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 40px; text-align: center; flex: 1; color: var(--text-muted); }
-
-      /* ANIMATIONS */
-      @keyframes spin { to { transform: rotate(360deg); } }
-      .spinning { animation: spin 1s linear infinite; }
+      /* Animations */
       .anim { opacity: 0; transform: translateY(12px); transition: opacity 0.5s ease-out, transform 0.5s ease-out; }
       .anim.visible { opacity: 1; transform: translateY(0); }
     </style>
-
-    <!-- Legacy styles -->
-    <style>
-    *, *::before, *::after { box-sizing: border-box; }
-
-    main {
-      flex: 1;
-      width: 100%;
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 40px clamp(1.5rem, 5vw, 3rem);
-    }
-    .page-header {
-      margin-bottom: 40px;
-      text-align: center;
-    }
-    .page-header h1 {
-      font-size: clamp(2.5rem, 5vw, 4rem);
-      margin: 0 0 16px 0;
-      letter-spacing: -0.02em;
-      color: #e5e2e1;
-    }
-    .page-header p {
-      font-size: 1.125rem;
-      color: #d4c0d7;
-      max-width: 600px;
-      margin: 0 auto;
-    }
-
-    /* Tabs */
-    .tab-group {
-      display: flex;
-      gap: 24px;
-      margin-bottom: 32px;
-      border-bottom: 1px solid #514255;
-      justify-content: center;
-    }
-    .tab-btn {
-      background: none;
-      border: none;
-      color: #d4c0d7;
-      font-family: 'Hanken Grotesk', sans-serif;
-      font-size: 1rem;
-      padding: 12px 0;
-      cursor: pointer;
-      border-bottom: 2px solid transparent;
-      transition: all 0.2s;
-      margin-bottom: -1px;
-    }
-    .tab-btn:hover { color: #e5e2e1; }
-    .tab-btn.active { color: #ecb2ff; border-bottom-color: #ecb2ff; font-weight: 600; }
-
-    /* ANIMATIONS */
-    .anim { opacity: 0; transform: translateY(12px); transition: opacity 0.5s ease-out, transform 0.5s ease-out; }
-    .anim.visible { opacity: 1; transform: translateY(0); }
-
-    /* Container */
-    .tool-container {
-      background: #201f1f;
-      border: 1px solid #514255;
-      padding: 32px;
-      border-radius: 12px;
-    }
-    
-    /* Upload Zone */
-    .drop-zone {
-      background: #201f1f;
-      border: 1px dashed #514255;
-      border-radius: 8px;
-      padding: 48px 32px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      position: relative;
-    }
-    .drop-zone:hover, .drop-zone.drag-over {
-      border-color: #ecb2ff;
-      background: #1c1b1b;
-    }
-    
-    .btn {
-      font-family: 'Hanken Grotesk', sans-serif;
-      font-size: 0.9rem;
-      padding: 10px 20px;
-      border-radius: 6px;
-      border: 1px solid #514255;
-      cursor: pointer;
-      font-weight: 500;
-      transition: all 0.2s;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-    }
-    .btn-primary {
-      background: #bd00ff;
-      color: #ffffff;
-      border-color: #bd00ff;
-    }
-    .btn-primary:hover { opacity: 0.9; }
-    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
-    .btn-secondary {
-      background: #201f1f;
-      color: #e5e2e1;
-      border-color: #514255;
-    }
-    .btn-secondary:hover { background: #1c1b1b; }
-    
-    /* File List */
-    .file-item {
-      display: flex;
-      align-items: center;
-      justify-content: flex-start; gap: 40px;
-      background: #201f1f;
-      border: 1px solid #514255;
-      padding: 12px 16px;
-      border-radius: 6px;
-      margin-bottom: 8px;
-    }
-    .icon-btn {
-      background: transparent;
-      border: none;
-      color: #d4c0d7;
-      cursor: pointer;
-      padding: 4px;
-      border-radius: 4px;
-      display: inline-flex;
-      transition: all 0.2s;
-    }
-    .icon-btn:hover {
-      color: #ecb2ff;
-      background: #1c1b1b;
-    }
-
-    /* Inputs */
-    .input-group { margin-bottom: 24px; }
-    .input-label { display: block; font-family: 'Hanken Grotesk', sans-serif; font-size: 0.9rem; color: #e5e2e1; margin-bottom: 8px; font-weight: 500; }
-    .text-input {
-      width: 100%;
-      background: #201f1f;
-      border: 1px solid #514255;
-      border-radius: 6px;
-      padding: 10px 12px;
-      color: #e5e2e1;
-      font-family: monospace;
-      font-size: 0.9rem;
-      transition: border-color 0.2s;
-    }
-    .text-input:focus {
-      outline: none;
-      border-color: #ecb2ff;
-    }
-
-    /* Helpers */
-    .hidden { display: none !important; }
-    .flex-between { display: flex; justify-content: flex-start; gap: 40px; align-items: center; }
-    
-    .warning-box {
-      background: #2a2a2a;
-      border: 1px solid #514255;
-      border-radius: 6px;
-      padding: 16px;
-      color: #d4c0d7;
-      display: flex;
-      gap: 12px;
-      align-items: flex-start;
-      margin-bottom: 24px;
-    }
-
-    .preview-container {
-      border: 1px solid #514255;
-      border-radius: 8px;
-      overflow: hidden;
-      height: 500px;
-      position: relative;
-      margin-bottom: 24px;
-      background: #1c1b1b;
-    }
-
-    .loader {
-      position: absolute;
-      inset: 0;
-      background: rgba(19,19,19,0.8);
-      backdrop-filter: blur(4px);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      z-index: 10;
-    }
-    @keyframes spin { 100% { transform: rotate(360deg); } }
-    .spinner { animation: spin 1s linear infinite; }
-    </style>
-
-    <style>
-      /* Force dark theme on inputs/selects to override Tailwind forms plugin */
-      input[type="text"], input[type="number"], input[type="password"], select {
-        background-color: #1c1b1b !important;
-        color: #f0f0f4 !important;
-      }
-      select option {
-        background-color: #1c1b1b !important;
-        color: #f0f0f4 !important;
-      }
-    </style>
 </head>
 
-<body class="bg-background text-on-background min-h-screen flex flex-col antialiased dark">
+<body class="bg-background text-on-background min-h-screen flex flex-col antialiased">
 
-<nav class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl border-b border-white/10 shadow-sm">
+<nav class="fixed top-0 w-full z-50 bg-[#131313]/85 backdrop-blur-xl border-b border-white/10 shadow-sm">
     <div class="flex justify-between items-center w-full px-6 md:px-10 py-4 max-w-7xl mx-auto">
-        <a href="/" class="font-headline-md text-headline-md font-bold text-on-surface drop-shadow-[0_0_10px_rgba(236,178,255,0.5)]">
+        <a href="/" class="font-headline-md text-2xl font-bold text-[#e5e2e1] drop-shadow-[0_0_12px_rgba(236,178,255,0.45)] hover:text-white transition-colors" style="font-family: 'Libre Caslon Text', serif;">
             SnapTool.
         </a>
         
         <!-- Mobile Menu Button -->
-        <button id="mobile-menu-btn" class="md:hidden text-on-surface p-2 rounded-lg hover:bg-white/5 transition-colors">
-            <span class="material-symbols-outlined">menu</span>
+        <button id="mobile-menu-btn" class="md:hidden text-on-surface p-2 rounded-lg hover:bg-white/5 transition-colors focus:outline-none" aria-label="Toggle navigation">
+            <span class="material-symbols-outlined text-[24px]">menu</span>
         </button>
 
         <!-- Nav Links (Desktop & Mobile) -->
-        <div id="nav-links" class="hidden absolute top-full left-0 w-full bg-[#16161c] border-b border-white/10 flex-col py-4 px-6 gap-2 md:static md:flex md:flex-row md:w-auto md:bg-transparent md:border-none md:py-0 md:px-0 md:gap-6 z-50 shadow-xl md:shadow-none">
+        <div id="nav-links" class="hidden absolute top-full left-0 w-full bg-[#181818] border-b border-white/10 flex-col py-5 px-6 gap-3 md:static md:flex md:flex-row md:w-auto md:bg-transparent md:border-none md:py-0 md:px-0 md:gap-6 z-50 shadow-2xl md:shadow-none">
             <!-- Convert Dropdown -->
             <div class="relative group">
-                <button class="text-on-surface-variant hover:text-on-surface transition-colors hover:bg-white/5 rounded-lg transition-all duration-300 px-3 py-2 font-body-md text-body-md flex items-center justify-between w-full md:w-auto gap-1">
-                    Convert <span class="material-symbols-outlined text-[16px] group-hover:rotate-180 transition-transform">expand_more</span>
+                <button class="text-[#a8a6a5] hover:text-[#e5e2e1] hover:bg-white/5 rounded-lg transition-all duration-200 px-3 py-2 text-sm font-medium flex items-center justify-between w-full md:w-auto gap-1">
+                    Convert <span class="material-symbols-outlined text-[16px] group-hover:rotate-180 transition-transform duration-200">expand_more</span>
                 </button>
-                <div class="hidden group-hover:block md:absolute left-0 top-full pt-2 z-50 w-full md:w-48 pl-4 md:pl-0">
-                    <div class="flex flex-col md:bg-[#1c1b1b] md:border border-white/10 md:rounded-lg md:shadow-xl py-2 overflow-hidden border-l border-white/5 md:border-l-0">
-                        <a href="/word-to-pdf" class="px-4 py-2 text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-colors text-sm">Word &#8594; PDF</a>
-                        <a href="/pdf-to-word" class="px-4 py-2 text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-colors text-sm">PDF &#8594; Word</a>
-                        <a href="/pdf-to-md" class="px-4 py-2 text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-colors text-sm">PDF &#8594; MD</a>
-                        <a href="/img-to-pdf" class="px-4 py-2 text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-colors text-sm">Image &#8594; PDF</a>
-                        <a href="/pdf-to-img" class="px-4 py-2 text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-colors text-sm">PDF &#8594; Image</a>
+                <div class="hidden group-hover:block md:absolute left-0 top-full pt-2 z-50 w-full md:w-48 pl-3 md:pl-0">
+                    <div class="flex flex-col bg-[#1c1b1b] md:border border-white/10 md:rounded-xl md:shadow-2xl py-2 overflow-hidden border-l border-white/10 md:border-l-0">
+                        <a href="/word-to-pdf" class="px-4 py-2.5 text-[#a8a6a5] hover:text-white hover:bg-white/5 transition-colors text-sm">Word &#8594; PDF</a>
+                        <a href="/pdf-to-word" class="px-4 py-2.5 text-[#a8a6a5] hover:text-white hover:bg-white/5 transition-colors text-sm">PDF &#8594; Word</a>
+                        <a href="/pdf-to-md" class="px-4 py-2.5 text-[#a8a6a5] hover:text-white hover:bg-white/5 transition-colors text-sm">PDF &#8594; MD</a>
+                        <a href="/img-to-pdf" class="px-4 py-2.5 text-[#a8a6a5] hover:text-white hover:bg-white/5 transition-colors text-sm">Image &#8594; PDF</a>
+                        <a href="/pdf-to-img" class="px-4 py-2.5 text-[#a8a6a5] hover:text-white hover:bg-white/5 transition-colors text-sm">PDF &#8594; Image</a>
                     </div>
                 </div>
             </div>
             <!-- PDF Tools Dropdown -->
             <div class="relative group">
-                <button class="text-on-surface-variant hover:text-on-surface transition-colors hover:bg-white/5 rounded-lg transition-all duration-300 px-3 py-2 font-body-md text-body-md flex items-center justify-between w-full md:w-auto gap-1">
-                    PDF Tools <span class="material-symbols-outlined text-[16px] group-hover:rotate-180 transition-transform">expand_more</span>
+                <button class="text-[#a8a6a5] hover:text-[#e5e2e1] hover:bg-white/5 rounded-lg transition-all duration-200 px-3 py-2 text-sm font-medium flex items-center justify-between w-full md:w-auto gap-1">
+                    PDF Tools <span class="material-symbols-outlined text-[16px] group-hover:rotate-180 transition-transform duration-200">expand_more</span>
                 </button>
-                <div class="hidden group-hover:block md:absolute left-0 top-full pt-2 z-50 w-full md:w-48 pl-4 md:pl-0">
-                    <div class="flex flex-col md:bg-[#1c1b1b] md:border border-white/10 md:rounded-lg md:shadow-xl py-2 overflow-hidden border-l border-white/5 md:border-l-0">
-                        <a href="/doc-tools" class="px-4 py-2 text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-colors text-sm">Merge &amp; Split</a>
-                        <a href="/compress-pdf" class="px-4 py-2 text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-colors text-sm">Compress</a>
-                        <a href="/protect-pdf" class="px-4 py-2 text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-colors text-sm">Lock / Unlock</a>
-                        <a href="/watermark" class="px-4 py-2 text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-colors text-sm">Watermark</a>
+                <div class="hidden group-hover:block md:absolute left-0 top-full pt-2 z-50 w-full md:w-48 pl-3 md:pl-0">
+                    <div class="flex flex-col bg-[#1c1b1b] md:border border-white/10 md:rounded-xl md:shadow-2xl py-2 overflow-hidden border-l border-white/10 md:border-l-0">
+                        <a href="/doc-tools" class="px-4 py-2.5 text-[#a8a6a5] hover:text-white hover:bg-white/5 transition-colors text-sm">Merge &amp; Split</a>
+                        <a href="/compress-pdf" class="px-4 py-2.5 text-[#a8a6a5] hover:text-white hover:bg-white/5 transition-colors text-sm">Compress</a>
+                        <a href="/protect-pdf" class="px-4 py-2.5 text-[#a8a6a5] hover:text-white hover:bg-white/5 transition-colors text-sm">Lock / Unlock</a>
+                        <a href="/watermark" class="px-4 py-2.5 text-[#a8a6a5] hover:text-white hover:bg-white/5 transition-colors text-sm">Watermark</a>
                     </div>
                 </div>
             </div>
             <!-- Image Dropdown -->
             <div class="relative group">
-                <button class="text-on-surface-variant hover:text-on-surface transition-colors hover:bg-white/5 rounded-lg transition-all duration-300 px-3 py-2 font-body-md text-body-md flex items-center justify-between w-full md:w-auto gap-1">
-                    Image <span class="material-symbols-outlined text-[16px] group-hover:rotate-180 transition-transform">expand_more</span>
+                <button class="text-[#a8a6a5] hover:text-[#e5e2e1] hover:bg-white/5 rounded-lg transition-all duration-200 px-3 py-2 text-sm font-medium flex items-center justify-between w-full md:w-auto gap-1">
+                    Image <span class="material-symbols-outlined text-[16px] group-hover:rotate-180 transition-transform duration-200">expand_more</span>
                 </button>
-                <div class="hidden group-hover:block md:absolute left-0 top-full pt-2 z-50 w-full md:w-56 pl-4 md:pl-0">
-                    <div class="flex flex-col md:bg-[#1c1b1b] md:border border-white/10 md:rounded-lg md:shadow-xl py-2 overflow-hidden border-l border-white/5 md:border-l-0">
-                        <a href="/bg-remover" class="px-4 py-2 text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-colors text-sm">Background Remover</a>
-                        <a href="/smart-crop" class="px-4 py-2 text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-colors text-sm">Smart Crop</a>
-                        <a href="/image-upscaler" class="px-4 py-2 text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-colors text-sm">AI Upscaler</a>
+                <div class="hidden group-hover:block md:absolute left-0 top-full pt-2 z-50 w-full md:w-56 pl-3 md:pl-0">
+                    <div class="flex flex-col bg-[#1c1b1b] md:border border-white/10 md:rounded-xl md:shadow-2xl py-2 overflow-hidden border-l border-white/10 md:border-l-0">
+                        <a href="/bg-remover" class="px-4 py-2.5 text-[#a8a6a5] hover:text-white hover:bg-white/5 transition-colors text-sm">Background Remover</a>
+                        <a href="/smart-crop" class="px-4 py-2.5 text-[#a8a6a5] hover:text-white hover:bg-white/5 transition-colors text-sm">Smart Crop</a>
+                        <a href="/image-upscaler" class="px-4 py-2.5 text-[#a8a6a5] hover:text-white hover:bg-white/5 transition-colors text-sm">AI Upscaler</a>
                     </div>
                 </div>
             </div>
-            <a class="text-on-surface-variant hover:text-on-surface transition-colors hover:bg-white/5 rounded-lg px-3 py-2 font-body-md text-body-md w-full md:w-auto text-left" href="/">About</a>
+            <a class="text-[#a8a6a5] hover:text-[#e5e2e1] hover:bg-white/5 rounded-lg px-3 py-2 text-sm font-medium transition-colors w-full md:w-auto text-left" href="/#tools">Tools</a>
             
-            <a href="/" class="md:hidden bg-gradient-to-r from-primary-container to-secondary-container text-white px-4 py-2 rounded-lg font-label-md text-label-md text-center mt-4 shadow-[0_0_15px_rgba(189,0,255,0.2)]">
+            <a href="/" class="md:hidden bg-gradient-to-r from-[#bd00ff] to-[#00eefc] text-white px-4 py-2.5 rounded-lg text-sm font-semibold text-center mt-3 shadow-[0_0_15px_rgba(189,0,255,0.3)]">
                 Home
             </a>
         </div>
         <div class="hidden md:flex items-center gap-4">
-            <a href="/" class="bg-gradient-to-r from-primary-container to-secondary-container text-white px-4 py-2 rounded-lg font-label-md text-label-md hover:shadow-[0_0_15px_rgba(189,0,255,0.4)] transition-all duration-300 text-[14px]">
+            <a href="/" class="bg-gradient-to-r from-[#bd00ff] to-[#00eefc] text-white px-4 py-2 rounded-lg text-sm font-semibold hover:shadow-[0_0_18px_rgba(189,0,255,0.45)] hover:scale-[1.02] active:scale-[0.98] transition-all duration-300">
                 Home
             </a>
         </div>
     </div>
     <script>
-        const btn = document.getElementById('mobile-menu-btn');
-        if(btn) {
-            btn.addEventListener('click', function() {
-                const navLinks = document.getElementById('nav-links');
-                if (navLinks.classList.contains('hidden')) {
-                    navLinks.classList.remove('hidden');
-                    navLinks.classList.add('flex');
-                } else {
-                    navLinks.classList.add('hidden');
-                    navLinks.classList.remove('flex');
-                }
-            });
-        }
+        (function() {
+            const btn = document.getElementById('mobile-menu-btn');
+            if(btn) {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const navLinks = document.getElementById('nav-links');
+                    navLinks.classList.toggle('hidden');
+                    navLinks.classList.toggle('flex');
+                });
+            }
+        })();
     </script>
 </nav>
 
-  <main class="pt-24 flex flex-col items-center">
+<main class="flex-1 w-full max-w-7xl mx-auto px-6 md:px-10 pt-28 pb-16">
     <div class="page-header anim">
-      <h1>Watermark PDF & Image</h1>
-      <p>Add text watermark to your PDFs and Images in bulk.</p>
+        <h1 class="serif">Watermark.</h1>
+        <p>Stamp PDFs and images with customizable text watermarks locally and securely.</p>
     </div>
 
-    <!-- Upload Zone -->
-    <div id="upload-zone" class="anim border-2 border-dashed border-outline-variant rounded-2xl p-12 text-center cursor-pointer transition-all duration-300 hover:bg-white/5 hover:border-primary flex flex-col items-center justify-center bg-surface-container-low/50" style="transition-delay: 100ms;">
-      <span class="material-symbols-outlined" style="font-size: 48px; color: #ecb2ff; margin-bottom: 16px;">branding_watermark</span>
-      <h3 style="margin:0 0 8px 0; font-family:'Libre Caslon Text'; font-size:1.5rem; color:#e5e2e1;">Upload Files</h3>
-      <p style="margin:0 0 16px 0; color:#d4c0d7;">Drag & drop PDFs or Images here, or click to browse</p>
-      <input type="file" id="file-input" multiple accept=".pdf, .jpg, .jpeg, .png, .webp, .bmp" style="display: none;" />
-      <button id="browse-btn" class="bg-surface-variant hover:bg-surface-bright text-on-surface px-6 py-2 rounded-lg font-body-md transition-colors shadow-sm">Browse Files</button>
-    </div>
+    <div class="two-col anim" style="transition-delay: 0.1s;">
+        <!-- LEFT COLUMN: Upload Zone + Watermark Settings -->
+        <div class="flex flex-col gap-6">
+            <!-- Upload Drop Zone -->
+            <div id="upload-zone">
+                <span class="material-symbols-outlined upload-icon">branding_watermark</span>
+                <h3 style="font-weight: 500; color: #e5e2e1; font-size: 1.15rem; margin-bottom: 6px;">Select PDF or Images</h3>
+                <p style="font-size: 0.875rem; color: #a8a6a5; margin-bottom: 20px;">Drag & drop .pdf, .png, .jpg files here</p>
+                <button id="browse-btn" class="btn-primary" style="padding: 10px 20px; font-size: 0.875rem;">Select Files</button>
+                <input type="file" id="file-input" multiple accept=".pdf, .jpg, .jpeg, .png, .webp, .bmp" style="display: none;" />
+            </div>
 
-    <!-- Settings Panel -->
-    <div id="settings-panel" class="hidden w-full bg-surface-container-high border border-outline-variant/30 rounded-xl p-6 mt-8 shadow-md">
-      <h3 class="text-xl font-headline-md text-on-surface mb-4">Watermark Settings</h3>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label class="block text-sm font-label-md text-on-surface-variant mb-1">Watermark Text</label>
-          <input type="text" id="watermark-text" value="CONFIDENTIAL" class="w-full bg-surface-variant text-on-surface border border-outline-variant rounded-md px-3 py-2 outline-none focus:border-primary transition-colors">
-        </div>
-        <div>
-          <label class="block text-sm font-label-md text-on-surface-variant mb-1">Position</label>
-          <select id="watermark-position" class="w-full bg-surface-variant text-on-surface border border-outline-variant rounded-md px-3 py-2 outline-none focus:border-primary transition-colors">
-            <option value="center">Center</option>
-            <option value="diagonal">Center (Diagonal) [Image Only]</option>
-            <option value="top-left">Top Left</option>
-            <option value="top-right">Top Right</option>
-            <option value="bottom-left">Bottom Left</option>
-            <option value="bottom-right">Bottom Right</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-sm font-label-md text-on-surface-variant mb-1">Text Color</label>
-          <div class="flex items-center gap-2">
-            <input type="color" id="watermark-color" value="#ffffff" class="h-10 w-12 bg-transparent border-none cursor-pointer p-0">
-            <span class="text-on-surface-variant text-sm" id="color-hex">#ffffff</span>
-          </div>
-        </div>
-        <div>
-          <label class="block text-sm font-label-md text-on-surface-variant mb-1">Opacity (<span id="opacity-val">0.5</span>)</label>
-          <input type="range" id="watermark-opacity" min="0.1" max="1.0" step="0.1" value="0.5" class="w-full mt-2 accent-primary">
-        </div>
-        <div>
-          <label class="block text-sm font-label-md text-on-surface-variant mb-1">Font Size / Scale</label>
-          <input type="number" id="watermark-size" value="100" min="10" max="300" class="w-full bg-surface-variant text-on-surface border border-outline-variant rounded-md px-3 py-2 outline-none focus:border-primary transition-colors">
-        </div>
-      </div>
-    </div>
+            <!-- Settings Panel -->
+            <div class="settings-card flex flex-col gap-4">
+                <div class="border-b border-[#353534] pb-3">
+                    <h3 class="text-base font-semibold text-[#e5e2e1] flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[#ecb2ff] text-[20px]">tune</span>
+                        Watermark Settings
+                    </h3>
+                </div>
 
-    <!-- Queue List -->
-    <div id="queue-zone" class="hidden w-full mt-8">
-      <div class="flex justify-between items-center mb-4">
-        <h3 class="text-xl font-headline-md text-on-surface flex items-center gap-2">
-          Selected Files <span id="queue-counter" class="bg-surface-variant text-on-surface-variant text-sm px-2 py-0.5 rounded-full">0</span>
-        </h3>
-        <div class="flex gap-2">
-          <button id="clear-btn" class="text-on-surface-variant hover:text-on-surface hover:bg-white/5 px-4 py-2 rounded-lg transition-colors font-label-md text-sm">Clear</button>
-          <button id="process-btn" class="bg-primary text-on-primary hover:shadow-[0_0_15px_rgba(236,178,255,0.4)] px-6 py-2 rounded-lg font-label-md text-sm transition-all flex items-center gap-2">
-            <span class="material-symbols-outlined text-[18px]">water_drop</span>
-            Apply Watermark
-          </button>
-        </div>
-      </div>
-      <ul id="file-list" class="space-y-2"></ul>
-    </div>
-  </main>
+                <div class="flex flex-col gap-3.5">
+                    <div>
+                        <label class="block text-xs font-medium text-[#a8a6a5] mb-1.5">Watermark Text</label>
+                        <input type="text" id="watermark-text" value="CONFIDENTIAL" placeholder="e.g. CONFIDENTIAL, DRAFT, SAMPLE">
+                    </div>
 
-  <script>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                        <div>
+                            <label class="block text-xs font-medium text-[#a8a6a5] mb-1.5">Position</label>
+                            <select id="watermark-position">
+                                <option value="center">Center</option>
+                                <option value="diagonal">Center (Diagonal) [Image Only]</option>
+                                <option value="top-left">Top Left</option>
+                                <option value="top-right">Top Right</option>
+                                <option value="bottom-left">Bottom Left</option>
+                                <option value="bottom-right">Bottom Right</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-[#a8a6a5] mb-1.5">Font Size / Scale</label>
+                            <input type="number" id="watermark-size" value="100" min="10" max="300">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 items-center">
+                        <div>
+                            <label class="block text-xs font-medium text-[#a8a6a5] mb-1.5">Text Color</label>
+                            <div class="flex items-center gap-3 bg-[#161616] p-2 border border-[#353534] rounded-lg">
+                                <input type="color" id="watermark-color" value="#ffffff" class="h-7 w-9 bg-transparent border-none cursor-pointer p-0">
+                                <span class="text-[#e5e2e1] text-xs font-mono" id="color-hex">#ffffff</span>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between items-center mb-1.5">
+                                <label class="text-xs font-medium text-[#a8a6a5]">Opacity</label>
+                                <span class="text-xs font-mono text-[#ecb2ff]" id="opacity-val">0.5</span>
+                            </div>
+                            <input type="range" id="watermark-opacity" min="0.1" max="1.0" step="0.05" value="0.5" class="w-full accent-[#ecb2ff] cursor-pointer">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT COLUMN: Selected Files Queue & Actions -->
+        <div class="queue-container">
+            <div class="queue-header">
+                <div>
+                    <div class="font-semibold text-sm text-[#e5e2e1] flex items-center gap-2">
+                        Files Queue
+                        <span id="queue-counter" class="bg-[#242323] text-[#ecb2ff] text-xs px-2 py-0.5 rounded-full font-mono">0</span>
+                    </div>
+                    <div class="text-xs text-[#a8a6a5] mt-0.5">Ready for watermarking</div>
+                </div>
+                <button id="clear-btn" class="btn-ghost">Clear All</button>
+            </div>
+
+            <!-- Empty State -->
+            <div id="empty-state" class="flex-1 flex flex-col items-center justify-center p-12 text-center text-[#a8a6a5]">
+                <span class="material-symbols-outlined text-4xl mb-3 opacity-30 text-[#ecb2ff]">inbox</span>
+                <p class="text-sm font-medium text-[#e5e2e1]">No files added yet</p>
+                <p class="text-xs text-[#a8a6a5] mt-1 max-w-xs">Upload your documents or pictures on the left to apply custom watermarks.</p>
+            </div>
+
+            <!-- File List -->
+            <ul id="file-list" class="flex-1 p-4 space-y-2 overflow-y-auto max-h-[380px] hidden"></ul>
+
+            <!-- Bottom Action Footer -->
+            <div id="action-footer" class="p-4 border-t border-[#353534] bg-[#161616] hidden">
+                <button id="process-btn" class="btn-primary w-full justify-center">
+                    <span class="material-symbols-outlined text-[20px]">water_drop</span>
+                    <span>Apply Watermark & Download</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer class="bg-[#0e0e0e] w-full py-8 border-t border-white/10 mt-auto">
+    <div class="flex flex-col md:flex-row justify-between items-center px-6 md:px-10 gap-4 max-w-7xl mx-auto w-full">
+        <div class="text-[#e5e2e1] font-bold text-lg" style="font-family: 'Libre Caslon Text', serif;">
+            SnapTool.
+        </div>
+        <div class="text-[#a8a6a5] text-sm text-center font-sans">
+            &copy; 2026 Arya Yusuf Fadilah. All processing is local. No tracking.
+        </div>
+        <div class="flex items-center gap-6">
+            <a class="text-[#a8a6a5] hover:text-[#ecb2ff] transition-colors text-sm font-sans" href="https://github.com/DINO-bit00" target="_blank" rel="noopener noreferrer">Github</a>
+        </div>
+    </div>
+</footer>
+
+<script>
     const uploadZone = document.getElementById('upload-zone');
     const fileInput = document.getElementById('file-input');
     const browseBtn = document.getElementById('browse-btn');
-    const queueZone = document.getElementById('queue-zone');
-    const settingsPanel = document.getElementById('settings-panel');
+    const emptyState = document.getElementById('empty-state');
     const fileList = document.getElementById('file-list');
     const queueCounter = document.getElementById('queue-counter');
     const clearBtn = document.getElementById('clear-btn');
     const processBtn = document.getElementById('process-btn');
+    const actionFooter = document.getElementById('action-footer');
     
     const colorInput = document.getElementById('watermark-color');
     const colorHex = document.getElementById('color-hex');
@@ -557,31 +437,36 @@
 
     function renderFileList() {
       if (selectedFiles.length === 0) {
-        queueZone.classList.add('hidden');
-        settingsPanel.classList.add('hidden');
+        emptyState.classList.remove('hidden');
+        fileList.classList.add('hidden');
+        actionFooter.classList.add('hidden');
+        queueCounter.textContent = '0';
         return;
       }
-      queueZone.classList.remove('hidden');
-      settingsPanel.classList.remove('hidden');
+      emptyState.classList.add('hidden');
+      fileList.classList.remove('hidden');
+      actionFooter.classList.remove('hidden');
       queueCounter.textContent = selectedFiles.length;
       fileList.innerHTML = '';
       
       selectedFiles.forEach((file, index) => {
         const li = document.createElement('li');
-        li.className = "flex justify-between items-center bg-surface-container border border-outline-variant/30 rounded-lg p-3";
+        li.className = "flex justify-between items-center bg-[#201f1f] border border-[#353534] rounded-lg p-3 hover:border-[#514255] transition-colors";
         
         let iconName = file.name.toLowerCase().endsWith('.pdf') ? 'picture_as_pdf' : 'image';
         
         li.innerHTML = `
           <div class="flex items-center gap-3 overflow-hidden">
-            <span class="material-symbols-outlined text-primary/70">${iconName}</span>
+            <div class="w-9 h-9 rounded-lg bg-[#161616] border border-[#353534] flex items-center justify-center flex-shrink-0">
+                <span class="material-symbols-outlined text-[#ecb2ff] text-[20px]">${iconName}</span>
+            </div>
             <div class="flex flex-col truncate">
-              <span class="text-on-surface text-sm font-body-md truncate">${file.name}</span>
-              <span class="text-on-surface-variant text-xs font-body-md">${formatBytes(file.size)}</span>
+              <span class="text-[#e5e2e1] text-sm font-medium truncate">${file.name}</span>
+              <span class="text-[#a8a6a5] text-xs">${formatBytes(file.size)}</span>
             </div>
           </div>
-          <button class="text-on-surface-variant hover:text-error transition-colors p-1" onclick="removeFile(${index})">
-            <span class="material-symbols-outlined text-[20px]">close</span>
+          <button class="text-[#a8a6a5] hover:text-[#ffb4ab] transition-colors p-1.5 rounded hover:bg-white/5" onclick="removeFile(${index})" title="Remove file">
+            <span class="material-symbols-outlined text-[18px]">close</span>
           </button>
         `;
         fileList.appendChild(li);
@@ -618,11 +503,11 @@
       e.target.value = '';
     });
 
-    uploadZone.addEventListener('dragover', (e) => { e.preventDefault(); uploadZone.classList.add('border-primary', 'bg-white/5'); });
-    uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('border-primary', 'bg-white/5'));
+    uploadZone.addEventListener('dragover', (e) => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
+    uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
     uploadZone.addEventListener('drop', (e) => {
       e.preventDefault();
-      uploadZone.classList.remove('border-primary', 'bg-white/5');
+      uploadZone.classList.remove('drag-over');
       handleFiles(e.dataTransfer.files);
     });
 
@@ -641,8 +526,8 @@
       }
 
       processBtn.disabled = true;
-      const originalText = processBtn.innerHTML;
-      processBtn.innerHTML = `<span class="material-symbols-outlined text-[18px] animate-spin">progress_activity</span> Processing...`;
+      const originalHtml = processBtn.innerHTML;
+      processBtn.innerHTML = `<span class="material-symbols-outlined text-[20px] animate-spin">progress_activity</span><span>Applying Watermark...</span>`;
 
       const formData = new FormData();
       selectedFiles.forEach(f => formData.append('files', f));
@@ -680,25 +565,11 @@
         alert(e.message);
       } finally {
         processBtn.disabled = false;
-        processBtn.innerHTML = originalText;
+        processBtn.innerHTML = originalHtml;
       }
     });
     
     setTimeout(() => document.querySelectorAll('.anim').forEach(el => el.classList.add('visible')), 50);
-  </script>
-
-  <footer class="bg-surface-container-lowest w-full py-8 border-t border-outline-variant/30 mt-auto">
-    <div class="flex flex-col md:flex-row justify-between items-center px-margin-desktop gap-gutter max-w-container-max mx-auto w-full">
-        <div class="font-headline-md text-on-surface font-bold text-lg">
-            SnapTool.
-        </div>
-        <div class="font-body-md text-body-md text-on-surface-variant text-center">
-            © 2026 Arya Yusuf Fadilah. All processing is local. No tracking.
-        </div>
-        <div class="flex items-center gap-6">
-            <a class="font-body-md text-body-md text-on-surface-variant hover:text-tertiary transition-colors" href="https://github.com/DINO-bit00" target="_blank" rel="noopener noreferrer">Github</a>
-        </div>
-    </div>
-  </footer>
+</script>
 </body>
 </html>

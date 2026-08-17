@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<title>Image to PDF - SnapTool</title>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Image to PDF - SnapTool</title>
+    
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600&family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    
     <style type="text/tailwindcss">
         @layer utilities {
             .material-symbols-outlined {
@@ -26,256 +27,285 @@
             }
         }
     </style>
+    
     <script id="tailwind-config">
         tailwind.config = {
             darkMode: "class",
             theme: {
                 extend: {
-                    "colors": {
-                        "surface-container-low": "#1c1b1b",
-                        "on-primary": "#520071",
-                        "surface-container-lowest": "#0e0e0e",
-                        "surface-variant": "#353534",
-                        "primary-fixed": "#f8d8ff",
-                        "on-primary-fixed-variant": "#74009f",
-                        "surface-bright": "#3a3939",
-                        "surface-container-high": "#2a2a2a",
-                        "outline": "#9d8ba0",
-                        "error-container": "#93000a",
-                        "tertiary-container": "#168900",
-                        "inverse-surface": "#e5e2e1",
-                        "inverse-primary": "#9900cf",
+                    colors: {
+                        "background": "#131313",
+                        "surface": "#1a1a1a",
+                        "surface-container": "#201f1f",
+                        "surface-container-high": "#262525",
+                        "outline": "#514255",
+                        "outline-variant": "#353534",
+                        "primary": "#ecb2ff",
+                        "primary-container": "#bd00ff",
+                        "secondary-container": "#00eefc",
                         "tertiary": "#2ae500",
                         "on-surface": "#e5e2e1",
-                        "on-secondary": "#00363a",
-                        "primary-container": "#bd00ff",
-                        "surface-container": "#201f1f",
-                        "on-error": "#690005",
-                        "primary": "#ecb2ff",
-                        "outline-variant": "#514255",
-                        "on-surface-variant": "#d4c0d7",
-                        "secondary": "#d3fbff",
-                        "error": "#ffb4ab",
-                        "surface-container-highest": "#353534",
-                        "on-primary-container": "#ffffff",
-                        "on-tertiary": "#053900",
-                        "secondary-container": "#00eefc",
-                        "surface-dim": "#131313",
-                        "on-background": "#e5e2e1",
-                        "tertiary-fixed": "#79ff5b",
-                        "background": "#131313",
-                        "surface": "#131313"
+                        "on-surface-variant": "#a8a6a5"
                     },
-                    "borderRadius": {
-                        "DEFAULT": "0.25rem",
-                        "lg": "0.5rem",
-                        "xl": "0.75rem",
-                        "full": "9999px"
-                    },
-                    "spacing": {
-                        "base": "8px",
-                        "gutter": "24px",
-                        "container-max": "1280px",
-                        "margin-mobile": "16px",
-                        "section-gap": "80px",
-                        "margin-desktop": "40px"
-                    },
-                    "fontFamily": {
-                        "label-md": ["Hanken Grotesk"],
-                        "headline-md": ["Libre Caslon Text"],
-                        "headline-lg": ["Libre Caslon Text"],
-                        "body-lg": ["Hanken Grotesk"],
-                        "display-lg": ["Libre Caslon Text"],
-                        "body-md": ["Hanken Grotesk"],
-                        "display-lg-mobile": ["Libre Caslon Text"]
-                    },
-                    "fontSize": {
-                        "label-md": ["14px", { "lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "600" }],
-                        "headline-md": ["24px", { "lineHeight": "1.4", "fontWeight": "400" }],
-                        "headline-lg": ["32px", { "lineHeight": "1.3", "fontWeight": "400" }],
-                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
-                        "display-lg": ["64px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "400" }],
-                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
-                        "display-lg-mobile": ["40px", { "lineHeight": "1.2", "fontWeight": "400" }]
+                    fontFamily: {
+                        "sans": ["Hanken Grotesk", "sans-serif"],
+                        "serif": ["Libre Caslon Text", "serif"]
                     }
                 }
             }
         }
     </script>
-    <!-- Legacy styles for tool functionality -->
+    
     <style>
-    :root {
-      --preview-padding: 8px;
-    }
-    .serif { font-family: 'Libre Caslon Text', serif; letter-spacing: -0.02em; }
+      :root {
+        --bg: #131313;
+        --surface: #1c1b1b;
+        --surface-high: #242323;
+        --border: #353534;
+        --text: #e5e2e1;
+        --text-muted: #a8a6a5;
+        --black: #e5e2e1;
+        --accent: #ecb2ff;
+        --pastel-blue-bg: rgba(0, 238, 252, 0.15); --pastel-blue-txt: #d3fbff;
+        --pastel-green-bg: rgba(42, 229, 0, 0.15); --pastel-green-txt: #79ff5b;
+        --pastel-red-bg: rgba(255, 180, 171, 0.15); --pastel-red-txt: #ffb4ab;
+      }
+      *, *::before, *::after { box-sizing: border-box; }
+      body { background-color: var(--bg); color: var(--text); font-family: 'Hanken Grotesk', sans-serif; }
+      .serif { font-family: 'Libre Caslon Text', serif; }
 
-    /* LAYOUT */
-    main { flex: 1; width: 100%; max-width: 1100px; margin: 0 auto; padding: 60px clamp(1.5rem, 5vw, 3rem); }
-    .page-header { margin-bottom: 40px; }
-    .page-header h1 { font-size: clamp(2.5rem, 4vw, 3.5rem); color: #e5e2e1; margin-bottom: 16px; font-weight: 500; line-height: 1.1; }
-    .page-header p { font-size: 1.125rem; color: #d4c0d7; max-width: 52ch; }
+      /* Page Header */
+      .page-header { margin-bottom: 40px; }
+      .page-header h1, h1.serif {
+        font-family: 'Libre Caslon Text', serif !important;
+        font-size: clamp(2.25rem, 4vw, 3.25rem) !important;
+        color: #ecb2ff !important;
+        margin-bottom: 12px !important;
+        font-weight: 500 !important;
+        line-height: 1.15 !important;
+        letter-spacing: -0.01em !important;
+        text-shadow: 0 0 30px rgba(236, 178, 255, 0.25) !important;
+      }
+      .page-header p {
+        font-size: 1.05rem !important;
+        color: var(--text-muted) !important;
+        max-width: 56ch !important;
+        line-height: 1.6 !important;
+      }
 
-    .two-col { display: grid; grid-template-columns: 1fr; gap: 40px; align-items: start; }
-    @media (min-width: 900px) { .two-col { grid-template-columns: 1fr 320px; } }
+      /* Two Column Layout */
+      .two-col { display: grid; grid-template-columns: 1fr; gap: 32px; align-items: start; }
+      @media (min-width: 860px) { .two-col { grid-template-columns: 1fr 1fr; } }
 
-    /* BUTTONS */
-    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: #bd00ff; color: #fff; padding: 10px 20px; border-radius: 6px; font-size: 0.875rem; font-weight: 500; border: none; cursor: pointer; transition: background 0.15s, transform 0.1s; font-family: 'Hanken Grotesk', sans-serif; }
-    .btn:hover { background: #9900cf; }
-    .btn:active { transform: scale(0.98); }
-    .btn:disabled { background: #353534; color: #9d8ba0; cursor: not-allowed; transform: none; }
-    .btn-ghost { background: transparent; border: 1px solid #514255; color: #d4c0d7; }
-    .btn-ghost:hover { background: #1c1b1b; }
+      /* Upload Zone */
+      #upload-zone {
+        background: var(--surface);
+        border: 1px dashed var(--border);
+        border-radius: 12px;
+        padding: 48px 32px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 260px;
+      }
+      #upload-zone:hover, #upload-zone.drag-over {
+        background: #242323;
+        border-color: #ecb2ff;
+        box-shadow: 0 0 25px rgba(236, 178, 255, 0.1);
+      }
+      .upload-icon { margin-bottom: 16px; color: #ecb2ff; font-size: 40px !important; }
 
-    /* LEFT COL - OPTIONS */
-    .options-card { background: #1c1b1b; border: 1px solid #514255; border-radius: 8px; padding: 24px; position: sticky; top: 100px; }
-    .options-card h3 { font-size: 1rem; color: #e5e2e1; font-weight: 500; margin-bottom: 24px; }
-    .option-group { margin-bottom: 24px; }
-    .option-label { font-size: 0.75rem; color: #d4c0d7; text-transform: uppercase; letter-spacing: 0.05em; font-family: monospace; margin-bottom: 12px; display: block; }
+      /* Buttons */
+      .btn, .btn-primary {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        background: linear-gradient(135deg, #bd00ff 0%, #74009f 100%) !important;
+        color: #fff !important;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        border: none !important;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: 0 0 15px rgba(189, 0, 255, 0.35);
+      }
+      .btn:hover:not(:disabled), .btn-primary:hover:not(:disabled) {
+        background: linear-gradient(135deg, #d338ff 0%, #8e00c4 100%) !important;
+        box-shadow: 0 0 22px rgba(189, 0, 255, 0.55);
+        transform: translateY(-1px);
+      }
+      .btn:disabled, .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+      
+      .btn-ghost {
+        background: transparent !important;
+        border: 1px solid var(--border) !important;
+        color: var(--text-muted) !important;
+        padding: 6px 14px;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: none !important;
+      }
+      .btn-ghost:hover { background: var(--surface-high) !important; color: var(--text) !important; border-color: rgba(255,255,255,0.2) !important; }
 
-    .select-pill-group { display: flex; gap: 8px; flex-wrap: wrap; }
-    .select-pill { padding: 8px 16px; border: 1px solid #514255; border-radius: 6px; background: #1c1b1b; color: #d4c0d7; font-size: 0.875rem; cursor: pointer; transition: all 0.15s; flex: 1; text-align: center; }
-    .select-pill:hover { border-color: #9d8ba0; color: #e5e2e1; background: #201f1f; }
-    .select-pill.active { border-color: #ecb2ff; background: #bd00ff; color: #ffffff; }
+      /* Queue Container */
+      .queue-container {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        overflow: hidden;
+        min-height: 420px;
+        display: flex;
+        flex-direction: column;
+      }
+      .queue-header {
+        padding: 18px 24px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: #161616;
+      }
+      .queue-title { font-weight: 600; color: #e5e2e1; font-size: 0.9375rem; }
+      .queue-meta { font-size: 0.75rem; color: #a8a6a5; font-family: monospace; }
 
-    /* RIGHT COL - UPLOAD & GRID */
-    #upload-zone { background: #1c1b1b; border: 1px dashed #514255; border-radius: 8px; padding: 60px 40px; text-align: center; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; margin-bottom: 24px; }
-    #upload-zone:hover, #upload-zone.drag-over { background: #201f1f; border-color: #9d8ba0; }
+      .options-panel, .options-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 20px;
+      }
 
-    #grid-header { display: flex; align-items: center; justify-content: flex-start; gap: 40px; margin-bottom: 16px; display: none; }
-    #grid-header h4 { font-weight: 500; color: #e5e2e1; font-size: 1rem; }
-    #clear-all-btn { font-size: 0.75rem; color: #ffb4ab; background: transparent; border: none; cursor: pointer; }
-    #clear-all-btn:hover { text-decoration: underline; }
-
-    #images-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; }
-
-    /* IMAGE CARD */
-    .img-card { background: #1c1b1b; border: 1px solid #514255; border-radius: 6px; overflow: hidden; position: relative; user-select: none; transition: transform 0.2s, box-shadow 0.2s; }
-    .img-card.dragging { opacity: 0.5; box-shadow: 0 12px 32px rgba(0,0,0,0.3); }
-    .img-card.drag-target { border: 2px dashed #ecb2ff; }
-
-    .thumb-wrap { width: 100%; aspect-ratio: 1/1.414; background: #201f1f; background-image: linear-gradient(45deg, #2a2a2a 25%, transparent 25%, transparent 75%, #2a2a2a 75%), linear-gradient(45deg, #2a2a2a 25%, transparent 25%, transparent 75%, #2a2a2a 75%); background-size: 10px 10px; background-position: 0 0, 5px 5px; position: relative; cursor: grab; padding: var(--preview-padding); transition: padding 0.2s ease; }
-    .thumb-wrap img { width: 100%; height: 100%; object-fit: contain; }
-
-    .remove-btn { position: absolute; top: 8px; right: 8px; width: 28px; height: 28px; border-radius: 6px; background: #1c1b1b; border: 1px solid #514255; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #d4c0d7; opacity: 0.8; transition: all 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.3); }
-    .img-card:hover .remove-btn { opacity: 1; }
-    .remove-btn:hover { color: #fff; background: #93000a; border-color: #93000a; }
-
-    .card-meta { padding: 12px; border-top: 1px solid #514255; display: flex; justify-content: flex-start; gap: 40px; align-items: center; }
-    .card-idx { font-family: monospace; font-size: 0.6875rem; color: #d4c0d7; }
-    .orientation-btn { width: auto; padding: 0 12px; height: 28px; border: 1px solid #514255; border-radius: 4px; background: #131313; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #e5e2e1; font-size: 0.75rem; font-weight: 500; font-family: 'Hanken Grotesk', sans-serif; transition: all 0.2s; }
-    .orientation-btn:hover { border-color: #9d8ba0; background: #1c1b1b; }
-
-    /* LOADER */
-    #loader-overlay { position: fixed; inset: 0; background: rgba(19,19,19,0.85); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 200; }
-    .spinner { border: 2px solid #514255; border-top-color: #ecb2ff; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* ANIMATIONS */
-    .anim { opacity: 0; transform: translateY(12px); transition: opacity 0.5s ease-out, transform 0.5s ease-out; }
-    .anim.visible { opacity: 1; transform: translateY(0); }
-
-    #error-msg { color: #ffb4ab; font-size: 0.75rem; margin-top: 12px; display: none; }
-    </style>
-
-    <style>
-      /* Force dark theme on inputs/selects to override Tailwind forms plugin */
-      input[type="text"], input[type="number"], input[type="password"], select {
-        background-color: #1c1b1b !important;
-        color: #f0f0f4 !important;
+      /* Form inputs override */
+      input[type="text"], input[type="number"], input[type="password"], input[type="search"], textarea, select {
+        background-color: #161616 !important;
+        color: #e5e2e1 !important;
+        border: 1px solid #353534 !important;
+        border-radius: 8px !important;
+        padding: 10px 14px !important;
+        font-size: 0.875rem !important;
+        outline: none !important;
+        transition: border-color 0.2s !important;
+      }
+      input[type="text"]:focus, input[type="number"]:focus, input[type="password"]:focus, input[type="search"]:focus, textarea:focus, select:focus {
+        border-color: #ecb2ff !important;
+        box-shadow: 0 0 0 2px rgba(236, 178, 255, 0.2) !important;
       }
       select option {
-        background-color: #1c1b1b !important;
-        color: #f0f0f4 !important;
+        background-color: #161616 !important;
+        color: #e5e2e1 !important;
       }
+
+      .file-item { display: flex; align-items: center; gap: 14px; padding: 14px 20px; border-bottom: 1px solid var(--border); }
+      .file-item:last-child { border-bottom: none; }
+      .file-thumb { width: 36px; height: 36px; border-radius: 8px; background: #161616; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+
+      .badge { padding: 3px 8px; border-radius: 9999px; font-size: 0.7rem; font-family: monospace; letter-spacing: 0.05em; text-transform: uppercase; }
+      .badge-green { background: rgba(42, 229, 0, 0.15); color: #79ff5b; border: 1px solid rgba(42, 229, 0, 0.3); }
+      .badge-red   { background: rgba(255, 180, 171, 0.15); color: #ffb4ab; border: 1px solid rgba(255, 180, 171, 0.3); }
+      .badge-blue  { background: rgba(0, 238, 252, 0.15); color: #d3fbff; border: 1px solid rgba(0, 238, 252, 0.3); }
+
+      /* Animations */
+      .anim { opacity: 0; transform: translateY(12px); transition: opacity 0.5s ease-out, transform 0.5s ease-out; }
+      .anim.visible { opacity: 1; transform: translateY(0); }
+      @keyframes spin { to { transform: rotate(360deg); } }
+      .spinning { animation: spin 1s linear infinite; }
     </style>
+
 </head>
 
 <body class="bg-background text-on-background min-h-screen flex flex-col antialiased dark">
-<nav class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl border-b border-white/10 shadow-sm">
+<nav class="fixed top-0 w-full z-50 bg-[#131313]/85 backdrop-blur-xl border-b border-white/10 shadow-sm">
     <div class="flex justify-between items-center w-full px-6 md:px-10 py-4 max-w-7xl mx-auto">
-        <a href="/" class="font-headline-md text-headline-md font-bold text-on-surface drop-shadow-[0_0_10px_rgba(236,178,255,0.5)]">
+        <a href="/" class="font-headline-md text-2xl font-bold text-[#e5e2e1] drop-shadow-[0_0_12px_rgba(236,178,255,0.45)] hover:text-white transition-colors" style="font-family: 'Libre Caslon Text', serif;">
             SnapTool.
         </a>
         
         <!-- Mobile Menu Button -->
-        <button id="mobile-menu-btn" class="md:hidden text-on-surface p-2 rounded-lg hover:bg-white/5 transition-colors">
-            <span class="material-symbols-outlined">menu</span>
+        <button id="mobile-menu-btn" class="md:hidden text-on-surface p-2 rounded-lg hover:bg-white/5 transition-colors focus:outline-none" aria-label="Toggle navigation">
+            <span class="material-symbols-outlined text-[24px]">menu</span>
         </button>
 
         <!-- Nav Links (Desktop & Mobile) -->
-        <div id="nav-links" class="hidden absolute top-full left-0 w-full bg-[#16161c] border-b border-white/10 flex-col py-4 px-6 gap-2 md:static md:flex md:flex-row md:w-auto md:bg-transparent md:border-none md:py-0 md:px-0 md:gap-6 z-50 shadow-xl md:shadow-none">
+        <div id="nav-links" class="hidden absolute top-full left-0 w-full bg-[#181818] border-b border-white/10 flex-col py-5 px-6 gap-3 md:static md:flex md:flex-row md:w-auto md:bg-transparent md:border-none md:py-0 md:px-0 md:gap-6 z-50 shadow-2xl md:shadow-none">
             <!-- Convert Dropdown -->
             <div class="relative group">
-                <button class="text-on-surface-variant hover:text-on-surface transition-colors hover:bg-white/5 rounded-lg transition-all duration-300 px-3 py-2 font-body-md text-body-md flex items-center justify-between w-full md:w-auto gap-1">
-                    Convert <span class="material-symbols-outlined text-[16px] group-hover:rotate-180 transition-transform">expand_more</span>
+                <button class="text-[#a8a6a5] hover:text-[#e5e2e1] hover:bg-white/5 rounded-lg transition-all duration-200 px-3 py-2 text-sm font-medium flex items-center justify-between w-full md:w-auto gap-1">
+                    Convert <span class="material-symbols-outlined text-[16px] group-hover:rotate-180 transition-transform duration-200">expand_more</span>
                 </button>
-                <div class="hidden group-hover:block md:absolute left-0 top-full pt-2 z-50 w-full md:w-48 pl-4 md:pl-0">
-                    <div class="flex flex-col md:bg-[#1c1b1b] md:border border-white/10 md:rounded-lg md:shadow-xl py-2 overflow-hidden border-l border-white/5 md:border-l-0">
-                        <a href="/word-to-pdf" class="px-4 py-2 text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-colors text-sm">Word &#8594; PDF</a>
-                        <a href="/pdf-to-word" class="px-4 py-2 text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-colors text-sm">PDF &#8594; Word</a>
-                        <a href="/pdf-to-md" class="px-4 py-2 text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-colors text-sm">PDF &#8594; MD</a>
-                        <a href="/img-to-pdf" class="px-4 py-2 text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-colors text-sm">Image &#8594; PDF</a>
-                        <a href="/pdf-to-img" class="px-4 py-2 text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-colors text-sm">PDF &#8594; Image</a>
+                <div class="hidden group-hover:block md:absolute left-0 top-full pt-2 z-50 w-full md:w-48 pl-3 md:pl-0">
+                    <div class="flex flex-col bg-[#1c1b1b] md:border border-white/10 md:rounded-xl md:shadow-2xl py-2 overflow-hidden border-l border-white/10 md:border-l-0">
+                        <a href="/word-to-pdf" class="px-4 py-2.5 text-[#a8a6a5] hover:text-white hover:bg-white/5 transition-colors text-sm flex items-center gap-2">Word &#8594; PDF</a>
+                        <a href="/pdf-to-word" class="px-4 py-2.5 text-[#a8a6a5] hover:text-white hover:bg-white/5 transition-colors text-sm flex items-center gap-2">PDF &#8594; Word</a>
+                        <a href="/pdf-to-md" class="px-4 py-2.5 text-[#a8a6a5] hover:text-white hover:bg-white/5 transition-colors text-sm flex items-center gap-2">PDF &#8594; MD</a>
+                        <a href="/img-to-pdf" class="px-4 py-2.5 text-[#a8a6a5] hover:text-white hover:bg-white/5 transition-colors text-sm flex items-center gap-2">Image &#8594; PDF</a>
+                        <a href="/pdf-to-img" class="px-4 py-2.5 text-[#a8a6a5] hover:text-white hover:bg-white/5 transition-colors text-sm flex items-center gap-2">PDF &#8594; Image</a>
                     </div>
                 </div>
             </div>
             <!-- PDF Tools Dropdown -->
             <div class="relative group">
-                <button class="text-on-surface-variant hover:text-on-surface transition-colors hover:bg-white/5 rounded-lg transition-all duration-300 px-3 py-2 font-body-md text-body-md flex items-center justify-between w-full md:w-auto gap-1">
-                    PDF Tools <span class="material-symbols-outlined text-[16px] group-hover:rotate-180 transition-transform">expand_more</span>
+                <button class="text-[#a8a6a5] hover:text-[#e5e2e1] hover:bg-white/5 rounded-lg transition-all duration-200 px-3 py-2 text-sm font-medium flex items-center justify-between w-full md:w-auto gap-1">
+                    PDF Tools <span class="material-symbols-outlined text-[16px] group-hover:rotate-180 transition-transform duration-200">expand_more</span>
                 </button>
-                <div class="hidden group-hover:block md:absolute left-0 top-full pt-2 z-50 w-full md:w-48 pl-4 md:pl-0">
-                    <div class="flex flex-col md:bg-[#1c1b1b] md:border border-white/10 md:rounded-lg md:shadow-xl py-2 overflow-hidden border-l border-white/5 md:border-l-0">
-                        <a href="/doc-tools" class="px-4 py-2 text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-colors text-sm">Merge &amp; Split</a>
-                        <a href="/compress-pdf" class="px-4 py-2 text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-colors text-sm">Compress</a>
-                        <a href="/protect-pdf" class="px-4 py-2 text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-colors text-sm">Lock / Unlock</a>
-                        <a href="/watermark" class="px-4 py-2 text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-colors text-sm">Watermark</a>
+                <div class="hidden group-hover:block md:absolute left-0 top-full pt-2 z-50 w-full md:w-48 pl-3 md:pl-0">
+                    <div class="flex flex-col bg-[#1c1b1b] md:border border-white/10 md:rounded-xl md:shadow-2xl py-2 overflow-hidden border-l border-white/10 md:border-l-0">
+                        <a href="/doc-tools" class="px-4 py-2.5 text-[#a8a6a5] hover:text-white hover:bg-white/5 transition-colors text-sm">Merge &amp; Split</a>
+                        <a href="/compress-pdf" class="px-4 py-2.5 text-[#a8a6a5] hover:text-white hover:bg-white/5 transition-colors text-sm">Compress</a>
+                        <a href="/protect-pdf" class="px-4 py-2.5 text-[#a8a6a5] hover:text-white hover:bg-white/5 transition-colors text-sm">Lock / Unlock</a>
+                        <a href="/watermark" class="px-4 py-2.5 text-[#a8a6a5] hover:text-white hover:bg-white/5 transition-colors text-sm">Watermark</a>
                     </div>
                 </div>
             </div>
             <!-- Image Dropdown -->
             <div class="relative group">
-                <button class="text-on-surface-variant hover:text-on-surface transition-colors hover:bg-white/5 rounded-lg transition-all duration-300 px-3 py-2 font-body-md text-body-md flex items-center justify-between w-full md:w-auto gap-1">
-                    Image <span class="material-symbols-outlined text-[16px] group-hover:rotate-180 transition-transform">expand_more</span>
+                <button class="text-[#a8a6a5] hover:text-[#e5e2e1] hover:bg-white/5 rounded-lg transition-all duration-200 px-3 py-2 text-sm font-medium flex items-center justify-between w-full md:w-auto gap-1">
+                    Image <span class="material-symbols-outlined text-[16px] group-hover:rotate-180 transition-transform duration-200">expand_more</span>
                 </button>
-                <div class="hidden group-hover:block md:absolute left-0 top-full pt-2 z-50 w-full md:w-56 pl-4 md:pl-0">
-                    <div class="flex flex-col md:bg-[#1c1b1b] md:border border-white/10 md:rounded-lg md:shadow-xl py-2 overflow-hidden border-l border-white/5 md:border-l-0">
-                        <a href="/bg-remover" class="px-4 py-2 text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-colors text-sm">Background Remover</a>
-                        <a href="/smart-crop" class="px-4 py-2 text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-colors text-sm">Smart Crop</a>
-                        <a href="/image-upscaler" class="px-4 py-2 text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-colors text-sm">AI Upscaler</a>
+                <div class="hidden group-hover:block md:absolute left-0 top-full pt-2 z-50 w-full md:w-56 pl-3 md:pl-0">
+                    <div class="flex flex-col bg-[#1c1b1b] md:border border-white/10 md:rounded-xl md:shadow-2xl py-2 overflow-hidden border-l border-white/10 md:border-l-0">
+                        <a href="/bg-remover" class="px-4 py-2.5 text-[#a8a6a5] hover:text-white hover:bg-white/5 transition-colors text-sm">Background Remover</a>
+                        <a href="/smart-crop" class="px-4 py-2.5 text-[#a8a6a5] hover:text-white hover:bg-white/5 transition-colors text-sm">Smart Crop</a>
+                        <a href="/image-upscaler" class="px-4 py-2.5 text-[#a8a6a5] hover:text-white hover:bg-white/5 transition-colors text-sm">AI Upscaler</a>
                     </div>
                 </div>
             </div>
-            <a class="text-on-surface-variant hover:text-on-surface transition-colors hover:bg-white/5 rounded-lg px-3 py-2 font-body-md text-body-md w-full md:w-auto text-left" href="/">About</a>
+            <a class="text-[#a8a6a5] hover:text-[#e5e2e1] hover:bg-white/5 rounded-lg px-3 py-2 text-sm font-medium transition-colors w-full md:w-auto text-left" href="/#tools">Tools</a>
             
-            <a href="/" class="md:hidden bg-gradient-to-r from-primary-container to-secondary-container text-white px-4 py-2 rounded-lg font-label-md text-label-md text-center mt-4 shadow-[0_0_15px_rgba(189,0,255,0.2)]">
+            <a href="/" class="md:hidden bg-gradient-to-r from-[#bd00ff] to-[#00eefc] text-white px-4 py-2.5 rounded-lg text-sm font-semibold text-center mt-3 shadow-[0_0_15px_rgba(189,0,255,0.3)]">
                 Home
             </a>
         </div>
         <div class="hidden md:flex items-center gap-4">
-            <a href="/" class="bg-gradient-to-r from-primary-container to-secondary-container text-white px-4 py-2 rounded-lg font-label-md text-label-md hover:shadow-[0_0_15px_rgba(189,0,255,0.4)] transition-all duration-300 text-[14px]">
+            <a href="/" class="bg-gradient-to-r from-[#bd00ff] to-[#00eefc] text-white px-4 py-2 rounded-lg text-sm font-semibold hover:shadow-[0_0_18px_rgba(189,0,255,0.45)] hover:scale-[1.02] active:scale-[0.98] transition-all duration-300">
                 Home
             </a>
         </div>
     </div>
     <script>
-        const btn = document.getElementById('mobile-menu-btn');
-        if(btn) {
-            btn.addEventListener('click', function() {
-                const navLinks = document.getElementById('nav-links');
-                if (navLinks.classList.contains('hidden')) {
-                    navLinks.classList.remove('hidden');
-                    navLinks.classList.add('flex');
-                } else {
-                    navLinks.classList.add('hidden');
-                    navLinks.classList.remove('flex');
-                }
-            });
-        }
+        (function() {
+            const btn = document.getElementById('mobile-menu-btn');
+            if(btn) {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const navLinks = document.getElementById('nav-links');
+                    navLinks.classList.toggle('hidden');
+                    navLinks.classList.toggle('flex');
+                });
+            }
+        })();
     </script>
 </nav>
 
-  <main class="pt-24">
+  <main class="flex-1 w-full max-w-7xl mx-auto px-6 md:px-10 pt-28 pb-16">
     <div class="page-header anim">
       <h1 class="serif">Image to PDF.</h1>
       <p>Compile multiple images into a clean A4 PDF document. Drag to reorder, choose layout per image, and convert locally.</p>
@@ -330,16 +360,16 @@
     </div>
   </div>
 
-<footer class="bg-surface-container-lowest w-full py-8 border-t border-outline-variant/30 mt-auto">
-    <div class="flex flex-col md:flex-row justify-between items-center px-margin-desktop gap-gutter max-w-container-max mx-auto w-full">
-        <div class="font-headline-md text-on-surface font-bold text-lg">
+<footer class="bg-[#0e0e0e] w-full py-8 border-t border-white/10 mt-auto">
+    <div class="flex flex-col md:flex-row justify-between items-center px-6 md:px-10 gap-4 max-w-7xl mx-auto w-full">
+        <div class="text-[#e5e2e1] font-bold text-lg" style="font-family: 'Libre Caslon Text', serif;">
             SnapTool.
         </div>
-        <div class="font-body-md text-body-md text-on-surface-variant text-center">
-            &#169; 2026 Arya Yusuf Fadilah. All processing is local. No tracking.
+        <div class="text-[#a8a6a5] text-sm text-center font-sans">
+            &copy; 2026 Arya Yusuf Fadilah. All processing is local. No tracking.
         </div>
         <div class="flex items-center gap-6">
-            <a class="font-body-md text-body-md text-on-surface-variant hover:text-tertiary transition-colors" href="https://github.com/DINO-bit00" target="_blank" rel="noopener noreferrer">Github</a>
+            <a class="text-[#a8a6a5] hover:text-[#ecb2ff] transition-colors text-sm font-sans" href="https://github.com/DINO-bit00" target="_blank" rel="noopener noreferrer">Github</a>
         </div>
     </div>
 </footer>
