@@ -94,24 +94,11 @@
       }
 
       /* Two Column Layout */
-      .two-col { display: grid; grid-template-columns: 1fr; gap: 32px; align-items: start; }
-      @media (min-width: 860px) { .two-col { grid-template-columns: 1fr 1fr; } }
+      .two-col { display: grid; grid-template-columns: 1fr; gap: 32px; align-items: stretch; } @media (min-width: 860px) { .two-col { grid-template-columns: 1fr 1fr; } }
+      @media (min-width: 860px) { .two-col { display: grid; grid-template-columns: 1fr; gap: 32px; align-items: stretch; } @media (min-width: 860px) { .two-col { grid-template-columns: 1fr 1fr; } } }
 
       /* Upload Zone */
-      #upload-zone {
-        background: var(--surface);
-        border: 1px dashed var(--border);
-        border-radius: 12px;
-        padding: 48px 32px;
-        text-align: center;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        min-height: 260px;
-      }
+      #upload-zone { background: var(--surface); border: 1.5px dashed var(--border); border-radius: 16px; padding: 40px 28px; text-align: center; cursor: pointer; transition: all 0.2s ease; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 420px; height: 100%; } #upload-zone:hover, #upload-zone.drag-over { background: #222121; border-color: #ecb2ff; box-shadow: 0 0 25px rgba(236, 178, 255, 0.12); }
       #upload-zone:hover, #upload-zone.drag-over {
         background: #242323;
         border-color: #ecb2ff;
@@ -157,15 +144,7 @@
       .btn-ghost:hover { background: var(--surface-high) !important; color: var(--text) !important; border-color: rgba(255,255,255,0.2) !important; }
 
       /* Queue Container */
-      .queue-container {
-        background: var(--surface);
-        border: 1px solid var(--border);
-        border-radius: 12px;
-        overflow: hidden;
-        min-height: 420px;
-        display: flex;
-        flex-direction: column;
-      }
+      .queue-container { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; min-height: 420px; height: 100%; display: flex; flex-direction: column; }
       .queue-header {
         padding: 18px 24px;
         border-bottom: 1px solid var(--border);
@@ -214,12 +193,93 @@
       .badge-blue  { background: rgba(0, 238, 252, 0.15); color: #d3fbff; border: 1px solid rgba(0, 238, 252, 0.3); }
 
       /* Animations */
-      .anim { opacity: 0; transform: translateY(12px); transition: opacity 0.5s ease-out, transform 0.5s ease-out; }
+      .anim { opacity: 1; transform: translateY(0); }
       .anim.visible { opacity: 1; transform: translateY(0); }
       @keyframes spin { to { transform: rotate(360deg); } }
       .spinning { animation: spin 1s linear infinite; }
-    </style>
+    
+      /* Smart Crop Custom Controls */
+      .options-panel {
+        background: #1a1a1a;
+        border: 1px solid #353534;
+        border-radius: 16px;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+      .input-group { display: flex; flex-direction: column; gap: 6px; }
+      .input-group label { font-size: 0.8rem; font-weight: 600; color: #a8a6a5; text-transform: uppercase; letter-spacing: 0.05em; }
+      
+      .toggle-container {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        cursor: pointer;
+        user-select: none;
+        background: #161616;
+        padding: 12px 16px;
+        border: 1px solid #353534;
+        border-radius: 10px;
+      }
+      .toggle-switch {
+        position: relative;
+        width: 44px;
+        height: 24px;
+        background: #2e2d2d;
+        border-radius: 999px;
+        transition: background 0.3s;
+        border: 1px solid #353534;
+        flex-shrink: 0;
+      }
+      .toggle-switch::after {
+        content: '';
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        width: 18px;
+        height: 18px;
+        background: #a8a6a5;
+        border-radius: 50%;
+        transition: transform 0.3s, background 0.3s;
+      }
+      input[type="checkbox"] { display: none !important; }
+      input[type="checkbox"]:checked + .toggle-switch { background: #bd00ff; border-color: #ecb2ff; }
+      input[type="checkbox"]:checked + .toggle-switch::after { transform: translateX(20px); background: #ffffff; }
+      .toggle-label { font-size: 0.875rem; font-weight: 600; color: #e5e2e1; }
+      .toggle-desc { font-size: 0.75rem; color: #a8a6a5; }
 
+      #upload-zone { background: var(--surface); border: 1.5px dashed var(--border); border-radius: 16px; padding: 40px 28px; text-align: center; cursor: pointer; transition: all 0.2s ease; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 420px; height: 100%; } #upload-zone:hover, #upload-zone.drag-over { background: #222121; border-color: #ecb2ff; box-shadow: 0 0 25px rgba(236, 178, 255, 0.12); }
+      
+      #hover-preview {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(0.95);
+        background: #1a1a1a;
+        border: 1px solid #514255;
+        box-shadow: 0 24px 64px rgba(0,0,0,0.8);
+        border-radius: 16px;
+        padding: 16px;
+        z-index: 1000;
+        opacity: 0;
+        pointer-events: none;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: clamp(300px, 50vw, 520px);
+        height: clamp(300px, 50vw, 520px);
+      }
+      #hover-preview.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+      .checker-bg {
+        background-color: #161616;
+        background-image: linear-gradient(45deg, #242323 25%, transparent 25%, transparent 75%, #242323 75%), linear-gradient(45deg, #242323 25%, transparent 25%, transparent 75%, #242323 75%);
+        background-size: 12px 12px;
+        background-position: 0 0, 6px 6px;
+      }
+    
+    </style>
 </head>
 
 <body class="bg-background text-on-background min-h-screen flex flex-col antialiased dark">

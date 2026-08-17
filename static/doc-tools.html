@@ -123,20 +123,7 @@
       }
 
       /* Upload Zone */
-      #upload-zone {
-        background: #161616;
-        border: 1px dashed var(--border);
-        border-radius: 12px;
-        padding: 48px 32px;
-        text-align: center;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        min-height: 260px;
-      }
+      #upload-zone { background: var(--surface); border: 1.5px dashed var(--border); border-radius: 16px; padding: 40px 28px; text-align: center; cursor: pointer; transition: all 0.2s ease; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 420px; height: 100%; } #upload-zone:hover, #upload-zone.drag-over { background: #222121; border-color: #ecb2ff; box-shadow: 0 0 25px rgba(236, 178, 255, 0.12); }
       #upload-zone:hover, #upload-zone.drag-over {
         background: #201f1f;
         border-color: #ecb2ff;
@@ -260,7 +247,7 @@
       }
 
       /* Animations */
-      .anim { opacity: 0; transform: translateY(12px); transition: opacity 0.5s ease-out, transform 0.5s ease-out; }
+      .anim { opacity: 1; transform: translateY(0); }
       .anim.visible { opacity: 1; transform: translateY(0); }
       @keyframes spin { 100% { transform: rotate(360deg); } }
       .spinner { animation: spin 1s linear infinite; }
