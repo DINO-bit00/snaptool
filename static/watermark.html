@@ -7,6 +7,7 @@
     
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     
     <style type="text/tailwindcss">
         @layer utilities {
@@ -26,9 +27,6 @@
                 -webkit-font-smoothing: antialiased;
             }
         }
-    
-      
-
     </style>
     
     <script id="tailwind-config">
@@ -60,11 +58,9 @@
     </script>
     
     <style>
-      #empty-state { flex: 1 !important; display: flex !important; flex-direction: column !important; align-items: center !important; justify-content: center !important; padding: 48px 24px !important; text-align: center !important; color: #a8a6a5 !important; }
-
       :root {
         --bg: #131313;
-        --surface: #1c1b1b;
+        --surface: #1a1a1a;
         --surface-high: #242323;
         --border: #353534;
         --text: #e5e2e1;
@@ -76,42 +72,54 @@
       .serif { font-family: 'Libre Caslon Text', serif; }
 
       /* Page Header */
-      .page-header { margin-bottom: 40px; }
+      .page-header { margin-bottom: 36px; }
       .page-header h1 {
-        font-family: 'Libre Caslon Text', serif;
-        font-size: clamp(2.25rem, 4vw, 3.25rem);
-        color: #ecb2ff;
-        margin-bottom: 12px;
-        font-weight: 500;
-        line-height: 1.15;
-        letter-spacing: -0.01em;
-        text-shadow: 0 0 30px rgba(236, 178, 255, 0.25);
+        font-family: 'Libre Caslon Text', serif !important;
+        font-size: clamp(2.25rem, 4vw, 3.25rem) !important;
+        color: #ecb2ff !important;
+        margin-bottom: 12px !important;
+        font-weight: 500 !important;
+        line-height: 1.15 !important;
+        letter-spacing: -0.01em !important;
+        text-shadow: 0 0 30px rgba(236, 178, 255, 0.25) !important;
       }
       .page-header p {
-        font-size: 1.05rem;
-        color: var(--text-muted);
-        max-width: 56ch;
-        line-height: 1.6;
+        font-size: 1.05rem !important;
+        color: var(--text-muted) !important;
+        max-width: 58ch !important;
+        line-height: 1.6 !important;
       }
 
       /* Two Column Layout */
-      .two-col { display: grid; grid-template-columns: 1fr; gap: 32px; align-items: stretch; } @media (min-width: 860px) { .two-col { grid-template-columns: 1fr 1fr; } }
-      @media (min-width: 860px) { .two-col { display: grid; grid-template-columns: 1fr; gap: 32px; align-items: stretch; } @media (min-width: 860px) { .two-col { grid-template-columns: 1fr 1fr; } } }
+      .two-col { display: grid; grid-template-columns: 1fr; gap: 32px; align-items: start; }
+      @media (min-width: 900px) { .two-col { grid-template-columns: 1.1fr 0.9fr; } }
 
       /* Upload Zone */
-      #upload-zone { background: var(--surface); border: 1.5px dashed var(--border); border-radius: 16px; padding: 40px 28px; text-align: center; cursor: pointer; transition: all 0.2s ease; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 420px; height: 100%; } #upload-zone:hover, #upload-zone.drag-over { background: #222121; border-color: #ecb2ff; box-shadow: 0 0 25px rgba(236, 178, 255, 0.12); }
-      #upload-zone:hover, #upload-zone.drag-over {
-        background: #242323;
-        border-color: #ecb2ff;
-        box-shadow: 0 0 25px rgba(236, 178, 255, 0.1);
+      #upload-zone {
+        background: #161616;
+        border: 1.5px dashed var(--border);
+        border-radius: 14px;
+        padding: 32px 20px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
       }
-      .upload-icon { margin-bottom: 16px; color: #ecb2ff; font-size: 40px !important; }
+      #upload-zone:hover, #upload-zone.drag-over {
+        background: #201f1f;
+        border-color: #ecb2ff;
+        box-shadow: 0 0 25px rgba(236, 178, 255, 0.12);
+      }
+      .upload-icon { margin-bottom: 12px; color: #ecb2ff; font-size: 38px !important; }
 
-      /* Settings Panel Card */
-      .settings-card {
+      /* Cards */
+      .tool-card {
         background: var(--surface);
         border: 1px solid var(--border);
-        border-radius: 12px;
+        border-radius: 16px;
         padding: 24px;
       }
 
@@ -121,46 +129,35 @@
         align-items: center;
         justify-content: center;
         gap: 8px;
-        background: linear-gradient(135deg, #bd00ff 0%, #74009f 100%);
-        color: #fff;
+        background: linear-gradient(135deg, #bd00ff 0%, #74009f 100%) !important;
+        color: #fff !important;
         padding: 12px 24px;
-        border-radius: 8px;
+        border-radius: 10px;
         font-size: 0.9rem;
         font-weight: 600;
-        border: none;
+        border: none !important;
         cursor: pointer;
         transition: all 0.2s ease;
-        box-shadow: 0 0 15px rgba(189, 0, 255, 0.35);
+        box-shadow: 0 0 16px rgba(189, 0, 255, 0.35);
       }
       .btn-primary:hover:not(:disabled) {
-        background: linear-gradient(135deg, #d338ff 0%, #8e00c4 100%);
-        box-shadow: 0 0 22px rgba(189, 0, 255, 0.55);
+        background: linear-gradient(135deg, #d338ff 0%, #8e00c4 100%) !important;
+        box-shadow: 0 0 24px rgba(189, 0, 255, 0.55);
         transform: translateY(-1px);
       }
       .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
       
       .btn-ghost {
-        background: transparent;
-        border: 1px solid var(--border);
-        color: var(--text-muted);
-        padding: 8px 16px;
+        background: transparent !important;
+        border: 1px solid var(--border) !important;
+        color: var(--text-muted) !important;
+        padding: 7px 14px;
         border-radius: 8px;
-        font-size: 0.825rem;
+        font-size: 0.8rem;
         cursor: pointer;
         transition: all 0.2s ease;
       }
-      .btn-ghost:hover { background: var(--surface-high); color: var(--text); border-color: rgba(255,255,255,0.2); }
-
-      /* Queue Container */
-      .queue-container { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; min-height: 420px; height: 100%; display: flex; flex-direction: column; }
-      .queue-header {
-        padding: 18px 24px;
-        border-bottom: 1px solid var(--border);
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        background: #161616;
-      }
+      .btn-ghost:hover { background: var(--surface-high) !important; color: var(--text) !important; border-color: rgba(255,255,255,0.2) !important; }
 
       /* Form inputs override */
       input[type="text"], input[type="number"], select {
@@ -183,9 +180,54 @@
         color: #e5e2e1 !important;
       }
 
-      /* Animations */
-      .anim { opacity: 1; transform: translateY(0); }
-      .anim.visible { opacity: 1; transform: translateY(0); }
+      /* Position Pills Grid */
+      .pos-btn {
+        background: #161616;
+        border: 1px solid #353534;
+        color: #a8a6a5;
+        padding: 8px 12px;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+      .pos-btn:hover { color: #fff; border-color: rgba(236, 178, 255, 0.4); background: #222121; }
+      .pos-btn.active {
+        background: linear-gradient(135deg, rgba(189, 0, 255, 0.25) 0%, rgba(116, 0, 159, 0.35) 100%);
+        border-color: #ecb2ff;
+        color: #fff;
+        font-weight: 600;
+        box-shadow: 0 0 12px rgba(236, 178, 255, 0.2);
+      }
+
+      /* Preview Canvas Container */
+      .preview-box {
+        background: #121212;
+        border: 1px solid #353534;
+        border-radius: 12px;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 380px;
+        max-height: 480px;
+      }
+      .checker-bg {
+        background-color: #181818;
+        background-image: linear-gradient(45deg, #222 25%, transparent 25%, transparent 75%, #222 75%), linear-gradient(45deg, #222 25%, transparent 25%, transparent 75%, #222 75%);
+        background-size: 14px 14px;
+        background-position: 0 0, 7px 7px;
+      }
+      #preview-canvas {
+        max-width: 100%;
+        max-height: 440px;
+        object-fit: contain;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        border-radius: 4px;
+      }
     </style>
 </head>
 
@@ -274,95 +316,140 @@
 </nav>
 
 <main class="flex-1 w-full max-w-7xl mx-auto px-6 md:px-10 pt-28 pb-16">
-    <div class="page-header anim">
+    <div class="page-header">
         <h1 class="serif">Watermark.</h1>
-        <p>Stamp PDFs and images with customizable text watermarks locally and securely.</p>
+        <p>Stamp PDFs and images with customizable text watermarks in real-time. Fast, secure, and processed 100% locally.</p>
     </div>
 
-    <div class="two-col anim" style="transition-delay: 0.1s;">
-        <!-- LEFT COLUMN: Upload Zone + Watermark Settings -->
-        <div class="flex flex-col gap-6">
+    <div class="two-col">
+        <!-- LEFT COLUMN: Upload Zone + Watermark Controls -->
+        <div class="flex flex-col gap-5">
+            
             <!-- Upload Drop Zone -->
             <div id="upload-zone">
                 <span class="material-symbols-outlined upload-icon">branding_watermark</span>
                 <h3 style="font-weight: 500; color: #e5e2e1; font-size: 1.15rem; margin-bottom: 6px;">Select PDF or Images</h3>
-                <p style="font-size: 0.875rem; color: #a8a6a5; margin-bottom: 20px;">Drag & drop .pdf, .png, .jpg files here</p>
-                <button id="browse-btn" class="btn-primary" style="padding: 10px 20px; font-size: 0.875rem;">Select Files</button>
+                <p style="font-size: 0.875rem; color: #a8a6a5; margin-bottom: 16px;">Drag & drop .pdf, .png, .jpg files here</p>
+                <button id="browse-btn" class="btn-primary" style="padding: 9px 20px; font-size: 0.85rem;">Select Files</button>
                 <input type="file" id="file-input" multiple accept=".pdf, .jpg, .jpeg, .png, .webp, .bmp" style="display: none;" />
             </div>
 
             <!-- Settings Panel -->
-            <div class="settings-card flex flex-col gap-4">
-                <div class="border-b border-[#353534] pb-3">
-                    <h3 class="text-base font-semibold text-[#e5e2e1] flex items-center gap-2">
-                        <span class="material-symbols-outlined text-[#ecb2ff] text-[20px]">tune</span>
+            <div class="tool-card flex flex-col gap-4">
+                <div class="border-b border-[#353534] pb-3 flex items-center justify-between">
+                    <h3 class="text-sm font-semibold text-[#e5e2e1] flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[#ecb2ff] text-[18px]">tune</span>
                         Watermark Settings
                     </h3>
+                    <span class="text-xs text-[#a8a6a5]">Live updating</span>
                 </div>
 
                 <div class="flex flex-col gap-3.5">
+                    <!-- Text -->
                     <div>
-                        <label class="block text-xs font-medium text-[#a8a6a5] mb-1.5">Watermark Text</label>
+                        <label class="block text-xs font-semibold text-[#a8a6a5] mb-1.5 uppercase tracking-wider">Watermark Text</label>
                         <input type="text" id="watermark-text" value="CONFIDENTIAL" placeholder="e.g. CONFIDENTIAL, DRAFT, SAMPLE">
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                        <div>
-                            <label class="block text-xs font-medium text-[#a8a6a5] mb-1.5">Position</label>
-                            <select id="watermark-position">
-                                <option value="center">Center</option>
-                                <option value="diagonal">Center (Diagonal) [Image Only]</option>
-                                <option value="top-left">Top Left</option>
-                                <option value="top-right">Top Right</option>
-                                <option value="bottom-left">Bottom Left</option>
-                                <option value="bottom-right">Bottom Right</option>
-                            </select>
+                    <!-- Position Selector Grid -->
+                    <div>
+                        <label class="block text-xs font-semibold text-[#a8a6a5] mb-1.5 uppercase tracking-wider">Placement / Position</label>
+                        <div class="grid grid-cols-3 gap-2" id="position-grid">
+                            <button type="button" class="pos-btn" data-pos="top-left">Top Left</button>
+                            <button type="button" class="pos-btn" data-pos="center">Center</button>
+                            <button type="button" class="pos-btn" data-pos="top-right">Top Right</button>
+                            <button type="button" class="pos-btn" data-pos="bottom-left">Bottom Left</button>
+                            <button type="button" class="pos-btn active" data-pos="diagonal">Diagonal</button>
+                            <button type="button" class="pos-btn" data-pos="bottom-right">Bottom Right</button>
                         </div>
-                        <div>
-                            <label class="block text-xs font-medium text-[#a8a6a5] mb-1.5">Font Size / Scale</label>
-                            <input type="number" id="watermark-size" value="100" min="10" max="300">
-                        </div>
+                        <input type="hidden" id="watermark-position" value="diagonal">
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 items-center">
+                    <!-- Font Size & Opacity -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                         <div>
-                            <label class="block text-xs font-medium text-[#a8a6a5] mb-1.5">Text Color</label>
-                            <div class="flex items-center gap-3 bg-[#161616] p-2 border border-[#353534] rounded-lg">
-                                <input type="color" id="watermark-color" value="#ffffff" class="h-7 w-9 bg-transparent border-none cursor-pointer p-0">
-                                <span class="text-[#e5e2e1] text-xs font-mono" id="color-hex">#ffffff</span>
+                            <div class="flex justify-between items-center mb-1.5">
+                                <label class="text-xs font-semibold text-[#a8a6a5] uppercase tracking-wider">Font Size</label>
+                                <span class="text-xs font-mono text-[#ecb2ff]" id="size-val">60px</span>
                             </div>
+                            <input type="range" id="watermark-size" min="16" max="180" value="60" class="w-full accent-[#ecb2ff] cursor-pointer">
                         </div>
                         <div>
                             <div class="flex justify-between items-center mb-1.5">
-                                <label class="text-xs font-medium text-[#a8a6a5]">Opacity</label>
-                                <span class="text-xs font-mono text-[#ecb2ff]" id="opacity-val">0.5</span>
+                                <label class="text-xs font-semibold text-[#a8a6a5] uppercase tracking-wider">Opacity</label>
+                                <span class="text-xs font-mono text-[#ecb2ff]" id="opacity-val">0.45</span>
                             </div>
-                            <input type="range" id="watermark-opacity" min="0.1" max="1.0" step="0.05" value="0.5" class="w-full accent-[#ecb2ff] cursor-pointer">
+                            <input type="range" id="watermark-opacity" min="0.05" max="1.0" step="0.05" value="0.45" class="w-full accent-[#ecb2ff] cursor-pointer">
+                        </div>
+                    </div>
+
+                    <!-- Color Picker -->
+                    <div>
+                        <label class="block text-xs font-semibold text-[#a8a6a5] mb-1.5 uppercase tracking-wider">Color</label>
+                        <div class="flex items-center gap-3 bg-[#161616] p-2 border border-[#353534] rounded-lg">
+                            <input type="color" id="watermark-color" value="#ffffff" class="h-8 w-10 bg-transparent border-none cursor-pointer p-0">
+                            <span class="text-[#e5e2e1] text-xs font-mono flex-1" id="color-hex">#ffffff</span>
+                            <div class="flex gap-1.5">
+                                <button type="button" onclick="setColor('#ffffff')" class="w-5 h-5 rounded bg-white border border-gray-400"></button>
+                                <button type="button" onclick="setColor('#ff3b30')" class="w-5 h-5 rounded bg-[#ff3b30]"></button>
+                                <button type="button" onclick="setColor('#bd00ff')" class="w-5 h-5 rounded bg-[#bd00ff]"></button>
+                                <button type="button" onclick="setColor('#000000')" class="w-5 h-5 rounded bg-black border border-gray-600"></button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- RIGHT COLUMN: Selected Files Queue & Actions -->
-        <div class="queue-container">
-            <div class="queue-header">
-                <div>
-                    <div class="font-semibold text-sm text-[#e5e2e1] flex items-center gap-2">
-                        Files Queue
-                        <span id="queue-counter" class="bg-[#242323] text-[#ecb2ff] text-xs px-2 py-0.5 rounded-full font-mono">0</span>
+        <!-- RIGHT COLUMN: Interactive Live Preview & Queue -->
+        <div class="flex flex-col gap-5">
+            
+            <!-- Live Preview Card -->
+            <div class="tool-card flex flex-col gap-3">
+                <div class="flex items-center justify-between border-b border-[#353534] pb-2.5">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[#ecb2ff] text-[20px]">visibility</span>
+                        <h3 class="text-sm font-semibold text-[#e5e2e1]">Live Watermark Preview</h3>
                     </div>
-                    <div class="text-xs text-[#a8a6a5] mt-0.5">Ready for watermarking</div>
+                    <span id="preview-filename-badge" class="text-xs font-mono bg-[#242323] text-[#ecb2ff] px-2.5 py-1 rounded-full border border-white/5 truncate max-w-[200px]">
+                        Sample Document
+                    </span>
                 </div>
-                <button id="clear-btn" class="btn-ghost">Clear All</button>
+
+                <!-- Canvas Preview Container -->
+                <div class="preview-box checker-bg">
+                    <canvas id="preview-canvas" width="600" height="750"></canvas>
+                </div>
+                
+                <p class="text-[0.75rem] text-[#a8a6a5] text-center">
+                    Preview dynamically adapts to your text, position, opacity, and file content.
+                </p>
             </div>
 
-            <!-- Empty State -->
-                    <div id="empty-state" class="flex-1 flex flex-col items-center justify-center p-12 text-center text-[#a8a6a5]">
-          <span class="material-symbols-outlined text-4xl mb-3 opacity-40 text-[#ecb2ff]">inbox</span>
-          <p class="text-sm font-medium text-[#e5e2e1]">Results will appear here.</p>
-          <p class="text-xs text-[#a8a6a5] mt-1">Uploaded files will be processed and listed here</p>
-        </div>
+            <!-- Queue & Process Actions Card -->
+            <div class="tool-card flex flex-col gap-4">
+                <div class="flex items-center justify-between border-b border-[#353534] pb-2.5">
+                    <div class="font-semibold text-sm text-[#e5e2e1] flex items-center gap-2">
+                        <span>Files Queue</span>
+                        <span id="queue-counter" class="bg-[#242323] text-[#ecb2ff] text-xs px-2 py-0.5 rounded-full font-mono">0</span>
+                    </div>
+                    <button id="clear-btn" class="btn-ghost">Clear All</button>
+                </div>
+
+                <div id="empty-state" class="flex flex-col items-center justify-center p-6 text-center text-[#a8a6a5]">
+                    <span class="material-symbols-outlined text-3xl mb-2 opacity-30 text-[#ecb2ff]">upload_file</span>
+                    <p class="text-xs text-[#a8a6a5]">No files uploaded yet. Select files on the left to apply watermark.</p>
+                </div>
+
+                <ul id="file-list" class="hidden flex flex-col gap-2 max-h-[220px] overflow-y-auto pr-1"></ul>
+
+                <div id="action-footer" class="hidden pt-2 border-t border-[#353534]">
+                    <button id="process-btn" class="btn-primary w-full justify-center">
+                        <span class="material-symbols-outlined text-[20px]">branding_watermark</span>
+                        <span>Apply Watermark &amp; Download</span>
+                    </button>
+                </div>
+            </div>
 
         </div>
     </div>
@@ -383,6 +470,10 @@
 </footer>
 
 <script>
+    if (typeof pdfjsLib !== 'undefined') {
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    }
+
     const uploadZone = document.getElementById('upload-zone');
     const fileInput = document.getElementById('file-input');
     const browseBtn = document.getElementById('browse-btn');
@@ -393,20 +484,196 @@
     const processBtn = document.getElementById('process-btn');
     const actionFooter = document.getElementById('action-footer');
     
+    const textInput = document.getElementById('watermark-text');
+    const posInput = document.getElementById('watermark-position');
+    const sizeInput = document.getElementById('watermark-size');
+    const sizeVal = document.getElementById('size-val');
     const colorInput = document.getElementById('watermark-color');
     const colorHex = document.getElementById('color-hex');
     const opacityInput = document.getElementById('watermark-opacity');
     const opacityVal = document.getElementById('opacity-val');
+    
+    const previewCanvas = document.getElementById('preview-canvas');
+    const previewCtx = previewCanvas.getContext('2d');
+    const previewBadge = document.getElementById('preview-filename-badge');
 
     let selectedFiles = [];
+    let currentPreviewSource = null; // Image or Canvas
+    let previewIndex = 0;
 
-    colorInput.addEventListener('input', (e) => colorHex.textContent = e.target.value);
-    opacityInput.addEventListener('input', (e) => opacityVal.textContent = e.target.value);
+    // Position pills
+    document.querySelectorAll('.pos-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.pos-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            posInput.value = btn.dataset.pos;
+            renderWatermarkPreview();
+        });
+    });
+
+    window.setColor = function(hex) {
+        colorInput.value = hex;
+        colorHex.textContent = hex;
+        renderWatermarkPreview();
+    };
+
+    colorInput.addEventListener('input', (e) => {
+        colorHex.textContent = e.target.value;
+        renderWatermarkPreview();
+    });
+
+    opacityInput.addEventListener('input', (e) => {
+        opacityVal.textContent = e.target.value;
+        renderWatermarkPreview();
+    });
+
+    sizeInput.addEventListener('input', (e) => {
+        sizeVal.textContent = e.target.value + 'px';
+        renderWatermarkPreview();
+    });
+
+    textInput.addEventListener('input', () => renderWatermarkPreview());
 
     function formatBytes(bytes) {
       if (bytes === 0) return '0 B';
       const k = 1024, sizes = ['B', 'KB', 'MB', 'GB'], i = Math.floor(Math.log(bytes) / Math.log(k));
       return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+    }
+
+    // Default Sample Document Generator
+    function createSampleDocument() {
+        const offCanvas = document.createElement('canvas');
+        offCanvas.width = 600;
+        offCanvas.height = 750;
+        const ctx = offCanvas.getContext('2d');
+
+        // Document background
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, 600, 750);
+
+        // Header bar
+        ctx.fillStyle = '#f0f0f4';
+        ctx.fillRect(40, 40, 520, 45);
+        ctx.fillStyle = '#2b2b2b';
+        ctx.font = 'bold 16px sans-serif';
+        ctx.fillText('COMPANY PROPOSAL DOCUMENT', 55, 68);
+
+        // Simulated text lines
+        ctx.fillStyle = '#cccccc';
+        for (let y = 120; y < 660; y += 22) {
+            const lineWidth = y % 60 === 0 ? 340 : (y % 40 === 0 ? 460 : 510);
+            ctx.fillRect(45, y, lineWidth, 10);
+        }
+
+        // Signature box
+        ctx.strokeStyle = '#dddddd';
+        ctx.strokeRect(360, 620, 195, 70);
+        ctx.fillStyle = '#999999';
+        ctx.font = '12px sans-serif';
+        ctx.fillText('Authorized Signature', 375, 680);
+
+        return offCanvas;
+    }
+
+    currentPreviewSource = createSampleDocument();
+    renderWatermarkPreview();
+
+    function renderWatermarkPreview() {
+        if (!currentPreviewSource) return;
+
+        const w = currentPreviewSource.width || 600;
+        const h = currentPreviewSource.height || 750;
+
+        previewCanvas.width = w;
+        previewCanvas.height = h;
+
+        // Draw base file/document
+        previewCtx.clearRect(0, 0, w, h);
+        previewCtx.drawImage(currentPreviewSource, 0, 0, w, h);
+
+        // Draw Watermark
+        const text = textInput.value || 'CONFIDENTIAL';
+        const pos = posInput.value || 'center';
+        const color = colorInput.value || '#ffffff';
+        const opacity = parseFloat(opacityInput.value) || 0.5;
+        const userSize = parseInt(sizeInput.value) || 60;
+
+        // Scale font proportionally to canvas width
+        const scaleFactor = w / 600;
+        const fontSize = Math.round(userSize * scaleFactor);
+
+        previewCtx.save();
+        previewCtx.globalAlpha = opacity;
+        previewCtx.fillStyle = color;
+        previewCtx.font = `bold ${fontSize}px sans-serif`;
+
+        const margin = Math.round(40 * scaleFactor);
+
+        if (pos === 'diagonal') {
+            previewCtx.translate(w / 2, h / 2);
+            previewCtx.rotate(-45 * Math.PI / 180);
+            previewCtx.textAlign = 'center';
+            previewCtx.textBaseline = 'middle';
+            previewCtx.fillText(text, 0, 0);
+        } else if (pos === 'top-left') {
+            previewCtx.textAlign = 'left';
+            previewCtx.textBaseline = 'top';
+            previewCtx.fillText(text, margin, margin);
+        } else if (pos === 'top-right') {
+            previewCtx.textAlign = 'right';
+            previewCtx.textBaseline = 'top';
+            previewCtx.fillText(text, w - margin, margin);
+        } else if (pos === 'bottom-left') {
+            previewCtx.textAlign = 'left';
+            previewCtx.textBaseline = 'bottom';
+            previewCtx.fillText(text, margin, h - margin);
+        } else if (pos === 'bottom-right') {
+            previewCtx.textAlign = 'right';
+            previewCtx.textBaseline = 'bottom';
+            previewCtx.fillText(text, w - margin, h - margin);
+        } else { // center
+            previewCtx.textAlign = 'center';
+            previewCtx.textBaseline = 'middle';
+            previewCtx.fillText(text, w / 2, h / 2);
+        }
+
+        previewCtx.restore();
+    }
+
+    async function loadFilePreview(file) {
+        if (!file) return;
+        previewBadge.textContent = file.name;
+
+        const isPdf = file.name.toLowerCase().endsWith('.pdf');
+        if (isPdf && typeof pdfjsLib !== 'undefined') {
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                const page = await pdf.getPage(1);
+                const viewport = page.getViewport({ scale: 1.5 });
+                
+                const offCanvas = document.createElement('canvas');
+                offCanvas.width = viewport.width;
+                offCanvas.height = viewport.height;
+                const offCtx = offCanvas.getContext('2d');
+                
+                await page.render({ canvasContext: offCtx, viewport }).promise;
+                currentPreviewSource = offCanvas;
+                renderWatermarkPreview();
+            } catch (err) {
+                console.warn('PDF render error:', err);
+                currentPreviewSource = createSampleDocument();
+                renderWatermarkPreview();
+            }
+        } else if (file.type.startsWith('image/')) {
+            const img = new Image();
+            const url = URL.createObjectURL(file);
+            img.onload = () => {
+                currentPreviewSource = img;
+                renderWatermarkPreview();
+            };
+            img.src = url;
+        }
     }
 
     function renderFileList() {
@@ -415,6 +682,9 @@
         fileList.classList.add('hidden');
         actionFooter.classList.add('hidden');
         queueCounter.textContent = '0';
+        previewBadge.textContent = 'Sample Document';
+        currentPreviewSource = createSampleDocument();
+        renderWatermarkPreview();
         return;
       }
       emptyState.classList.add('hidden');
@@ -425,32 +695,48 @@
       
       selectedFiles.forEach((file, index) => {
         const li = document.createElement('li');
-        li.className = "flex justify-between items-center bg-[#201f1f] border border-[#353534] rounded-lg p-3 hover:border-[#514255] transition-colors";
+        const isActive = index === previewIndex;
+        li.className = `flex justify-between items-center bg-[#201f1f] border ${isActive ? 'border-[#ecb2ff]' : 'border-[#353534]'} rounded-lg p-2.5 hover:border-[#ecb2ff]/60 transition-colors cursor-pointer`;
         
         let iconName = file.name.toLowerCase().endsWith('.pdf') ? 'picture_as_pdf' : 'image';
         
         li.innerHTML = `
-          <div class="flex items-center gap-3 overflow-hidden">
-            <div class="w-9 h-9 rounded-lg bg-[#161616] border border-[#353534] flex items-center justify-center flex-shrink-0">
-                <span class="material-symbols-outlined text-[#ecb2ff] text-[20px]">${iconName}</span>
+          <div class="flex items-center gap-2.5 overflow-hidden flex-1" onclick="selectPreviewFile(${index})">
+            <div class="w-8 h-8 rounded bg-[#161616] border border-[#353534] flex items-center justify-center flex-shrink-0">
+                <span class="material-symbols-outlined text-[#ecb2ff] text-[18px]">${iconName}</span>
             </div>
             <div class="flex flex-col truncate">
-              <span class="text-[#e5e2e1] text-sm font-medium truncate">${file.name}</span>
-              <span class="text-[#a8a6a5] text-xs">${formatBytes(file.size)}</span>
+              <span class="text-[#e5e2e1] text-xs font-medium truncate">${file.name}</span>
+              <span class="text-[#a8a6a5] text-[10px]">${formatBytes(file.size)}</span>
             </div>
           </div>
-          <button class="text-[#a8a6a5] hover:text-[#ffb4ab] transition-colors p-1.5 rounded hover:bg-white/5" onclick="removeFile(${index})" title="Remove file">
-            <span class="material-symbols-outlined text-[18px]">close</span>
-          </button>
+          <div class="flex items-center gap-1">
+            <button class="text-xs px-2 py-1 bg-white/5 hover:bg-white/10 text-[#ecb2ff] rounded text-[10px] font-mono" onclick="selectPreviewFile(${index})">Preview</button>
+            <button class="text-[#a8a6a5] hover:text-[#ffb4ab] p-1 rounded hover:bg-white/5" onclick="removeFile(${index})" title="Remove">
+                <span class="material-symbols-outlined text-[16px]">close</span>
+            </button>
+          </div>
         `;
         fileList.appendChild(li);
       });
     }
 
+    window.selectPreviewFile = function(index) {
+        if (selectedFiles[index]) {
+            previewIndex = index;
+            loadFilePreview(selectedFiles[index]);
+            renderFileList();
+        }
+    };
+
     window.removeFile = function(index) {
       selectedFiles.splice(index, 1);
+      if (previewIndex >= selectedFiles.length) previewIndex = 0;
+      if (selectedFiles.length > 0) {
+          loadFilePreview(selectedFiles[previewIndex]);
+      }
       renderFileList();
-    }
+    };
 
     function handleFiles(files) {
       if (!files || files.length === 0) return;
@@ -463,6 +749,8 @@
         return;
       }
       selectedFiles = [...selectedFiles, ...validFiles];
+      previewIndex = selectedFiles.length - validFiles.length; // Focus newly added
+      loadFilePreview(selectedFiles[previewIndex]);
       renderFileList();
     }
 
@@ -487,6 +775,7 @@
 
     clearBtn.addEventListener('click', () => {
       selectedFiles = [];
+      previewIndex = 0;
       renderFileList();
     });
 
@@ -501,15 +790,15 @@
 
       processBtn.disabled = true;
       const originalHtml = processBtn.innerHTML;
-      processBtn.innerHTML = `<span class="material-symbols-outlined text-[20px] animate-spin">progress_activity</span><span>Applying Watermark...</span>`;
+      processBtn.innerHTML = `<span class="material-symbols-outlined text-[20px] spinning">autorenew</span><span>Applying Watermark...</span>`;
 
       const formData = new FormData();
       selectedFiles.forEach(f => formData.append('files', f));
       formData.append('watermark_text', text);
-      formData.append('color', document.getElementById('watermark-color').value);
-      formData.append('opacity', document.getElementById('watermark-opacity').value);
-      formData.append('position', document.getElementById('watermark-position').value);
-      formData.append('size', document.getElementById('watermark-size').value);
+      formData.append('color', colorInput.value);
+      formData.append('opacity', opacityInput.value);
+      formData.append('position', posInput.value);
+      formData.append('size', sizeInput.value);
 
       try {
         const response = await fetch('/api/watermark', {
@@ -542,8 +831,6 @@
         processBtn.innerHTML = originalHtml;
       }
     });
-    
-    setTimeout(() => document.querySelectorAll('.anim').forEach(el => el.classList.add('visible')), 50);
 </script>
 </body>
 </html>

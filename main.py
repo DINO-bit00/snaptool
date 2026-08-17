@@ -809,23 +809,32 @@ async def apply_watermark(
                         # Give it plenty of height so it never drops the text due to font metrics
                         box_h = font_size * 3
                         
-                        if position == "top-left":
-                            box_rect = pymupdf.Rect(margin, margin, rect.width - margin, margin + box_h)
-                            align = 0 # left
-                        elif position == "top-right":
-                            box_rect = pymupdf.Rect(margin, margin, rect.width - margin, margin + box_h)
-                            align = 2 # right
-                        elif position == "bottom-left":
-                            box_rect = pymupdf.Rect(margin, rect.height - margin - box_h, rect.width - margin, rect.height - margin)
-                            align = 0
-                        elif position == "bottom-right":
-                            box_rect = pymupdf.Rect(margin, rect.height - margin - box_h, rect.width - margin, rect.height - margin)
-                            align = 2
-                        else: # center
-                            box_rect = pymupdf.Rect(margin, (rect.height - box_h)/2, rect.width - margin, (rect.height + box_h)/2)
-                            align = 1 # center
-                            
-                        page.insert_textbox(box_rect, watermark_text, fontsize=font_size, color=fitz_color, fill_opacity=fill_opacity, align=align)
+                        if position == "diagonal":
+                            tw = pymupdf.get_text_length(watermark_text, fontsize=font_size)
+                            cx = (rect.width - tw) / 2
+                            cy = rect.height / 2
+                            point = pymupdf.Point(cx, cy)
+                            center_pt = pymupdf.Point(rect.width / 2, rect.height / 2)
+                            mat = pymupdf.Matrix(-45)
+                            page.insert_text(point, watermark_text, fontsize=font_size, color=fitz_color, fill_opacity=fill_opacity, morph=(center_pt, mat))
+                        else:
+                            if position == "top-left":
+                                box_rect = pymupdf.Rect(margin, margin, rect.width - margin, margin + box_h)
+                                align = 0 # left
+                            elif position == "top-right":
+                                box_rect = pymupdf.Rect(margin, margin, rect.width - margin, margin + box_h)
+                                align = 2 # right
+                            elif position == "bottom-left":
+                                box_rect = pymupdf.Rect(margin, rect.height - margin - box_h, rect.width - margin, rect.height - margin)
+                                align = 0
+                            elif position == "bottom-right":
+                                box_rect = pymupdf.Rect(margin, rect.height - margin - box_h, rect.width - margin, rect.height - margin)
+                                align = 2
+                            else: # center
+                                box_rect = pymupdf.Rect(margin, (rect.height - box_h)/2, rect.width - margin, (rect.height + box_h)/2)
+                                align = 1 # center
+                                
+                            page.insert_textbox(box_rect, watermark_text, fontsize=font_size, color=fitz_color, fill_opacity=fill_opacity, align=align)
                         
                     doc.save(tmp_out, garbage=4, deflate=True)
                     doc.close()
