@@ -152,7 +152,20 @@
     .anim { opacity: 0; transform: translateY(12px); transition: opacity 0.5s ease-out, transform 0.5s ease-out; }
     .anim.visible { opacity: 1; transform: translateY(0); }
     </style>
+
+    <style>
+      /* Force dark theme on inputs/selects to override Tailwind forms plugin */
+      input[type="text"], input[type="number"], input[type="password"], select {
+        background-color: #1c1b1b !important;
+        color: #f0f0f4 !important;
+      }
+      select option {
+        background-color: #1c1b1b !important;
+        color: #f0f0f4 !important;
+      }
+    </style>
 </head>
+
 <body class="bg-background text-on-background min-h-screen flex flex-col antialiased dark">
 
 <nav class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl border-b border-white/10 shadow-sm">
