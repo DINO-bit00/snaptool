@@ -503,6 +503,9 @@
       if (selectedFiles.length === 0) {
         fileList.classList.add('hidden');
         actionArea.classList.add('hidden');
+        document.getElementById('preview-area').classList.add('hidden');
+        document.getElementById('pdf-preview').src = '';
+        fileInput.value = '';
         return;
       }
       
