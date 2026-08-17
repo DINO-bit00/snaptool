@@ -743,9 +743,165 @@ async def pdf_to_img_page():
 async def protect_pdf_page():
     return FileResponse("static/protect-pdf.html")
 
+
+@app.get("/watermark", response_class=HTMLResponse)
+async def watermark_page():
+    return FileResponse("static/watermark.html")
+
 @app.get("/smart-crop", response_class=HTMLResponse)
 async def smart_crop_page():
     return FileResponse("static/smart-crop.html")
+
+
+# ─────────────────────────────────────────────
+#  API: Watermark PDF & Image
+# ─────────────────────────────────────────────
+@app.post("/api/watermark")
+async def apply_watermark(
+    files: List[UploadFile] = File(...),
+    watermark_text: str = Form(...),
+    color: str = Form("#ffffff"),
+    opacity: float = Form(0.5),
+    position: str = Form("center"),  # center, top-left, top-right, bottom-left, bottom-right
+    size: float = Form(50.0)
+):
+    if not files:
+        raise HTTPException(400, "No files provided.")
+
+    output_paths = []
+    input_paths = []
+    zip_path = get_temp_path(".zip")
+    
+    try:
+        def hex_to_rgb(hex_color):
+            hex_color = hex_color.lstrip('#')
+            if len(hex_color) == 6:
+                return tuple(int(hex_color[i:i+2], 16) for i in (0, 2, 4))
+            return (255, 255, 255)
+            
+        rgb = hex_to_rgb(color)
+        alpha = int(max(0.0, min(1.0, opacity)) * 255)
+
+        for f in files:
+            ext = (Path(f.filename).suffix or "").lower()
+            tmp_in = get_temp_path(ext)
+            input_paths.append(tmp_in)
+            
+            with open(tmp_in, "wb") as out:
+                shutil.copyfileobj(f.file, out)
+                
+            tmp_out = get_temp_path(ext)
+            output_paths.append((tmp_out, f.filename))
+            
+            if ext == '.pdf':
+                def _process_pdf():
+                    import pymupdf
+                    doc = pymupdf.open(tmp_in)
+                    fitz_color = (rgb[0]/255, rgb[1]/255, rgb[2]/255)
+                    fill_opacity = max(0.0, min(1.0, opacity))
+                    
+                    for page in doc:
+                        rect = page.rect
+                        font_size = size
+                        
+                        # Approximate text width and height
+                        margin = 30
+                        # Give it plenty of height so it never drops the text due to font metrics
+                        box_h = font_size * 3
+                        
+                        if position == "top-left":
+                            box_rect = pymupdf.Rect(margin, margin, rect.width - margin, margin + box_h)
+                            align = 0 # left
+                        elif position == "top-right":
+                            box_rect = pymupdf.Rect(margin, margin, rect.width - margin, margin + box_h)
+                            align = 2 # right
+                        elif position == "bottom-left":
+                            box_rect = pymupdf.Rect(margin, rect.height - margin - box_h, rect.width - margin, rect.height - margin)
+                            align = 0
+                        elif position == "bottom-right":
+                            box_rect = pymupdf.Rect(margin, rect.height - margin - box_h, rect.width - margin, rect.height - margin)
+                            align = 2
+                        else: # center
+                            box_rect = pymupdf.Rect(margin, (rect.height - box_h)/2, rect.width - margin, (rect.height + box_h)/2)
+                            align = 1 # center
+                            
+                        page.insert_textbox(box_rect, watermark_text, fontsize=font_size, color=fitz_color, fill_opacity=fill_opacity, align=align)
+                        
+                    doc.save(tmp_out, garbage=4, deflate=True)
+                    doc.close()
+                    
+                await asyncio.get_event_loop().run_in_executor(None, _process_pdf)
+                
+            elif ext in ['.jpg', '.jpeg', '.png', '.webp', '.bmp']:
+                def _process_img():
+                    from PIL import Image as PILImage, ImageDraw, ImageFont
+                    img = PILImage.open(tmp_in).convert("RGBA")
+                    txt_layer = PILImage.new("RGBA", img.size, (255, 255, 255, 0))
+                    draw = ImageDraw.Draw(txt_layer)
+                    
+                    # Try to use a default font, fallback to load_default()
+                    try:
+                        # Windows default arial
+                        font = ImageFont.truetype("arial.ttf", int(size))
+                    except:
+                        try:
+                            # Linux default
+                            font = ImageFont.truetype("DejaVuSans.ttf", int(size))
+                        except:
+                            font = ImageFont.load_default()
+                    
+                    # textbbox for Pillow >= 8.0
+                    try:
+                        bbox = draw.textbbox((0, 0), watermark_text, font=font)
+                        tw = bbox[2] - bbox[0]
+                        th = bbox[3] - bbox[1]
+                    except AttributeError:
+                        tw, th = draw.textsize(watermark_text, font=font)
+                        
+                    margin = 30
+                    if position == "top-left":
+                        pos = (margin, margin)
+                    elif position == "top-right":
+                        pos = (img.width - tw - margin, margin)
+                    elif position == "bottom-left":
+                        pos = (margin, img.height - th - margin)
+                    elif position == "bottom-right":
+                        pos = (img.width - tw - margin, img.height - th - margin)
+                    else: # center
+                        pos = ((img.width - tw) // 2, (img.height - th) // 2)
+                        
+                    draw.text(pos, watermark_text, fill=rgb + (alpha,), font=font)
+                    
+                    out_img = PILImage.alpha_composite(img, txt_layer)
+                    
+                    if ext in ['.jpg', '.jpeg']:
+                        out_img = out_img.convert("RGB")
+                        out_img.save(tmp_out, format="JPEG", quality=95)
+                    else:
+                        out_img.save(tmp_out)
+                        
+                await asyncio.get_event_loop().run_in_executor(None, _process_img)
+            else:
+                raise HTTPException(400, f"Unsupported file type: {ext}")
+                
+        if len(output_paths) == 1:
+            return FileResponse(output_paths[0][0], filename="watermarked_" + output_paths[0][1])
+        else:
+            with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zf:
+                for out_path, orig_name in output_paths:
+                    zf.write(out_path, arcname="watermarked_" + orig_name)
+            return FileResponse(zip_path, media_type="application/zip", filename="watermarked_files.zip")
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        cleanup(zip_path)
+        for out, _ in output_paths:
+            cleanup(out)
+        raise HTTPException(500, f"Watermarking failed: {str(e)}")
+    finally:
+        for p in input_paths:
+            cleanup(p)
 
 @app.post("/api/smart-crop")
 async def smart_crop(
