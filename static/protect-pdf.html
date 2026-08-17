@@ -26,17 +26,6 @@
                 -webkit-font-smoothing: antialiased;
             }
         }
-    
-      
-
-          #file-list {
-        flex: 1;
-        overflow-y: auto;
-        width: 100%;
-        margin: 0;
-        padding: 0;
-        list-style: none;
-      }
     </style>
     
     <script id="tailwind-config">
@@ -68,17 +57,6 @@
     </script>
     
     <style>
-      #empty-state {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: 48px 24px;
-        text-align: center;
-        color: #a8a6a5;
-        flex: 1;
-      }
-
       :root {
         --bg: #131313;
         --surface: #1c1b1b;
@@ -95,20 +73,20 @@
       /* Page Header */
       .page-header { margin-bottom: 36px; }
       .page-header h1 {
-        font-family: 'Libre Caslon Text', serif;
-        font-size: clamp(2.25rem, 4vw, 3.25rem);
-        color: #ecb2ff;
-        margin-bottom: 12px;
-        font-weight: 500;
-        line-height: 1.15;
-        letter-spacing: -0.01em;
-        text-shadow: 0 0 30px rgba(236, 178, 255, 0.25);
+        font-family: 'Libre Caslon Text', serif !important;
+        font-size: clamp(2.25rem, 4vw, 3.25rem) !important;
+        color: #ecb2ff !important;
+        margin-bottom: 12px !important;
+        font-weight: 500 !important;
+        line-height: 1.15 !important;
+        letter-spacing: -0.01em !important;
+        text-shadow: 0 0 30px rgba(236, 178, 255, 0.25) !important;
       }
       .page-header p {
-        font-size: 1.05rem;
-        color: var(--text-muted);
-        max-width: 58ch;
-        line-height: 1.6;
+        font-size: 1.05rem !important;
+        color: var(--text-muted) !important;
+        max-width: 58ch !important;
+        line-height: 1.6 !important;
       }
 
       /* Tabs */
@@ -140,16 +118,29 @@
       .tool-card {
         background: var(--surface);
         border: 1px solid var(--border);
-        border-radius: 14px;
+        border-radius: 16px;
         padding: 32px;
       }
 
       /* Upload Zone */
-      #upload-zone { background: var(--surface); border: 1.5px dashed var(--border); border-radius: 16px; padding: 40px 28px; text-align: center; cursor: pointer; transition: all 0.2s ease; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 420px; height: 100%; } #upload-zone:hover, #upload-zone.drag-over { background: #222121; border-color: #ecb2ff; box-shadow: 0 0 25px rgba(236, 178, 255, 0.12); }
+      #upload-zone {
+        background: #161616;
+        border: 1.5px dashed var(--border);
+        border-radius: 14px;
+        padding: 48px 32px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 240px;
+      }
       #upload-zone:hover, #upload-zone.drag-over {
         background: #201f1f;
         border-color: #ecb2ff;
-        box-shadow: 0 0 25px rgba(236, 178, 255, 0.1);
+        box-shadow: 0 0 25px rgba(236, 178, 255, 0.12);
       }
       .upload-icon { margin-bottom: 16px; color: #ecb2ff; font-size: 40px !important; }
 
@@ -159,35 +150,35 @@
         align-items: center;
         justify-content: center;
         gap: 8px;
-        background: linear-gradient(135deg, #bd00ff 0%, #74009f 100%);
-        color: #fff;
+        background: linear-gradient(135deg, #bd00ff 0%, #74009f 100%) !important;
+        color: #fff !important;
         padding: 12px 24px;
-        border-radius: 8px;
+        border-radius: 10px;
         font-size: 0.9rem;
         font-weight: 600;
-        border: none;
+        border: none !important;
         cursor: pointer;
         transition: all 0.2s ease;
         box-shadow: 0 0 15px rgba(189, 0, 255, 0.35);
       }
       .btn-primary:hover:not(:disabled) {
-        background: linear-gradient(135deg, #d338ff 0%, #8e00c4 100%);
+        background: linear-gradient(135deg, #d338ff 0%, #8e00c4 100%) !important;
         box-shadow: 0 0 22px rgba(189, 0, 255, 0.55);
         transform: translateY(-1px);
       }
       .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
       
       .btn-ghost {
-        background: transparent;
-        border: 1px solid var(--border);
-        color: var(--text-muted);
+        background: transparent !important;
+        border: 1px solid var(--border) !important;
+        color: var(--text-muted) !important;
         padding: 12px 20px;
-        border-radius: 8px;
+        border-radius: 10px;
         font-size: 0.875rem;
         cursor: pointer;
         transition: all 0.2s ease;
       }
-      .btn-ghost:hover { background: #242323; color: var(--text); border-color: rgba(255,255,255,0.2); }
+      .btn-ghost:hover { background: #242323 !important; color: var(--text) !important; border-color: rgba(255,255,255,0.2) !important; }
 
       /* Form inputs override */
       input[type="password"], input[type="text"] {
@@ -208,9 +199,9 @@
 
       /* Animations */
       .anim { opacity: 1; transform: translateY(0); }
-      .anim.visible { opacity: 1; transform: translateY(0); }
       @keyframes spin { 100% { transform: rotate(360deg); } }
       .spinning { animation: spin 1s linear infinite; }
+      .hidden { display: none !important; }
     </style>
 </head>
 
@@ -333,12 +324,12 @@
 
       <!-- Actions -->
       <div class="flex items-center gap-3 pt-2">
-        <button class="btn-primary flex-1 justify-center" id="process-btn" disabled>
+        <button class="btn-primary flex-1 justify-center gap-2" id="process-btn" disabled>
           <span class="material-symbols-outlined text-[20px]" id="process-icon">lock</span>
+          <span class="material-symbols-outlined spinning text-[20px]" id="spinner" style="display:none;">autorenew</span>
           <span id="process-label">Lock PDF</span>
         </button>
         <button class="btn-ghost" id="clear-btn">Clear</button>
-        <span class="material-symbols-outlined spinning hidden text-[#ecb2ff]" id="spinner" style="font-size:24px;">autorenew</span>
       </div>
 
       <!-- Result notice -->
@@ -466,7 +457,8 @@
     }
 
     processBtn.disabled = true;
-    spinner.classList.remove('hidden');
+    spinner.style.display = 'inline-block';
+    processIcon.style.display = 'none';
     resultNotice.classList.add('hidden');
 
     const formData = new FormData();
@@ -503,11 +495,10 @@
       alert('Error: ' + e.message);
     } finally {
       processBtn.disabled = false;
-      spinner.classList.add('hidden');
+      spinner.style.display = 'none';
+      processIcon.style.display = 'inline-block';
     }
   });
-
-  setTimeout(() => document.querySelectorAll('.anim').forEach(el => el.classList.add('visible')), 50);
 </script>
 </body>
 </html>

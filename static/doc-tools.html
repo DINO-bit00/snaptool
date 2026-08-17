@@ -37,6 +37,7 @@
         padding: 0;
         list-style: none;
       }
+          .hidden { display: none !important; }
     </style>
     
     <script id="tailwind-config">
@@ -415,9 +416,9 @@
         <!-- Actions -->
         <div id="action-area" class="hidden flex items-center justify-between border-t border-[#353534] pt-6 mt-6">
             <button id="clear-btn" class="btn-ghost">Clear All</button>
-            <button id="process-btn" class="btn-primary">
-                <span>Process Files</span>
-                <span class="material-symbols-outlined spinner hidden text-[18px]" id="spinner">autorenew</span>
+            <button id="process-btn" class="btn-primary gap-2">
+                <span id="process-text">Process Files</span>
+                <span class="material-symbols-outlined spinner text-[18px]" id="spinner" style="display:none;">autorenew</span>
             </button>
         </div>
     </div>
@@ -681,7 +682,7 @@
       }
 
       processBtn.disabled = true;
-      spinner.classList.remove('hidden');
+      spinner.style.display = 'inline-block';
 
       const formData = new FormData();
       if (isMerge) {
@@ -728,7 +729,7 @@
         alert(e.message);
       } finally {
         processBtn.disabled = false;
-        spinner.classList.add('hidden');
+        spinner.style.display = 'none';
       }
     });
     
